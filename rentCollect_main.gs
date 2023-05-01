@@ -1,17 +1,18 @@
 /////////////////////////////////////////
 // Golbal Var
 /////////////////////////////////////////
-const SheetHandle         = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY
-const SheetImportName     = SheetHandle.getSheetByName('Import');
-const SheetBankRecordName = SheetHandle.getSheetByName('BankRecord');
-const SheetContractName   = SheetHandle.getSheetByName('Contract');
-const SheetTenantName     = SheetHandle.getSheetByName('Tenant');
-const SheetUtilBillName   = SheetHandle.getSheetByName('UtilBill');
-const SheetMiscCostName   = SheetHandle.getSheetByName('MiscCost');
-const SheetPropertyName   = SheetHandle.getSheetByName('Property');
-const SheetRptStatusName  = SheetHandle.getSheetByName('RptStatus');
-const SheetRptEventName   = SheetHandle.getSheetByName('RptEvent');
-const SheetREADMEName     = SheetHandle.getSheetByName('README');
+const SheetHandle           = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY
+const SheetImportName       = SheetHandle.getSheetByName('Import');
+const SheetBankRecordName   = SheetHandle.getSheetByName('BankRecord');
+const SheetBankRecordBKName = SheetHandle.getSheetByName('BankRecordBK');
+const SheetContractName     = SheetHandle.getSheetByName('Contract');
+const SheetTenantName       = SheetHandle.getSheetByName('Tenant');
+const SheetUtilBillName     = SheetHandle.getSheetByName('UtilBill');
+const SheetMiscCostName     = SheetHandle.getSheetByName('MiscCost');
+const SheetPropertyName     = SheetHandle.getSheetByName('Property');
+const SheetRptStatusName    = SheetHandle.getSheetByName('RptStatus');
+const SheetRptEventName     = SheetHandle.getSheetByName('RptEvent');
+const SheetREADMEName       = SheetHandle.getSheetByName('README');
 
 const CONST_This_Account_Number = "000014853**1373*"; // The self account number shown in the Deposit Apply Record
 
@@ -19,10 +20,10 @@ const CONST_This_Account_Number = "000014853**1373*"; // The self account number
 function rentCollect_main() {
   Logger.log("This rentCollect_main");
   
-  // rentCollect_import();
-  rentCollect_parser();
-  rentCollect_contract();
-  rentCollect_report();
+  rentCollect_import();
+  // rentCollect_parser();
+  // rentCollect_contract();
+  // rentCollect_report();
 
   //
   rentCollect_debug_print();
