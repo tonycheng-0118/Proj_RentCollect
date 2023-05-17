@@ -1,7 +1,3 @@
-const CONST_TODAY_DATE = new Date();
-const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-
-
 function rentCollect_contract() {
   /////////////////////////////////////////
   // README

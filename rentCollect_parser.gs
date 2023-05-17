@@ -507,7 +507,7 @@ function rentCollect_parser_chkDuplicated() {
   for (i=0;i<GLB_BankRecord_arr.length-1;i++){ // less likely duplicated, check for assurance
     for (j=i+1;j<GLB_BankRecord_arr.length;j++){
       var a = new itemBankRecord(GLB_BankRecord_arr[i]);
-      if (a.compare(GLB_BankRecord_arr[j])) {var errMsg = `[rentCollect_parser_chkDuplicated] BankRecord: ${GLB_BankRecord_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+      if (a.compare(GLB_BankRecord_arr[j])) {var errMsg = `[rentCollect_parser_chkDuplicated] BankRecord:[${i}]: ${GLB_BankRecord_arr[i]}, BankRecord:[${j}]: ${GLB_BankRecord_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
     }
   }
 

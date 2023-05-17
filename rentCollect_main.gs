@@ -1,7 +1,13 @@
 /////////////////////////////////////////
 // Golbal Var
 /////////////////////////////////////////
-const SheetHandle           = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY
+// Release vs Verify
+// const CONST_TODAY_DATE = new Date(); 
+// const SheetHandle      = SpreadsheetApp.openById("1mfZNNZLIzVbhaUwr88iEe8XUWP0qnHdmF8x2eVpXfVY"); // Proj_RentCollect
+const CONST_TODAY_DATE = new Date("Wed May 17 2023 22:46:10 GMT+0800 (Taipei Standard Time)"); // for Proj_RentCollect_VERIFY, it is fixed.
+const SheetHandle      = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY.
+
+// Sheet Name
 const SheetImportName       = SheetHandle.getSheetByName('Import');
 const SheetBankRecordName   = SheetHandle.getSheetByName('BankRecord');
 const SheetBankRecordBKName = SheetHandle.getSheetByName('BankRecordBK');
@@ -14,6 +20,7 @@ const SheetRptStatusName    = SheetHandle.getSheetByName('RptStatus');
 const SheetRptEventName     = SheetHandle.getSheetByName('RptEvent');
 const SheetREADMEName       = SheetHandle.getSheetByName('README');
 
+const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const CONST_This_Account_Number = "000014853**1373*"; // The self account number shown in the Deposit Apply Record
 
 
@@ -21,9 +28,9 @@ function rentCollect_main() {
   Logger.log("This rentCollect_main");
   
   rentCollect_import();
-  // rentCollect_parser();
-  // rentCollect_contract();
-  // rentCollect_report();
+  rentCollect_parser();
+  rentCollect_contract();
+  rentCollect_report();
 
   //
   rentCollect_debug_print();
