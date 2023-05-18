@@ -277,24 +277,25 @@ class itemContract {
     this.toAccount                = item[9];
     this.endContract              = item[10];
     this.note                     = item[11];
-    this.endDate                  = item[12];
+    this.fileLink                 = item[12];
+    this.endDate                  = item[13];
     this.validContract            = null;
     this.rentArear                = null;
     this.dayRest                  = null;
     
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 12;
-    this.ColPos_ValidContract     = 13;
-    this.ColPos_RentArrear        = 14;
-    this.ColPos_DayRest           = 15;
+    this.ColPos_EndDate           = 13;
+    this.ColPos_ValidContract     = 14;
+    this.ColPos_RentArrear        = 15;
+    this.ColPos_DayRest           = 16;
 
     this.itemPack                 = item;
-    this.itemPackMaxLen           = 16;
+    this.itemPackMaxLen           = 17;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.validContract          = item[13];
-      this.rentArear              = item[14];
-      this.dayRest                = item[15];
+      this.validContract          = item[14];
+      this.rentArear              = item[15];
+      this.dayRest                = item[16];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -323,7 +324,7 @@ class itemContract {
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},tenantName=${this.tenantName},tenantAccunt_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},tenantName=${this.tenantName},tenantAccunt_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };
@@ -664,15 +665,18 @@ function rentCollect_parser_Contract() {
     // note
     var note = data[i][10].toString().replace(/[\s|\n|\r|\t]/g,"");
 
+    // fileLink
+    var fileLink = data[i][11].toString().replace(/[\s|\n|\r|\t]/g,"");
+
     // endDate
     var chk_illegal = true;
-    var endDate = data[i][11];
+    var endDate = data[i][12];
     
     if ((typeof(endDate) == `string`) && (endDate.replace(/ /g,'') == '')) chk_illegal = false;
     else if ((typeof(endDate) == `object`)) chk_illegal = false;
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endDate: ${endDate}`; reportErrMsg(errMsg);}
     
-    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,tenantName,tenantAccunt_arr,toAccountName,toAccount,endContract,note,endDate]);
+    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,tenantName,tenantAccunt_arr,toAccountName,toAccount,endContract,note,fileLink,endDate]);
 
     // var item = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`RRR: ${item.show()}`);
