@@ -2,7 +2,7 @@
 // Global Var
 /////////////////////////////////////////
 const CONST_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
-const CONST_actDepositList  = ["現金", "利息", "委代入","現金存款機"]; // A list to collect all of the known deposit action apart from Tranfer
+const CONST_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款"]; // A list to collect all of the known deposit action apart from Tranfer
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();
@@ -276,24 +276,25 @@ class itemContract {
     this.toAccountName            = item[8];
     this.toAccount                = item[9];
     this.endContract              = item[10];
-    this.endDate                  = item[11];
+    this.note                     = item[11];
+    this.endDate                  = item[12];
     this.validContract            = null;
     this.rentArear                = null;
     this.dayRest                  = null;
     
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 11;
-    this.ColPos_ValidContract     = 12;
-    this.ColPos_RentArrear        = 13;
-    this.ColPos_DayRest           = 14;
+    this.ColPos_EndDate           = 12;
+    this.ColPos_ValidContract     = 13;
+    this.ColPos_RentArrear        = 14;
+    this.ColPos_DayRest           = 15;
 
     this.itemPack                 = item;
-    this.itemPackMaxLen           = 15;
+    this.itemPackMaxLen           = 16;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.validContract          = item[12];
-      this.rentArear              = item[13];
-      this.dayRest                = item[14];
+      this.validContract          = item[13];
+      this.rentArear              = item[14];
+      this.dayRest                = item[15];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -322,7 +323,7 @@ class itemContract {
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},tenantName=${this.tenantName},tenantAccunt_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},tenantName=${this.tenantName},tenantAccunt_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };
@@ -373,11 +374,11 @@ function rentCollect_parser_Record() {
     var act = action_mapping(i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
 
     // amount
-    var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(" ","") : data[i][4].toString().replace(" ","");
+    var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
     // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
     // balance
-    var balance = data[i][5].toString().replace(" ","");
+    var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
     // from
@@ -460,7 +461,7 @@ function note_mapping(id, act, note_in) {
     // retrieve fromAccountName
     var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
     var fromAccount = regExp.exec(note_tmp)[0];
-    var fromAccountName = note_tmp.replace(regExp,"").replace("[\s|\n]","").split("\n");
+    var fromAccountName = note_tmp.replace(regExp,"").replace(/[\s|\n|\r|\t]/g,"").split("\n");
 
     return [fromAccountName[0],fromAccount];
   }
@@ -472,7 +473,7 @@ function note_mapping(id, act, note_in) {
 function action_mapping(id, act_in, withdraw, deposit){
   // return TransferOut, TransferIn, Withdraw, Deposit type only
   
-  var act = act_in.replace(" ","").split("\n");
+  var act = act_in.replace(/[\s|\n|\r|\t]/g,"").split("\n");
   var isWithdraw = withdraw!="";
   var isDeposit  = deposit!="";
 
@@ -493,7 +494,7 @@ function action_mapping(id, act_in, withdraw, deposit){
     // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
   }
 
-    if (isDeposit && CONST_actDepositList.indexOf(act[0])!=-1){
+  if (isDeposit && CONST_actDepositList.indexOf(act[0])!=-1){
     return "Deposit"
     // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
   }
@@ -566,7 +567,7 @@ function rentCollect_parser_Tenant() {
       }
     }
 
-    var tenant = data[i][1].toString().replace(" ","");
+    var tenant = data[i][1].toString().replace(/[\s|\n|\r|\t]/g,"");
     all_tenant_arr.push(tenant);
     GLB_Tenant_obj[tenant] = account_arr; // hash table, key=telantName, value=[Account]
   
@@ -627,7 +628,7 @@ function rentCollect_parser_Contract() {
 
     // rentProperty
     chkNotEmptyEntry(data[i][3]);
-    var rentProperty = data[i][3].toString().replace(" ","");
+    var rentProperty = data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // deposit
     chkNotEmptyEntry(data[i][4]);
@@ -639,7 +640,7 @@ function rentCollect_parser_Contract() {
 
     // tenantName
     chkNotEmptyEntry(data[i][6]);
-    var tenantName = data[i][6].toString().replace(" ","");
+    var tenantName = data[i][6].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // tenantAccunt_arr
     if (Object.keys(GLB_Tenant_obj).indexOf(tenantName)==-1) {var errMsg = `[rentCollect_contract] This is not a valid TenantName: ${tenantName}`;reportErrMsg(errMsg);}
@@ -647,28 +648,31 @@ function rentCollect_parser_Contract() {
 
     // toAccountName
     chkNotEmptyEntry(data[i][7])
-    var toAccountName = data[i][7].toString().replace(" ","");
+    var toAccountName = data[i][7].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     // toAccount
     chkValidAccount(data[i][8])
-    var toAccount = data[i][8].toString().replace(" ","");
+    var toAccount = data[i][8].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // endContract
-    var tmp = data[i][9].toString().replace(" ","");
+    var tmp = data[i][9].toString().replace(/[\s|\n|\r|\t]/g,"");
     var endContract;
     if (tmp == "") endContract = false
     else if (tmp == "EndContract") endContract = true
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endContract: ${tmp}`; reportErrMsg(errMsg);}
 
+    // note
+    var note = data[i][10].toString().replace(/[\s|\n|\r|\t]/g,"");
+
     // endDate
     var chk_illegal = true;
-    var endDate = data[i][10];
+    var endDate = data[i][11];
     
     if ((typeof(endDate) == `string`) && (endDate.replace(/ /g,'') == '')) chk_illegal = false;
     else if ((typeof(endDate) == `object`)) chk_illegal = false;
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endDate: ${endDate}`; reportErrMsg(errMsg);}
     
-    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,tenantName,tenantAccunt_arr,toAccountName,toAccount,endContract,endDate]);
+    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,tenantName,tenantAccunt_arr,toAccountName,toAccount,endContract,note,endDate]);
 
     // var item = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`RRR: ${item.show()}`);
@@ -778,7 +782,7 @@ function rentCollect_parser_UtilBill() {
     var amount = data[i][3];
 
     // note
-    var note = data[i][4].toString().replace(" ","");
+    var note = data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     GLB_UtilBill_arr.push([itemNo,date,rentProperty,amount,note]);
     
@@ -821,7 +825,7 @@ function rentCollect_parser_MiscCost() {
     var type = data[i][4];
 
     // note
-    var note = data[i][5].toString().replace(" ","");
+    var note = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     GLB_MiscCost_arr.push([itemNo,date,rentProperty,amount,type,note]);
     
@@ -852,7 +856,7 @@ function rentCollect_parser_Property() {
     var rentProperty = data[i][1];
 
     // note
-    var note = data[i][2].toString().replace(" ","");
+    var note = data[i][2].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     GLB_Property_arr.push([itemNo,rentProperty,note]);
     

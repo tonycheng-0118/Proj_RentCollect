@@ -114,7 +114,7 @@ function rentCollect_contract() {
     endDate = item.endDate;
     // Logger.log(`FFF: ${item.endDate}`);
     if (item.endContract) { // to update the endDate
-      if (endDate.toString().replace(" ","") == "") {
+      if (endDate.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
         if (CONST_TODAY_DATE < item.fromDate) {
           if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} EndContract incorrect`; reportErrMsg(errMsg);}
         }
