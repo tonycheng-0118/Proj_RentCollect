@@ -44,7 +44,7 @@ function rentCollect_contract() {
 
     var expect_misc = 0;
     for (j=0;j<GLB_MiscCost_arr.length;j++) {
-      var misc = new itemUtilBill(GLB_MiscCost_arr[j]);
+      var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
       if ((item.fromDate <= misc.date) && (misc.date < item.toDate) && (misc.rentProperty == item.rentProperty)){
         if (misc.type == misc.MiscType_Charge_Fee)      expect_misc += misc.amount;
         else if (misc.type == misc.MiscType_CashRent)   expect_misc -= misc.amount; // paid by the tenant
