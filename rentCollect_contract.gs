@@ -47,7 +47,7 @@ function rentCollect_contract() {
       var misc = new itemUtilBill(GLB_MiscCost_arr[j]);
       if ((item.fromDate <= misc.date) && (misc.date < item.toDate) && (misc.rentProperty == item.rentProperty)){
         if (misc.type == misc.MiscType_Charge_Fee)      expect_misc += misc.amount;
-        else if (misc.type == misc.MiscType_CashRent)   expect_misc += misc.amount;
+        else if (misc.type == misc.MiscType_CashRent)   expect_misc -= misc.amount; // paid by the tenant
         else if (misc.type == misc.MiscType_Repare_Fee) expect_misc += 0; // expect to be absorbed by preperty owner
         else if (misc.type == misc.MiscType_Refund)     expect_misc -= misc.amount; // return back to tenant
         else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${item.itemNo} is invalid!`; reportErrMsg(errMsg);}
