@@ -2,7 +2,7 @@
 // Global Var
 /////////////////////////////////////////
 const CONST_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
-const CONST_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款",,"委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
+const CONST_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();
