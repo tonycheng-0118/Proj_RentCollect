@@ -336,7 +336,7 @@ function report_event() {
         GLB_RptEvent_arr.push(item.itemPack);
         itemNo += 1;
 
-        j.setMonth(j.getMonth() + 1);
+        j.setMonth(j.getMonth() + contract.period);
 
       }
 

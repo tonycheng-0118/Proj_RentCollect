@@ -31,7 +31,8 @@ function rentCollect_contract() {
     if (CONST_TODAY_DATE >= item.toDate) target_date = item.toDate;
     else target_date = CONST_TODAY_DATE;
     
-    var expect_rent = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) * item.amount; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
+    var expect_rent_count = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) / item.period; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
+    var expect_rent = expect_rent_count * item.amount;
     // Logger.log(`expect_rent=${expect_rent}, item.fromDate.getDate()=${item.fromDate.getDate()}. ${item.show()}`);
     
     var expect_util = 0;
@@ -43,18 +44,19 @@ function rentCollect_contract() {
     }
 
     var expect_misc = 0;
+    var actual_cash_payment = 0;
     for (j=0;j<GLB_MiscCost_arr.length;j++) {
       var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
       if ((item.fromDate <= misc.date) && (misc.date < item.toDate) && (misc.rentProperty == item.rentProperty)){
-        if (misc.type == misc.MiscType_Charge_Fee)      expect_misc += misc.amount;
-        else if (misc.type == misc.MiscType_CashRent)   expect_misc -= misc.amount; // paid by the tenant
-        else if (misc.type == misc.MiscType_Repare_Fee) expect_misc += 0; // expect to be absorbed by preperty owner
-        else if (misc.type == misc.MiscType_Refund)     expect_misc -= misc.amount; // return back to tenant
+        if (misc.type == misc.MiscType_Charge_Fee)      expect_misc         += misc.amount;
+        else if (misc.type == misc.MiscType_CashRent)   actual_cash_payment += misc.amount; // cash paid by the tenant
+        else if (misc.type == misc.MiscType_Repare_Fee) expect_misc         += 0; // expect to be absorbed by preperty owner
+        else if (misc.type == misc.MiscType_Refund)     expect_misc         -= misc.amount; // return back to tenant
         else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${item.itemNo} is invalid!`; reportErrMsg(errMsg);}
       }
     }
     
-    var actual_payemnt = 0;
+    var actual_transfer_payment = 0;
     for (var j=0;j<GLB_BankRecord_arr.length;j++) {
       var record =new itemBankRecord(GLB_BankRecord_arr[j]);
       // record.show();
@@ -66,7 +68,7 @@ function rentCollect_contract() {
       if ((item.fromDate <= record.date) && (record.date < finishDate) && (item.tenantAccount_arr.indexOf(record.fromAccount)!=-1)) {
         // Logger.log(`hit record: ${record.show()}`);
         if (record.contractNo == null) { // first record update
-          actual_payemnt += record.amount;
+          actual_transfer_payment += record.amount;
           SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
           SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
           var upd = [item.itemNo,item.rentProperty];
@@ -77,7 +79,7 @@ function rentCollect_contract() {
       }
     }
     
-    var rentArrear = actual_payemnt - expect_rent - expect_util - expect_misc;
+    var rentArrear = actual_transfer_payment + actual_cash_payment - expect_rent - expect_util - expect_misc;
     SheetContractName.getRange(1+topRowOfs+i,item.ColPos_RentArrear).setValue(rentArrear);
 
     /////////////////////////////////////////
