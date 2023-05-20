@@ -375,17 +375,31 @@ function report_event() {
       // Event: bank record
       for (var j=0;j<GLB_BankRecord_arr.length;j++) {
         var record = new itemBankRecord(GLB_BankRecord_arr[j]);
-        if ((contract.fromDate <= record.date) && (record.date < contract.toDate) && (contract.tenantAccount_arr.indexOf(record.fromAccount)!=-1)) {
-          // Logger.log(`record: ${record.show()}`);
-          var item    = new itemRptEvent([]);
-          var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
-          var event   = `5. Bank record.`;
-          var amount  = record.amount;
-          var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
-          item.update(upd);
-          // SheetRptEventName.appendRow(item.itemPack);
-          GLB_RptEvent_arr.push(item.itemPack);
-          itemNo += 1;         
+        if ((contract.fromDate <= record.date) && (record.date < finishDate)){
+          if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
+            var item    = new itemRptEvent([]);
+            var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
+            var event   = `5. Bank record.`;
+            var amount  = record.amount;
+            var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
+            item.update(upd);
+            // SheetRptEventName.appendRow(item.itemPack);
+            GLB_RptEvent_arr.push(item.itemPack);
+            itemNo += 1;
+          }
+          else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+            if (contract.tenantAccount_arr.indexOf(record.fromAccount)!=-1) {
+              var item    = new itemRptEvent([]);
+              var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
+              var event   = `5. Bank record.`;
+              var amount  = record.amount;
+              var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
+              item.update(upd);
+              // SheetRptEventName.appendRow(item.itemPack);
+              GLB_RptEvent_arr.push(item.itemPack);
+              itemNo += 1;
+            }
+          }
         }
       }
 

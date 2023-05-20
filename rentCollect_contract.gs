@@ -68,18 +68,29 @@ function rentCollect_contract() {
       var finishDate;
       if (item.endContract) finishDate = item.endDate;
       else finishDate = item.toDate;
-      
-      if ((item.fromDate <= record.date) && (record.date < finishDate) && (item.tenantAccount_arr.indexOf(record.fromAccount)!=-1)) {
-        // Logger.log(`hit record: ${record.show()}`);
-        if (record.contractNo == null) { // first record update
+
+      if ((item.fromDate <= record.date) && (record.date < finishDate)){
+        if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
           actual_transfer_payment += record.amount;
           SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
           SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
           var upd = [item.itemNo,item.rentProperty];
           record.update(upd);
         }
-        else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo??`; reportErrMsg(errMsg);}
-        else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty??`; reportErrMsg(errMsg);}
+        else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+          if (item.tenantAccount_arr.indexOf(record.fromAccount)!=-1) {
+            // Logger.log(`hit record: ${record.show()}`);
+            if (record.contractNo == null) { // first record update
+              actual_transfer_payment += record.amount;
+              SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
+              SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
+              var upd = [item.itemNo,item.rentProperty];
+              record.update(upd);
+            }
+            else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo??`; reportErrMsg(errMsg);}
+            else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty??`; reportErrMsg(errMsg);}
+          }
+        }
       }
     }
     

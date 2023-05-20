@@ -215,17 +215,18 @@ class itemBankRecord {
     this.balance                = item[4];
     this.fromAccountName        = item[5];
     this.fromAccount            = item[6];
+    this.contractOverrid        = item[7];
     this.contractNo             = null;
     this.rentProperty           = null;
-    this.ColPos_ContractNo      = 8;
-    this.ColPos_rentProperty    = 9;
+    this.ColPos_ContractNo      = 9;
+    this.ColPos_rentProperty    = 10;
     
     this.itemPack               = item;
-    this.itemPackMaxLen         = 9;
+    this.itemPackMaxLen         = 10;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.contractNo           = item[7];
-      this.rentProperty         = item[8];
+      this.contractNo           = item[8];
+      this.rentProperty         = item[9];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -256,7 +257,7 @@ class itemBankRecord {
   }
 
   show(){
-    var text = `itemBankRecord: \n(itemNo=${this.itemNo},date=${this.date},action=${this.action},amount=${this.amount},balance=${this.balance},fromAccountName=${this.fromAccountName},fromAccount=${this.fromAccount},contractNo=${this.contractNo},rentProperty=${this.rentProperty})`;
+    var text = `itemBankRecord: \n(itemNo=${this.itemNo},date=${this.date},action=${this.action},amount=${this.amount},balance=${this.balance},fromAccountName=${this.fromAccountName},fromAccount=${this.fromAccount},contractOverrid=${this.contractOverrid},contractNo=${this.contractNo},rentProperty=${this.rentProperty})`;
     // Logger.log(text);
     return text;
   };
@@ -299,7 +300,7 @@ class itemContract {
       this.dayRest                = item[17];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
-      if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+      if (1) {var errMsg = `[itemContract] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
     }
   };
 
@@ -358,7 +359,7 @@ function rentCollect_parser_Record() {
   // const SheetDatabaseName = SheetHandle.getSheetByName('Database');
   const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   const bankRecordColOfs = 2; // to exclude itemNo
-  const bankRecordContentLen = 6;
+  const bankRecordContentLen = 7;
 
   /////////////////////////////////////////
   // Parse to itemRecord
@@ -395,15 +396,21 @@ function rentCollect_parser_Record() {
   /////////////////////////////////////////
   // var itemRecordMerge_arr = new Array();
   if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
-    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen).getValues(); // exclude itemNo column and contractNo
+    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
     for(i=0;i<data.length;i++){
       GLB_BankRecord_arr.push(data[i]);
+    }
+
+    var Compare_BankRecord_arr  = new Array();
+    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-1).getValues(); // exclude itemNo column and ContractOverrid
+    for(i=0;i<compare_data.length;i++){
+      Compare_BankRecord_arr.push(compare_data[i]);
     }
   }
   
   for(i=0;i<GLB_Import_arr.length;i++){
-    if (GLB_BankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
-      GLB_BankRecord_arr.push(GLB_Import_arr[i]);
+    if (Compare_BankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
+      GLB_BankRecord_arr.push(GLB_Import_arr[i].concat(""));// expand a place for ContractOverrid
     }
     else {
       // Found duplicated itemRecord, passed.
@@ -433,8 +440,8 @@ function rentCollect_parser_Record() {
   for(var i=0;i<GLB_BankRecord_arr.length;i++){
     GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
     
-    // var item = new itemRecord(itemRecordMerge_arr[i]);
-    // item.show()
+    // var item = new itemBankRecord(GLB_BankRecord_arr[i]);
+    // Logger.log(item.show());
   }
 
   // GLB_BankRecord_arr.forEach (
