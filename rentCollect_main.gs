@@ -27,6 +27,10 @@ const CONST_This_Account_Number = "000014853**1373*"; // The self account number
 function rentCollect_main() {
   Logger.log("This rentCollect_main");
   
+  // to remove filter from sheet in case of not closing the filter.
+  removeFilter();
+  
+  //
   rentCollect_import();
   rentCollect_parser();
   rentCollect_contract();
@@ -34,6 +38,25 @@ function rentCollect_main() {
 
   //
   rentCollect_debug_print();
+}
+
+function removeFilter(){
+  var sheetName_arr = [SheetImportName,SheetBankRecordName,SheetBankRecordBKName,SheetContractName,SheetTenantName,SheetUtilBillName,SheetMiscCostName,SheetPropertyName,SheetRptStatusName,SheetRptEventName];
+  
+  sheetName_arr.forEach(
+    function(sheetName){
+      var filter = sheetName.getFilter();
+      if (filter !== null) {
+        var range = filter.getRange(); 
+        var firstColumn = range.getColumn();
+        var lastColumn = range.getLastColumn();
+        // Logger.log(`name: ${sheetName.getName()}, firstColumn: ${firstColumn}, lastColumn: ${lastColumn}`);
+        for (var i = firstColumn; i <= lastColumn; i++) {
+          filter.removeColumnFilterCriteria(i);
+        }
+      }
+    }
+  )
 }
 
 var errorLogCollection_arr = new Array(); // to collect all all error string. format: [type] erro_msg
