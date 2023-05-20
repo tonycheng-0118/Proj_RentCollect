@@ -30,9 +30,13 @@ function rentCollect_contract() {
     var target_date = Date();
     if (CONST_TODAY_DATE >= item.toDate) target_date = item.toDate;
     else target_date = CONST_TODAY_DATE;
+
+    var total_rent_count = ((item.toDate.getFullYear()-item.fromDate.getFullYear())*12 + (item.toDate.getMonth()-item.fromDate.getMonth()) + (item.toDate.getDate() > item.fromDate.getDate()));
+    if (total_rent_count % item.period) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} total_rent_count is invalid, should be multiple of period!`; reportErrMsg(errMsg);}
     
     var expect_rent_count = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) / item.period; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
-    var expect_rent = expect_rent_count * item.amount;
+    
+    var expect_rent = Math.ceil(expect_rent_count) * item.amount;
     // Logger.log(`expect_rent=${expect_rent}, item.fromDate.getDate()=${item.fromDate.getDate()}. ${item.show()}`);
     
     var expect_util = 0;
