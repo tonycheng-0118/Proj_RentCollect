@@ -1,18 +1,18 @@
-function rentCollect_import() {
+function rentCollect_import(depositRecordName) {
   /////////////////////////////////////////
   // README
   /////////////////////////////////////////
-  // Since the DEPOSIT_APPLY_RECORD is overwritten once the sheet is exported.
+  // Since the depositRecordName is overwritten once the sheet is exported.
   // It results in the different sheet ID for the latest one.
-  // To address that, this function is to locate the sheet named "DEPOSIT_APPLY_RECORD" and copy it into Import sheet.
+  // To address that, this function is to locate the sheet named "depositRecordName" and copy it into Import sheet.
 
   /////////////////////////////////////////
   // Setting
   /////////////////////////////////////////
-  const depositRecordName = "DEPOSIT_APPLY_RECORD";
-  const depositRecorColPosNote = 6; 
+  const depositRecordPreName = depositRecordName + "_pre";
+  // const depositRecorColPosNote = 6; 
 
-  
+
   /////////////////////////////////////////
   // Variable
   /////////////////////////////////////////
@@ -23,51 +23,65 @@ function rentCollect_import() {
   /////////////////////////////////////////
   // Main
   /////////////////////////////////////////
+  // Find the depositRecordName and depositRecordPreName in the current dir
   if (depositRecordFileHandle.hasNext()) {
     var fileId = depositRecordFileHandle.next().getId();
     depositRecordSheetHandle = SpreadsheetApp.openById(fileId);
-    depositRecordSheet = depositRecordSheetHandle.getSheets()[0]; // new DEPOSIT_APPLY_RECORD sheet uploaded from somewhere
+    depositRecordSheet = depositRecordSheetHandle.getSheets()[0]; // new depositRecordName sheet uploaded from somewhere
     Logger.log("[Info] %s ID is %s",depositRecordName,fileId)
   } else {
     Logger.log("[Error] %s is not exiseted!",depositRecordName);
+    if (1) {var errMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportErrMsg(errMsg);}
   }
   
-  // copy DEPOSIT_APPLY_RECORD to this SheetHandle
+  // copy depositRecordName to this SheetHandle
   if (SheetHandle.getSheetByName(depositRecordName)) {
     var sheet = SheetHandle.getSheetByName(depositRecordName);
     SheetHandle.deleteSheet(sheet); // dst sheet should not have this sheet name, just in case 
   }
   depositRecordSheet.copyTo(SheetHandle).setName(depositRecordName); // to solve cross sheet copy, copy the src sheet to dst sheet first
-  
-  if (SheetImportName) {
-    var sheetTMP = SheetHandle.getSheetByName(depositRecordName);
+
+  // import integrity check
+  var sts_integrity = false;
+  var sheetTMPImportName    = SheetHandle.getSheetByName(depositRecordName);
+  var sheetTMPImportPreName = SheetHandle.getSheetByName(depositRecordPreName);
+
+  if (sheetTMPImportPreName){
+    // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
+    Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
+    sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName);
+  }
+  else { // for 1st time case
+    Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
+    sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
+    sts_integrity = true;
+  }
+
+  if (sts_integrity) {
+    Logger.log(`[Info] import integrity check passed, start to backup to SheetBankRecordBKName and copy to SheetImportName.`);
     
     // backup BankRecord to BankRecordBK for in case
     SheetBankRecordBKName.getDataRange().clearContent();
     SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
 
-    // copy from DEPOSIT_APPLY_RECORD to ImportPre
+    // copy from depositRecordName to ImportPre
     // SheetImportPreName.getRange('A:G').clearContent();
     // sheetTMP.getRange('A:G').copyTo(SheetImportPreName.getRange('A1'));
     // deleteEmptyRows(SheetImportPreName);
-
-    // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
-    var sts_integrity = chkImportIntegrity(sheetTMP);
     
-    // copy from DEPOSIT_APPLY_RECORD to Import
-    if (sts_integrity) {
-      SheetImportName.getRange('A:G').clearContent();
-      sheetTMP.getRange('A:G').copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
-    }
+    // copy from depositRecordName to Import
+    SheetImportName.getRange('A:G').clearContent();
+    sheetTMPImportName.getRange('A:G').copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
+
+    // chagne depositRecordName to depositRecordPreName
+    SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
+    sheetTMPImportName.setName(depositRecordPreName);
     
   } else {
-    // only for the 1st run
-    Logger.log("[Error] Should have import sheet.");
+    SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
+    Logger.log("[Error] Fail import integrity check, no touch to SheetImportName.");
+    if (1) {var errMsg = `[rentCollect_import] Fail import integrity check, no touch to SheetImportName.`; reportErrMsg(errMsg);}
   }
-
-  // delete the DEPOSIT_APPLY_RECORD
-  SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
-
 
   /////////////////////////////////////////
   // Post processing the content
@@ -81,12 +95,14 @@ function rentCollect_import() {
 
 }
 
-function chkImportIntegrity(sheet_src){
+function chkImportIntegrity(sheet_src,sheet_dst){
+  /////////////////////////////////////////
+  // The idea of integrity is to check the consecutive match item in dst.
+  /////////////////////////////////////////
   var src_arr = new Array();
   var dst_arr = new Array();
-  // var src = SheetImportPreName.getDataRange().getValues();
   var src = sheet_src.getDataRange().getValues();
-  var dst = SheetImportName.getDataRange().getValues();
+  var dst = sheet_dst.getDataRange().getValues();
   var pass = false;
 
   for(var i=0;i<src.length;i++){
@@ -104,11 +120,12 @@ function chkImportIntegrity(sheet_src){
   var j_cur=0;
   var match_cnt=0;
   var match_start = false;
+  var match_end   = false;
   for (var i =0;i<dst_arr.length;i++){
     for (var j=j_cur+1;j<src_arr.length;j++){
       if (dst_arr[i] == src_arr[j]) {
         match_start = true;
-        pass = true;
+        if (match_end == false) pass = true;
         match_cnt++;
         j_cur = j;
         // Logger.log(`YES. Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j}]: ${src_arr[j]}`);
@@ -117,7 +134,8 @@ function chkImportIntegrity(sheet_src){
       else {
         // Logger.log(`No,  Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j}]: ${src_arr[j]}`);
         if (match_start) {
-          pass = false;
+          if (match_end == false) pass = false;
+          match_end = true;
           Logger.log(`Failed,  Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j}]: ${src_arr[j]}`);
           if (1) {var errMsg = `[chkImportIntegrity] Should be consecutive matched. Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j}]: ${src_arr[j]}`; reportErrMsg(errMsg);}
         }

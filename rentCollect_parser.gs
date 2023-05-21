@@ -350,6 +350,10 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
+  rentCollect_parser_Record_CTBC()
+}
+
+function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // README
   // With the upcoming new items in sheet.Import, this function will parse them and merge them with the sheet.Database.
@@ -365,6 +369,11 @@ function rentCollect_parser_Record() {
   const bankRecordContentLen = 10;
   const toAccountName = "中國信託";
   const toAccount     = "000014853**1373*";
+  
+  /////////////////////////////////////////
+  // Import from source sheet
+  /////////////////////////////////////////
+  rentCollect_import("DEPOSIT_APPLY_RECORD");
 
   /////////////////////////////////////////
   // Parse to itemRecord
@@ -458,7 +467,7 @@ function rentCollect_parser_Record() {
   /////////////////////////////////////////
   SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
   SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-  Logger.log("Size of GLB_BankRecord_arr is %d",GLB_BankRecord_arr.length);
+  Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
   
 }
 

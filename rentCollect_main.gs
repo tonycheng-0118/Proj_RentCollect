@@ -31,7 +31,7 @@ function rentCollect_main() {
   removeFilter();
   
   //
-  rentCollect_import();
+  // rentCollect_import();
   rentCollect_parser();
   rentCollect_contract();
   rentCollect_report();
