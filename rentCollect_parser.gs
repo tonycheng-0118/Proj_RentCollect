@@ -352,7 +352,7 @@ function rentCollect_parser() {
 
 function rentCollect_parser_Record() {
   rentCollect_parser_Record_KTB(); // 京城銀行
-  // rentCollect_parser_Record_CTBC(); // 中國信託
+  rentCollect_parser_Record_CTBC(); // 中國信託
 }
 
 function rentCollect_parser_Record_KTB() { // 京城銀行
