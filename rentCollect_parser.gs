@@ -1,8 +1,9 @@
 /////////////////////////////////////////
 // Global Var
 /////////////////////////////////////////
-const CONST_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
-const CONST_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
+const CONST_CTBC_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
+const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
+const CONST_KTB_actList = ["現金","現金D","本交A"];
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();
@@ -350,7 +351,68 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
-  rentCollect_parser_Record_CTBC()
+  rentCollect_parser_Record_KTB(); // 京城銀行
+  // rentCollect_parser_Record_CTBC(); // 中國信託
+}
+
+function rentCollect_parser_Record_KTB() { // 京城銀行
+  /////////////////////////////////////////
+  // README
+  // With the upcoming new items in sheet.Import, this function will parse them and merge them with the sheet.Database.
+  /////////////////////////////////////////
+  
+  /////////////////////////////////////////
+  // Setting
+  /////////////////////////////////////////
+  const importRowOfs = 1; // the offset from the top row, A1 is ofs 0
+  const importColOfs = 0; // the offset from the left col, A1 is ofs 0
+  const importContentLen = 8;
+  const records_obj = [["台幣交易明細查詢_9859","京城9859","005220099859"],["台幣交易明細查詢_9141","京城9141","005228009141"],["台幣交易明細查詢_8135","京城8135","005228008135"],["台幣交易明細查詢_3835","京城3835","005220113835"]];
+  // for (const [k,v] of Object.entries(records_obj)) {
+  //   Logger.log(`key: ${k}, value: ${v[1]}`);
+  // }
+  
+  /////////////////////////////////////////
+  // Import from source sheet
+  /////////////////////////////////////////
+  for (const [k,v] of Object.entries(records_obj)) {
+    
+    rentCollect_import(v[0],false);
+
+    var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
+    for(i=0;i<data.length;i++){
+      // itemNo
+      var itemNo = i;
+
+      // date
+      var date = data[i][0];
+
+      // action
+      var withdraw = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")==""); // when 支出 non-empty and 存入 is empty, then it is withdraw
+      var deposit  = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!=""); // when 支出/存入 are not empty, then it is deposit
+      var act = action_mapping("KTB", i, data[i][2].toString(), withdraw, deposit);
+
+      // amount
+      var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+      // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+
+      // balance
+      var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+      
+      // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+      // from
+      var fromNote = note_mapping("KTB", i, act, [data[i][3].toString(),data[i][7].toString()]);
+      
+      if (act != ""){
+        GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+      }
+      
+      // Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[1]}, account: ${fromNote[0]}`);
+    }
+
+    merge_BankRecord(v[1],v[2]);
+  }
+  
 }
 
 function rentCollect_parser_Record_CTBC() { // 中國信託
@@ -364,16 +426,11 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // const SheetImportName = SheetHandle.getSheetByName('Import');
   // const SheetDatabaseName = SheetHandle.getSheetByName('Database');
-  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
-  const bankRecordColOfs = 2; // to exclude itemNo
-  const bankRecordContentLen = 10;
-  const toAccountName = "中國信託";
-  const toAccount     = "000014853**1373*";
   
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  rentCollect_import("DEPOSIT_APPLY_RECORD");
+  rentCollect_import("DEPOSIT_APPLY_RECORD",false);
 
   /////////////////////////////////////////
   // Parse to itemRecord
@@ -388,7 +445,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
     var date = data[i][1];
 
     // action
-    var act = action_mapping(i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
+    var act = action_mapping("CTBC", i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
 
     // amount
     var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
@@ -399,24 +456,34 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
     
     // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
     // from
-    var fromNote = note_mapping(i, act, data[i][6].toString());
+    var fromNote = note_mapping("CTBC", i, act, data[i][6].toString());
     
-    GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
-
+    if (act != ""){
+      GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+    }
   }
 
+  merge_BankRecord("中國信託","000014853**1373*");
+}
+
+function merge_BankRecord(toAccountName,toAccount) {
+  
+  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
+  const bankRecordColOfs = 1; // to exclude itemNo
+  const bankRecordContentLen = 10;
+  
   /////////////////////////////////////////
   // Merge existed item
   /////////////////////////////////////////
-  // var itemRecordMerge_arr = new Array();
+  GLB_BankRecord_arr = new Array();  // Since GLB_BankRecord_arr is a Global array, will regen this content every time merge starting.
   if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
-    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
+    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
     for(i=0;i<data.length;i++){
       GLB_BankRecord_arr.push(data[i]);
     }
 
     var Compare_BankRecord_arr  = new Array();
-    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-3).getValues(); // exclude itemNo column, ContractOverrid, toAccountName, toAccount, and mergeDate
+    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-3).getValues(); // exclude itemNo column, ContractOverrid, toAccountName, toAccount, and mergeDate
     for(i=0;i<compare_data.length;i++){
       Compare_BankRecord_arr.push(compare_data[i]);
     }
@@ -441,12 +508,6 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
       return xp == yp ? 0 : xp < yp ? -1 : 1;
     }
   )
-
-  // itemRecordMerge_arr.forEach(
-  //   function(data){
-  //     Logger.log(data);
-  //   }
-  // )
   
   /////////////////////////////////////////
   // Attach with serial number
@@ -471,26 +532,44 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   
 }
 
-function note_mapping(id, act, note_in) {
+function note_mapping(type, id, act, note_in) {
   // Only handle TransferIn action
-  if (act == "TransferIn"){
-    
-    // rid of self account number
-    var note_tmp = note_in.replace(CONST_This_Account_Number,"");
+  
+  if (type == "CTBC") {
+    if (act == "TransferIn"){
+      // rid of self account number
+      var note_tmp = note_in.replace(CONST_This_Account_Number,"");
 
-    // retrieve fromAccountName
-    var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
-    var fromAccount = regExp.exec(note_tmp)[0];
-    var fromAccountName = note_tmp.replace(regExp,"").replace(/[\s|\n|\r|\t]/g,"").split("\n");
-
-    return [fromAccountName[0],fromAccount];
+      // retrieve fromAccountName
+      var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
+      var fromAccount = regExp.exec(note_tmp)[0];
+      var fromAccountName = note_tmp.replace(regExp,"").replace(/[\s|\n|\r|\t]/g,"").split("\n");
+      
+      return [fromAccountName[0],fromAccount];
+    }
   }
+  else if (type == "KTB") {
+    if (act == "TransferIn" || act == "Deposit"){
+      // retrieve fromAccountName
+      var regExp = new RegExp("([0-9]{10}\d*)","gi"); // escape word
+      // Logger.log(`note_in[0]: ${note_in[0]}, note_in[1]: ${note_in[1]}`);
+      // var fromAccount = (regExp.exec(note_in[0])==null) ? "" : (regExp.exec(note_in[0])[0]);
+      var fromAccount = "";//note_in[0].replace(/[\s|\n|\r|\t]/g,""); // for KTB, only AccountName is available
+      var fromAccountName = note_in[0].replace(/[\s|\n|\r|\t]/g,"") + ";" + note_in[1].replace(/[\s|\n|\r|\t]/g,"");
+      
+      return [fromAccount,fromAccountName];
+    }
+  }
+  else {
+    if (1) {var errMsg = `[note_mapping] import format does not support at id: ${id}?? act is: ${act}, note_in: ${note_in}`; reportErrMsg(errMsg);}
+  }
+
 
   return ["",""]; // empty string
 
 }
 
-function action_mapping(id, act_in, withdraw, deposit){
+function action_mapping(type, id, act_in, withdraw, deposit){
   // return TransferOut, TransferIn, Withdraw, Deposit type only
   
   var act = act_in.replace(/[\s|\n|\r|\t]/g,"").split("\n");
@@ -501,26 +580,53 @@ function action_mapping(id, act_in, withdraw, deposit){
   if ( isWithdraw &&  isDeposit) console.error("Withdraw and Deposit happened at the same time!!?");
   if (!isWithdraw && !isDeposit) console.error("Withdraw and Deposit missed!!?");
   
-  // looking for keyword "匯" or "轉"
-  var regExp = new RegExp(".*[匯|轉].*","gi");
-  var match = regExp.exec(act[0]);
-  if (match != null) {
-    if (isWithdraw) return "TransferOut";
-    if (isDeposit)  return "TransferIn";
-  }
+  if (type=="CTBC") {
+    // looking for keyword "匯" or "轉"
+    var regExp = new RegExp(".*[匯|轉].*","gi");
+    var match = regExp.exec(act[0]);
+    if (match != null) {
+      if (isWithdraw) return "TransferOut";
+      if (isDeposit)  return "TransferIn";
+    }
 
-  if (isWithdraw && CONST_actWithdrawList.indexOf(act[0])!=-1){
-    return "Withdraw"
-    // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
-  }
+    if (isWithdraw && CONST_CTBC_actWithdrawList.indexOf(act[0])!=-1){
+      return "Withdraw"
+      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    }
 
-  if (isDeposit && CONST_actDepositList.indexOf(act[0])!=-1){
-    return "Deposit"
-    // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
-  }
+    if (isDeposit && CONST_CTBC_actDepositList.indexOf(act[0])!=-1){
+      return "Deposit"
+      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    }
 
-  // report error if no condition met
-  if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+    // report error if no condition met
+    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+  }
+  else if (type=="KTB"){
+    var regExp = new RegExp(".*[轉帳].*","gi");
+    var match = regExp.exec(act[0]);
+    if (match != null) {
+      if (isWithdraw) return "TransferOut";
+      if (isDeposit)  return "TransferIn";
+    }
+
+    if (isWithdraw && CONST_KTB_actList.indexOf(act[0])!=-1){
+      return "Withdraw"
+      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    }
+
+    if (isDeposit && CONST_KTB_actList.indexOf(act[0])!=-1){
+      return "Deposit"
+      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    }
+
+    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+    return ""
+  }
+  else {
+    if (1) {var errMsg = `[action_mapping]import format does not support at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+    return ""
+  }
 
 }
 

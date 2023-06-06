@@ -4,8 +4,10 @@
 // Release vs Verify
 // const CONST_TODAY_DATE = new Date(); 
 // const SheetHandle      = SpreadsheetApp.openById("1mfZNNZLIzVbhaUwr88iEe8XUWP0qnHdmF8x2eVpXfVY"); // Proj_RentCollect
+// const MODE_VERIFY      = false;
 const CONST_TODAY_DATE = new Date("Wed May 17 2023 22:46:10 GMT+0800 (Taipei Standard Time)"); // for Proj_RentCollect_VERIFY, it is fixed.
 const SheetHandle      = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY.
+const MODE_VERIFY      = true;
 
 // Sheet Name
 const SheetImportName       = SheetHandle.getSheetByName('Import');
@@ -31,7 +33,6 @@ function rentCollect_main() {
   removeFilter();
   
   //
-  // rentCollect_import();
   rentCollect_parser();
   rentCollect_contract();
   rentCollect_report();

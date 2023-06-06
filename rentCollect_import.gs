@@ -1,4 +1,4 @@
-function rentCollect_import(depositRecordName) {
+function rentCollect_import(depositRecordName, newRecordEnable) {
   /////////////////////////////////////////
   // README
   /////////////////////////////////////////
@@ -9,6 +9,7 @@ function rentCollect_import(depositRecordName) {
   /////////////////////////////////////////
   // Setting
   /////////////////////////////////////////
+  const bankRecordBackUpEnable = (MODE_VERIFY == false); // if tesing merge SheetBankRecordName, turn this off to prevent from overriding SheetBankRecordBKName
   const depositRecordPreName = depositRecordName + "_pre";
   // const depositRecorColPosNote = 6; 
 
@@ -52,17 +53,26 @@ function rentCollect_import(depositRecordName) {
     sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName);
   }
   else { // for 1st time case
-    Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
-    sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
-    sts_integrity = true;
+    if (newRecordEnable){
+      Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
+      sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
+      sts_integrity = true;
+    }
+    else {
+      if (1) {var errMsg = `[rentCollect_import] Fail import integrity check, not enable new Record.`; reportErrMsg(errMsg);}
+      sts_integrity = false;
+    }
   }
 
   if (sts_integrity) {
-    Logger.log(`[Info] import integrity check passed, start to backup to SheetBankRecordBKName and copy to SheetImportName.`);
+    Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
     
     // backup BankRecord to BankRecordBK for in case
-    SheetBankRecordBKName.getDataRange().clearContent();
-    SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
+    if (bankRecordBackUpEnable) {
+      Logger.log(`[Info] start to backup to SheetBankRecordBKName.`)
+      SheetBankRecordBKName.getDataRange().clearContent();
+      SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
+    }
 
     // copy from depositRecordName to ImportPre
     // SheetImportPreName.getRange('A:G').clearContent();
@@ -70,8 +80,8 @@ function rentCollect_import(depositRecordName) {
     // deleteEmptyRows(SheetImportPreName);
     
     // copy from depositRecordName to Import
-    SheetImportName.getRange('A:G').clearContent();
-    sheetTMPImportName.getRange('A:G').copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
+    SheetImportName.getDataRange().clearContent();
+    sheetTMPImportName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
 
     // chagne depositRecordName to depositRecordPreName
     SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
