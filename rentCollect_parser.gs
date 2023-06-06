@@ -407,7 +407,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
         GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
       }
       
-      // Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[1]}, account: ${fromNote[0]}`);
+      Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
     }
 
     merge_BankRecord(v[1],v[2]);
@@ -549,15 +549,26 @@ function note_mapping(type, id, act, note_in) {
     }
   }
   else if (type == "KTB") {
-    if (act == "TransferIn" || act == "Deposit"){
+    if (act == "TransferIn"){
       // retrieve fromAccountName
       var regExp = new RegExp("([0-9]{10}\d*)","gi"); // escape word
-      // Logger.log(`note_in[0]: ${note_in[0]}, note_in[1]: ${note_in[1]}`);
-      // var fromAccount = (regExp.exec(note_in[0])==null) ? "" : (regExp.exec(note_in[0])[0]);
+      if (note_in[0].match(regExp) != null) {
+        var fromAccount = (regExp.exec(note_in[0])[0]);
+      }
+      else {
+        var fromAccount = "";
+      }
+      var fromAccountName = note_in[0].replace(/[\s|\n|\r|\t]/g,"") + ";" + note_in[1].replace(/[\s|\n|\r|\t]/g,"");
+      
+      return [fromAccountName,fromAccount];
+    }
+    else if (act == "Deposit"){
+      // retrieve fromAccountName
+      var regExp = new RegExp("([0-9]{10}\d*)","gi"); // escape word
       var fromAccount = "";//note_in[0].replace(/[\s|\n|\r|\t]/g,""); // for KTB, only AccountName is available
       var fromAccountName = note_in[0].replace(/[\s|\n|\r|\t]/g,"") + ";" + note_in[1].replace(/[\s|\n|\r|\t]/g,"");
       
-      return [fromAccount,fromAccountName];
+      return [fromAccountName,fromAccount];
     }
   }
   else {
