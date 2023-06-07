@@ -3,7 +3,7 @@
 /////////////////////////////////////////
 const CONST_CTBC_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
 const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
-const CONST_KTB_actList = ["現金","現金D","本交A"];
+const CONST_KTB_actList = ["現金","現金D","現金E","本交A","利息D","退票D"];
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();

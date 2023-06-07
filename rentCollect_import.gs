@@ -141,8 +141,9 @@ function chkImportIntegrity(sheet_src,sheet_dst){
   var match_cnt=0;
   var match_start = false;
   var match_end   = false;
-  for (var i =0;i<dst_arr.length;i++){
+  for (var i =1;i<dst_arr.length;i++){ // i=0 is header
     for (var j=j_cur+1;j<src_arr.length;j++){
+      // Logger.log(`KKK: dst[${i}]: ${dst_arr[i]},\n     src[${j}]: ${src_arr[j]}`);
       if (dst_arr[i] == src_arr[j]) {
         match_start = true;
         if (match_end == false) pass = true;
