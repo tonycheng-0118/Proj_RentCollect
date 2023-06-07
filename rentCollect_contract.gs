@@ -54,6 +54,7 @@ function rentCollect_contract() {
       if ((item.fromDate <= misc.date) && (misc.date < item.toDate) && (misc.rentProperty == item.rentProperty)){
         if (misc.type == misc.MiscType_Charge_Fee)      expect_misc         += misc.amount;
         else if (misc.type == misc.MiscType_CashRent)   actual_cash_payment += misc.amount; // cash paid by the tenant
+        else if (misc.type == misc.MiscType_SubRent)    expect_misc         -= misc.amount; // rent deduction.
         else if (misc.type == misc.MiscType_Repare_Fee) expect_misc         += 0; // expect to be absorbed by preperty owner
         else if (misc.type == misc.MiscType_Refund)     expect_misc         -= misc.amount; // return back to tenant
         else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${item.itemNo} is invalid!`; reportErrMsg(errMsg);}

@@ -159,6 +159,7 @@ class itemMiscCost {
 
     this.MiscType_Charge_Fee    = `0.Charge_Fee`;
     this.MiscType_CashRent      = `1.Cash_Rent`;
+    this.MiscType_SubRent       = `2.Sub_Rent`
     this.MiscType_Repare_Fee    = `5.Repare_Fee`;
     this.MiscType_Refund        = `6.Refund`;
     
