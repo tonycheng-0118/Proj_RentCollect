@@ -389,8 +389,25 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
         var date = data[i][0];
 
         // action
-        var withdraw = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")==""); // when 支出 non-empty and 存入 is empty, then it is withdraw
-        var deposit  = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!=""); // when 支出/存入 are not empty, then it is deposit
+        if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")=="")) {
+          // when 支出 non-empty and 存入 is empty, then it is withdraw
+          withdraw = true;
+          deposit  = false;
+        } 
+        else if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!="")) {
+          // when 支出/存入 are not empty, then it is deposit
+          withdraw = false;
+          deposit  = true;
+        }
+        else if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")=="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!="")) {
+          // when 支出 empty and 存入 is non-empty, then it is deposit
+          withdraw = false;
+          deposit  = true;
+        }
+        else {
+          Logger.log(`withdraw: ${withdraw}, deposit: ${deposit}, a:${data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")}, b:${data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")}`)
+          if (1) {var errMsg = `[rentCollect_parser_Record_KTB] For ${v[0]} @ date: ${date}, no withdraw or deposit found!`; reportErrMsg(errMsg);}
+        }
         var act = action_mapping("KTB", i, data[i][2].toString(), withdraw, deposit);
 
         // amount

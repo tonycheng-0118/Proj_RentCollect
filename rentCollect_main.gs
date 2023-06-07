@@ -100,11 +100,11 @@ function rentCollect_debug_print() {
   var logPos=0;
   if (errorLogCollection_arr.length > 0) {
     var text = `Error @ ${CONST_TODAY_DATE}`;
-    SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("F08080"); // red
+    SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#F08080"); // red
     logPos+=1;
     
     for (var i=0;i<errorLogCollection_arr.length;i++) {
-      SheetREADMEName.getRange(logPos+1+PosRowBase,PosColBase).setValue(errorLogCollection_arr[i]).setBackground("F08080"); // red
+      SheetREADMEName.getRange(logPos+1+PosRowBase,PosColBase).setValue(errorLogCollection_arr[i]).setBackground("#F08080"); // red
       logPos+=1;
     }
   } 
