@@ -408,7 +408,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
           GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
         }
         
-        Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
+        // Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
       }
 
       merge_BankRecord(v[1],v[2]);
