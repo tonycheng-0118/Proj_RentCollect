@@ -377,40 +377,42 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   /////////////////////////////////////////
   for (const [k,v] of Object.entries(records_obj)) {
     
-    rentCollect_import(v[0],false);
+    var isImportValid = rentCollect_import(v[0],false);
 
-    var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
-    for(i=0;i<data.length;i++){
-      // itemNo
-      var itemNo = i;
+    if (isImportValid) {
+      var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
+      for(i=0;i<data.length;i++){
+        // itemNo
+        var itemNo = i;
 
-      // date
-      var date = data[i][0];
+        // date
+        var date = data[i][0];
 
-      // action
-      var withdraw = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")==""); // when 支出 non-empty and 存入 is empty, then it is withdraw
-      var deposit  = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!=""); // when 支出/存入 are not empty, then it is deposit
-      var act = action_mapping("KTB", i, data[i][2].toString(), withdraw, deposit);
+        // action
+        var withdraw = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")==""); // when 支出 non-empty and 存入 is empty, then it is withdraw
+        var deposit  = (data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!=""); // when 支出/存入 are not empty, then it is deposit
+        var act = action_mapping("KTB", i, data[i][2].toString(), withdraw, deposit);
 
-      // amount
-      var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
-      // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+        // amount
+        var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+        // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
-      // balance
-      var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
-      
-      // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
-      // from
-      var fromNote = note_mapping("KTB", i, act, [data[i][3].toString(),data[i][7].toString()]);
-      
-      if (act != ""){
-        GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+        // balance
+        var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+        
+        // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+        // from
+        var fromNote = note_mapping("KTB", i, act, [data[i][3].toString(),data[i][7].toString()]);
+        
+        if (act != ""){
+          GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+        }
+        
+        Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
       }
-      
-      Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
-    }
 
-    merge_BankRecord(v[1],v[2]);
+      merge_BankRecord(v[1],v[2]);
+    }
   }
   
 }

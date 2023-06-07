@@ -69,6 +69,15 @@ function reportErrMsg(errMsg){
   }
 }
 
+var warnLogCollection_arr = new Array(); // to collect all all warn string. format: [type] warn_msg
+function reportWarnMsg(errMsg){
+  if (errMsg!=null) {
+    var err = '[Warn]' + errMsg;
+    console.warn(err);
+    warnLogCollection_arr.push(err);
+  }
+}
+
 function rentCollect_debug_print() {
 
   // locate ErrorLog row offset
@@ -86,14 +95,34 @@ function rentCollect_debug_print() {
   if (SheetREADMEName.getLastRow() > PosRowBase) {
     SheetREADMEName.getRange(1+PosRowBase,PosColBase,SheetREADMEName.getLastRow()-PosRowBase,SheetREADMEName.getLastColumn()-PosColBase+1).clear();
   }
-
-  if (errorLogCollection_arr.length==0) {
+  
+  // show status
+  var logPos=0;
+  if (errorLogCollection_arr.length > 0) {
+    var text = `Error @ ${CONST_TODAY_DATE}`;
+    SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("F08080"); // red
+    logPos+=1;
+    
+    for (var i=0;i<errorLogCollection_arr.length;i++) {
+      SheetREADMEName.getRange(logPos+1+PosRowBase,PosColBase).setValue(errorLogCollection_arr[i]).setBackground("F08080"); // red
+      logPos+=1;
+    }
+  } 
+  
+  if (warnLogCollection_arr.length > 0) {
+    var text = `Warn @ ${CONST_TODAY_DATE}`;
+    SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#FF8C00"); // yellow
+    logPos+=1;
+    
+    for (var i=0;i<warnLogCollection_arr.length;i++) {
+      SheetREADMEName.getRange(logPos+1+PosRowBase,PosColBase).setValue(warnLogCollection_arr[i]).setBackground("#FF8C00"); // yellow
+      logPos+=1;
+    }
+  } 
+  
+  if (logPos == 0){
     var text = `PASS @ ${CONST_TODAY_DATE}`;
     SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#3CB371"); // green
-  } else {
-    for (var i=0;i<errorLogCollection_arr.length;i++) {
-      SheetREADMEName.getRange(i+1+PosRowBase,PosColBase).setValue(errorLogCollection_arr[i]).setBackground("F08080"); // red
-    }
   }
 
 }

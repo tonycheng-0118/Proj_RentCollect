@@ -20,77 +20,85 @@ function rentCollect_import(depositRecordName, newRecordEnable) {
   var depositRecordFileHandle = DriveApp.getFilesByName(depositRecordName);
   var depositRecordSheetHandle;
   var depositRecordSheet;
+  var isRecordExisted;
 
   /////////////////////////////////////////
   // Main
   /////////////////////////////////////////
   // Find the depositRecordName and depositRecordPreName in the current dir
+  // Return the valid import status, if the Record is not existed, the post parser should be bypassed.
   if (depositRecordFileHandle.hasNext()) {
     var fileId = depositRecordFileHandle.next().getId();
     depositRecordSheetHandle = SpreadsheetApp.openById(fileId);
     depositRecordSheet = depositRecordSheetHandle.getSheets()[0]; // new depositRecordName sheet uploaded from somewhere
+    isRecordExisted = true;
     Logger.log("[Info] %s ID is %s",depositRecordName,fileId)
+    
+    // copy depositRecordName to this SheetHandle
+    if (SheetHandle.getSheetByName(depositRecordName)) {
+      var sheet = SheetHandle.getSheetByName(depositRecordName);
+      SheetHandle.deleteSheet(sheet); // dst sheet should not have this sheet name, just in case 
+    }
+    depositRecordSheet.copyTo(SheetHandle).setName(depositRecordName); // to solve cross sheet copy, copy the src sheet to dst sheet first
+
   } else {
+    isRecordExisted = false;
     Logger.log("[Error] %s is not exiseted!",depositRecordName);
-    if (1) {var errMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportErrMsg(errMsg);}
+    // if (1) {var errMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportErrMsg(errMsg);}
+    if (1) {var warnMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportWarnMsg(warnMsg);}
   }
   
-  // copy depositRecordName to this SheetHandle
-  if (SheetHandle.getSheetByName(depositRecordName)) {
-    var sheet = SheetHandle.getSheetByName(depositRecordName);
-    SheetHandle.deleteSheet(sheet); // dst sheet should not have this sheet name, just in case 
-  }
-  depositRecordSheet.copyTo(SheetHandle).setName(depositRecordName); // to solve cross sheet copy, copy the src sheet to dst sheet first
-
   // import integrity check
-  var sts_integrity = false;
-  var sheetTMPImportName    = SheetHandle.getSheetByName(depositRecordName);
-  var sheetTMPImportPreName = SheetHandle.getSheetByName(depositRecordPreName);
+  if (isRecordExisted) {
+    var sts_integrity = false;
+    var sheetTMPImportName    = SheetHandle.getSheetByName(depositRecordName);
+    var sheetTMPImportPreName = SheetHandle.getSheetByName(depositRecordPreName);
 
-  if (sheetTMPImportPreName){
-    // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
-    Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
-    sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName);
-  }
-  else { // for 1st time case
-    if (newRecordEnable){
-      Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
-      sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
-      sts_integrity = true;
+    if (sheetTMPImportPreName){
+      // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
+      Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
+      sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName);
     }
-    else {
-      if (1) {var errMsg = `[rentCollect_import] Fail import integrity check, not enable new Record.`; reportErrMsg(errMsg);}
-      sts_integrity = false;
-    }
-  }
-
-  if (sts_integrity) {
-    Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
-    
-    // backup BankRecord to BankRecordBK for in case
-    if (bankRecordBackUpEnable) {
-      Logger.log(`[Info] start to backup to SheetBankRecordBKName.`)
-      SheetBankRecordBKName.getDataRange().clearContent();
-      SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
+    else { // for 1st time case
+      if (newRecordEnable){
+        Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
+        sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
+        sts_integrity = true;
+      }
+      else {
+        if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, not enable new Record.`; reportErrMsg(errMsg);}
+        sts_integrity = false;
+      }
     }
 
-    // copy from depositRecordName to ImportPre
-    // SheetImportPreName.getRange('A:G').clearContent();
-    // sheetTMP.getRange('A:G').copyTo(SheetImportPreName.getRange('A1'));
-    // deleteEmptyRows(SheetImportPreName);
-    
-    // copy from depositRecordName to Import
-    SheetImportName.getDataRange().clearContent();
-    sheetTMPImportName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
+    if (sts_integrity) {
+      Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
+      
+      // backup BankRecord to BankRecordBK for in case
+      if (bankRecordBackUpEnable) {
+        Logger.log(`[Info] start to backup to SheetBankRecordBKName.`)
+        SheetBankRecordBKName.getDataRange().clearContent();
+        SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
+      }
 
-    // chagne depositRecordName to depositRecordPreName
-    SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
-    sheetTMPImportName.setName(depositRecordPreName);
-    
-  } else {
-    SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
-    Logger.log("[Error] Fail import integrity check, no touch to SheetImportName.");
-    if (1) {var errMsg = `[rentCollect_import] Fail import integrity check, no touch to SheetImportName.`; reportErrMsg(errMsg);}
+      // copy from depositRecordName to ImportPre
+      // SheetImportPreName.getRange('A:G').clearContent();
+      // sheetTMP.getRange('A:G').copyTo(SheetImportPreName.getRange('A1'));
+      // deleteEmptyRows(SheetImportPreName);
+      
+      // copy from depositRecordName to Import
+      SheetImportName.getDataRange().clearContent();
+      sheetTMPImportName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
+
+      // chagne depositRecordName to depositRecordPreName
+      SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
+      sheetTMPImportName.setName(depositRecordPreName);
+      
+    } else {
+      SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
+      Logger.log("[Error] Fail import integrity check, no touch to SheetImportName.");
+      if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, will not touch to SheetImportName.`; reportErrMsg(errMsg);}
+    }
   }
 
   /////////////////////////////////////////
@@ -101,6 +109,8 @@ function rentCollect_import(depositRecordName, newRecordEnable) {
   
   // rid of unused info
   // replaceRowContents(depositRecorColPosNote,THIS_ACCOUNT_NUMBER,"");
+
+  return (isRecordExisted & sts_integrity);
 
 
 }
