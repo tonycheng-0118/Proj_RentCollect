@@ -78,7 +78,7 @@ function rentCollect_contract() {
           record.update(upd);
         }
         else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
-          if (item.tenantAccount_arr.indexOf(record.fromAccount)!=-1) {
+          if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
             // Logger.log(`hit record: ${record.show()}`);
             if (record.contractNo == null) { // first record update
               actual_transfer_payment += record.amount;

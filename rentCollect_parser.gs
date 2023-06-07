@@ -715,8 +715,8 @@ function rentCollect_parser_Tenant() {
     if (data[i].length<accountColOfs+1) {var errMsg = `[rentCollect_parser_Tenant] The tenant account data is missing for ${itemNo}`; reportErrMsg(errMsg);}
     chkNotEmptyEntry(data[i][1]);
     for (a=accountColOfs;a<data[i].length;a++){
-      if (data[i][a].replace(/ /g,'')!='') {
-        var account = data[i][a].replace(/ /g,'');
+      if (data[i][a].toString().replace(/ /g,'')!='') {
+        var account = data[i][a].toString().replace(/ /g,'');
         account_arr.push(account);
         all_account_arr.push(account);
         chkValidAccount(account);
@@ -851,10 +851,19 @@ function rentCollect_parser_Contract() {
 }
 
 function chkValidAccount(account){
-    var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
-    var meet = regExp.exec(account);
+    var regExpCTBC = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
+    var meetCTBC = regExpCTBC.exec(account);
 
-    if (meet == null) {var errMsg = `[chkValidAccount] This is not a valid account: ${account}`; reportErrMsg(errMsg);}
+    var regExpKTB = new RegExp("([0-9]{10}\d*)","gi");
+    var meetCKTB = regExpKTB.exec(account);
+
+    if (meetCTBC || meetCKTB) {
+      return true;
+    } 
+    else {
+      if (1) {var errMsg = `[chkValidAccount] This is not a valid account: ${account}`; reportErrMsg(errMsg);}
+      return false;   
+    }
 }
 
 function chkContractIntegrity(){
