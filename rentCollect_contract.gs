@@ -36,7 +36,7 @@ function rentCollect_contract() {
     
     var expect_rent_count = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) / item.period; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
     
-    var expect_rent = Math.ceil(expect_rent_count) * item.amount;
+    var expect_rent = Math.ceil(expect_rent_count) * item.amount; // will not include deposit
     // Logger.log(`expect_rent=${expect_rent}, item.fromDate.getDate()=${item.fromDate.getDate()}. ${item.show()}`);
     
     var expect_util = 0;
@@ -52,12 +52,15 @@ function rentCollect_contract() {
     for (j=0;j<GLB_MiscCost_arr.length;j++) {
       var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
       if ((item.fromDate <= misc.date) && (misc.date < item.toDate) && (misc.rentProperty == item.rentProperty)){
-        if (misc.type == misc.MiscType_Charge_Fee)      expect_misc         += misc.amount;
-        else if (misc.type == misc.MiscType_CashRent)   actual_cash_payment += misc.amount; // cash paid by the tenant
-        else if (misc.type == misc.MiscType_SubRent)    expect_misc         -= misc.amount; // rent deduction.
-        else if (misc.type == misc.MiscType_Repare_Fee) expect_misc         += 0; // expect to be absorbed by preperty owner
-        else if (misc.type == misc.MiscType_Refund)     expect_misc         -= misc.amount; // return back to tenant
-        else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${item.itemNo} is invalid!`; reportErrMsg(errMsg);}
+        // if (misc.type == misc.MiscType_Charge_Fee)      expect_misc         += misc.amount;
+        // else if (misc.type == misc.MiscType_CashRent)   actual_cash_payment += misc.amount; // cash paid by the tenant
+        // else if (misc.type == misc.MiscType_SubRent)    expect_misc         -= misc.amount; // rent deduction.
+        // else if (misc.type == misc.MiscType_Repare_Fee) expect_misc         += 0; // expect to be absorbed by preperty owner
+        // else if (misc.type == misc.MiscType_Refund)     expect_misc         -= misc.amount; // return back to tenant
+        // else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${item.itemNo} is invalid!`; reportErrMsg(errMsg);}
+        
+        if (misc.type == misc.MiscType_CashRent) actual_cash_payment += misc.amount; // cash paid by the tenant, TODO, find a better way to collect the cash payment.
+        else expect_misc += misc.expect_misc();
       }
     }
     
@@ -67,8 +70,9 @@ function rentCollect_contract() {
       // record.show();
       // Logger.log(`AAA ${item.tenantAccount_arr.indexOf(record.fromAccount)}, BBB ${record.fromAccount}`)
       var finishDate;
-      if (item.endContract) finishDate = item.endDate;
-      else finishDate = item.toDate;
+      if (item.endContract) finishDate = new Date(item.endDate.getTime()+CONST_MILLIS_PER_DAY);
+      else if (CONST_TODAY_DATE <= item.toDate) finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
+      else finishDate = new Date(item.toDate);
 
       if ((item.fromDate <= record.date) && (record.date < finishDate)){
         if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record

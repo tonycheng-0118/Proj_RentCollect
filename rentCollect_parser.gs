@@ -199,6 +199,15 @@ class itemMiscCost {
     } else return false
   }
 
+  expect_misc (){
+    if      (this.type == this.MiscType_Charge_Fee) return ( 1 * this.amount);
+    else if (this.type == this.MiscType_CashRent)   return (-1 * this.amount); // cash paid by the tenant
+    else if (this.type == this.MiscType_SubRent)    return (-1 * this.amount); // rent deduction.
+    else if (this.type == this.MiscType_Repare_Fee) return ( 0 * this.amount); // expect to be absorbed by preperty owner
+    else if (this.type == this.MiscType_Refund)     return (-1 * this.amount); // return back to tenant
+    else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${this.itemNo} is invalid!`; reportErrMsg(errMsg);}
+  }
+
   show(){
     var text = `itemMiscCost: \n(itemNo=${this.itemNo},date=${this.date},rentProperty=${this.rentProperty},amount=${this.amount},type=${this.type},note=${this.note},contractNo=${this.contractNo},tenantName=${this.tenantName},validContract=${this.validContract})`;
     // Logger.log(text);
@@ -290,6 +299,7 @@ class itemContract {
     this.rentArear                = null;
     this.dayRest                  = null;
     
+    this.ColPos_ItemNo            = 1;
     this.ColPos_Deposit           = 5;
     this.ColPos_EndDate           = 14;
     this.ColPos_ValidContract     = 15;
@@ -321,6 +331,7 @@ class itemContract {
     var that = new itemContract(item);
     // that.show();
     if (
+      (this.itemNo.toString()       == that.itemNo.toString()) &&
       (this.fromDate.toString()     == that.fromDate.toString()) &&
       (this.toDate.toString()       == that.toDate.toString()) && 
       (this.rentProperty            == that.rentProperty) &&
@@ -768,11 +779,12 @@ function rentCollect_parser_Contract() {
   // Parse to itemContract
   /////////////////////////////////////////
   var topRowOfs = 1;
-  SheetContractName.getRange(1+topRowOfs,1,SheetContractName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
+  // SheetContractName.getRange(1+topRowOfs,1,SheetContractName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
   var data = SheetContractName.getRange(1+topRowOfs,1,SheetContractName.getLastRow()-topRowOfs,SheetContractName.getLastColumn()).getValues();
+  var getMaxContractNo = -1;
   for(i=0;i<data.length;i++){
     // itemNo
-    var itemNo = i;
+    var itemNo = data[i][0];
 
     // fromDate
     chkNotEmptyEntry(data[i][1]);
@@ -843,9 +855,26 @@ function rentCollect_parser_Contract() {
     // Logger.log(`RRR: ${item.show()}`);
 
     // Write contractNo
-    SheetContractName.getRange(1+topRowOfs+i,1).setValue(itemNo);
+    // SheetContractName.getRange(1+topRowOfs+i,1).setValue(itemNo);
+    if (getMaxContractNo < itemNo) getMaxContractNo = itemNo; // for new contractNo assignment.
 
   }
+
+  // to assign contractNo to new contract
+  for(i=0;i<GLB_Contract_arr.length;i++){
+    var item = new itemContract(GLB_Contract_arr[i]);
+    if (item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+      item.itemNo = ++getMaxContractNo;
+      GLB_Contract_arr[i][item.ColPos_ItemNo-1] = item.itemNo;
+      SheetContractName.getRange(1+topRowOfs+i,item.ColPos_ItemNo).setValue(item.itemNo);
+    }
+  }
+  // GLB_Contract_arr.forEach (
+  //   function(data) {
+  //     var item = new itemContract(data);
+  //     Logger.log(`RXX: ${item.show()}, getMaxContractNo: ${getMaxContractNo}`);
+  //   }
+  // )
 
   // integrity check cross contract and tenant
   chkContractIntegrity();

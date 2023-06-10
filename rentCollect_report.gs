@@ -167,11 +167,18 @@ function report_status() {
     if (isValidContract) {
       var tenantName    = property.tenantName;// SheetPropertyName.getRange(1+topRowOfs+i,property.ColPos_TenantName).getValue();
       var contractNo    = property.contractNo;// SheetPropertyName.getRange(1+topRowOfs+i,property.ColPos_ContractNo).getValue();
-      var contract      = new itemContract(GLB_Contract_arr[contractNo]);
+      var contract      = new itemContract(GLB_Contract_arr[findContractNoPos(contractNo)]);
       var rentArrear    = contract.rentArear;// SheetContractName.getRange(1+topRowOfs+contractNo,contract.ColPos_RentArrear).getValue();
       var deposit       = contract.deposit;// SheetContractName.getRange(1+topRowOfs+contractNo,contract.ColPos_Deposit).getValue();
       var curRent       = property.curRent;// SheetPropertyName.getRange(1+topRowOfs+i,property.ColPos_CurRent).getValue();
       var dayRest       = property.dayRest;// SheetPropertyName.getRange(1+topRowOfs+i,property.ColPos_DayRest).getValue();
+
+      // GLB_Contract_arr.forEach (
+      //   function(data) {
+      //     var item = new itemContract(data);
+      //     Logger.log(`IUY: Property.itemNo: ${i}, contractNo: ${contractNo}, rentArrear: ${rentArrear}, item: ${item.show()}`);
+      //   }
+      // )
     } 
     else {
       var tenantName    = "N/A";
@@ -313,7 +320,7 @@ function report_event() {
       var fromDate= Utilities.formatDate(contract.fromDate, "GMT+8", "yyyy/MM/dd");
       var toDate  = Utilities.formatDate(contract.toDate, "GMT+8", "yyyy/MM/dd");
       var event   = `1. Start of the contract from ${fromDate} to ${toDate} with deposit = ${contract.deposit}`;
-      var amount  = contract.deposit;
+      var amount  = -1 * contract.deposit;
       var upd     = [itemNo,fromDate,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
       item.update(upd);
       // SheetRptEventName.appendRow(item.itemPack);
@@ -329,8 +336,8 @@ function report_event() {
         var item    = new itemRptEvent([]);
         var date    = Utilities.formatDate(j, "GMT+8", "yyyy/MM/dd");
         var event   = `2. Rent bill is ${contract.amount}`;
-        var amount  = contract.amount;
-        var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,contract.amount];
+        var amount  = -1 * contract.amount;
+        var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
         item.update(upd);
         // SheetRptEventName.appendRow(item.itemPack);
         GLB_RptEvent_arr.push(item.itemPack);
@@ -347,7 +354,7 @@ function report_event() {
           var item    = new itemRptEvent([]);
           var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
           var event   = `3. Util bill is ${util.amount}`;
-          var amount  = util.amount;
+          var amount  = -1 * util.amount;
           var upd     = [itemNo,util.date,util.rentProperty,contract.tenantName,contract.itemNo,event,amount];
           item.update(upd);
           // SheetRptEventName.appendRow(item.itemPack);
@@ -363,7 +370,7 @@ function report_event() {
           var item    = new itemRptEvent([]);
           var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
           var event   = `4. Misc cost, type = ${misc.type}.`;
-          var amount  = misc.amount;
+          var amount  = -1 * misc.expect_misc(); // due to the rentArrear is to sub this item
           var upd     = [itemNo,date,misc.rentProperty,contract.tenantName,contract.itemNo,event,amount];
           item.update(upd);
           // SheetRptEventName.appendRow(item.itemPack);
@@ -439,8 +446,19 @@ function report_event() {
   var item    = new itemRptEvent([]);
   var range = SheetRptEventName.getRange(1+topRowOfs,1,GLB_RptEvent_arr.length,item.itemPackMaxLen).setValues(GLB_RptEvent_arr);
 
-  // sort by date
+  // sort by property and date for stable event order 
   var range = SheetRptEventName.getRange(1+topRowOfs,1,SheetRptEventName.getLastRow()-topRowOfs,SheetRptEventName.getLastColumn());
   range.sort({column:item.ColPos_Event,ascending: false});
+  range.sort({column:item.ColPos_RentProperty,ascending: false});
   range.sort({column:item.ColPos_Date,ascending: false});
+}
+
+function findContractNoPos(contractNo) {
+  for(i=0;i<GLB_Contract_arr.length;i++){
+    var item = new itemContract(GLB_Contract_arr[i]);
+    if (item.itemNo == contractNo) return i;
+  }
+
+  if (1) {var errMsg = `[findContractNoPos] contractNo: ${contractNo} not found!?`; reportErrMsg(errMsg);}
+  return ""
 }
