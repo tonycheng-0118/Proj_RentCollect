@@ -958,7 +958,18 @@ function chkContractIntegrity(){
   //ContractOverrid correlate to existed contractNo
   for (i=0;i<GLB_BankRecord_arr.length;i++){ // less likely duplicated, check for assurance
     var record = new itemBankRecord(GLB_BankRecord_arr[i]);
-    if (findContractNoPos(record.contractOverrid)==-1) {var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);}
+    if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") != "") {
+      if (findContractNoPos(record.contractOverrid)==-1) {var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);}
+      else {
+        var contract = new itemContract(GLB_Contract_arr[findContractNoPos(record.contractOverrid)]);
+        
+        if (!(contract.fromDate<=record.date &&  record.date<contract.toDate)) {var errMsg = `[chkContractIntegrity] ContractOverrid date not valid: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
+        
+        if (record.toAccountName != contract.toAccountName) {var errMsg = `[chkContractIntegrity] ContractOverrid toAccountName diff: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
+
+        if (record.toAccount != contract.toAccount) {var errMsg = `[chkContractIntegrity] ContractOverrid toAccount diff: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
+      }
+    }
   } 
 
 }
