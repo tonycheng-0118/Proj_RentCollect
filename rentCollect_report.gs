@@ -199,10 +199,11 @@ function report_status() {
     for (var j=0;j < GLB_MiscCost_arr.length;j++){
       var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
       if (misc.rentProperty == property.rentProperty) {
-        if (misc.type == misc.MiscType_Charge_Fee)  accBalance += misc.amount;
-        if (misc.type == misc.MiscType_CashRent)    accBalance += misc.amount;
-        if (misc.type == misc.MiscType_Repare_Fee)  accBalance -= misc.amount;
-        if (misc.type == misc.MiscType_Refund)      accBalance -= misc.amount;
+        // if (misc.type == misc.MiscType_Charge_Fee)  accBalance += misc.amount;
+        // if (misc.type == misc.MiscType_CashRent)    accBalance += misc.amount;
+        // if (misc.type == misc.MiscType_Repare_Fee)  accBalance -= misc.amount;
+        // if (misc.type == misc.MiscType_Refund)      accBalance -= misc.amount;
+        accBalance += misc.balance_misc();
       }
     }
     

@@ -159,7 +159,8 @@ class itemMiscCost {
 
     this.MiscType_Charge_Fee    = `0.Charge_Fee`;
     this.MiscType_CashRent      = `1.Cash_Rent`;
-    this.MiscType_SubRent       = `2.Sub_Rent`
+    this.MiscType_SubRent       = `2.Sub_Rent`;
+    this.MiscType_Commission    = `3.Commission`
     this.MiscType_Repare_Fee    = `5.Repare_Fee`;
     this.MiscType_Refund        = `6.Refund`;
     
@@ -199,11 +200,22 @@ class itemMiscCost {
     } else return false
   }
 
-  expect_misc (){
-    if      (this.type == this.MiscType_Charge_Fee) return ( 1 * this.amount);
+  expect_misc (){ // from expected payment perspective
+    if      (this.type == this.MiscType_Charge_Fee) return ( 1 * this.amount); // extra tenant payment apaprt from rent.
     else if (this.type == this.MiscType_CashRent)   return (-1 * this.amount); // cash paid by the tenant
-    else if (this.type == this.MiscType_SubRent)    return (-1 * this.amount); // rent deduction.
-    else if (this.type == this.MiscType_Repare_Fee) return ( 0 * this.amount); // expect to be absorbed by preperty owner
+    else if (this.type == this.MiscType_SubRent)    return (-1 * this.amount); // rent deduction, the expense for other purpose.
+    else if (this.type == this.MiscType_Commission) return (-1 * this.amount); // payment to the agent.
+    else if (this.type == this.MiscType_Repare_Fee) return ( 0 * this.amount); // absorbed by preperty owner
+    else if (this.type == this.MiscType_Refund)     return (-1 * this.amount); // return back to tenant
+    else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${this.itemNo} is invalid!`; reportErrMsg(errMsg);}
+  }
+
+  balance_misc (){ // from property balance perspective
+    if      (this.type == this.MiscType_Charge_Fee) return ( 0 * this.amount); // will be covered by bank record
+    else if (this.type == this.MiscType_CashRent)   return ( 1 * this.amount); // cash paid by the tenant
+    else if (this.type == this.MiscType_SubRent)    return ( 1 * this.amount); // rent deduction, is sub for other usage, still income.
+    else if (this.type == this.MiscType_Commission) return (-1 * this.amount); // payment to the agent.
+    else if (this.type == this.MiscType_Repare_Fee) return (-1 * this.amount); // expect to be absorbed by preperty owner
     else if (this.type == this.MiscType_Refund)     return (-1 * this.amount); // return back to tenant
     else {var errMsg = `[rentCollect_contract] Type of MiscNo: ${this.itemNo} is invalid!`; reportErrMsg(errMsg);}
   }
