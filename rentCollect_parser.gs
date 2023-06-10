@@ -955,6 +955,12 @@ function chkContractIntegrity(){
     if (match==false) {var errMsg = `[chkContractIntegrity] rentProperty no matched: ${contract.itemNo}. ${contract.show()}`; reportErrMsg(errMsg);}
   }
 
+  //ContractOverrid correlate to existed contractNo
+  for (i=0;i<GLB_BankRecord_arr.length;i++){ // less likely duplicated, check for assurance
+    var record = new itemBankRecord(GLB_BankRecord_arr[i]);
+    if (findContractNoPos(record.contractOverrid)==-1) {var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);}
+  } 
+
 }
 
 function chkNotEmptyEntry(entry){

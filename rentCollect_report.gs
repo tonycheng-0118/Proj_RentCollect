@@ -461,5 +461,5 @@ function findContractNoPos(contractNo) {
   }
 
   if (1) {var errMsg = `[findContractNoPos] contractNo: ${contractNo} not found!?`; reportErrMsg(errMsg);}
-  return ""
+  return -1
 }
