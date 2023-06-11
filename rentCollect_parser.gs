@@ -4,6 +4,7 @@
 const CONST_CTBC_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
 const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
 const CONST_KTB_actList = ["現金","現金D","現金E","本交A","利息D","退票D"];
+const CONST_ContractOverrid_DateMargin = 7; // unit day, pre and post margin
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();
@@ -962,8 +963,11 @@ function chkContractIntegrity(){
       if (findContractNoPos(record.contractOverrid)==-1) {var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);}
       else {
         var contract = new itemContract(GLB_Contract_arr[findContractNoPos(record.contractOverrid)]);
+
+        var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_ContractOverrid_DateMargin);
+        var toDate   = new Date(contract.toDate.getTime()  +CONST_MILLIS_PER_DAY*CONST_ContractOverrid_DateMargin);
         
-        if (!(contract.fromDate<=record.date &&  record.date<contract.toDate)) {var errMsg = `[chkContractIntegrity] ContractOverrid date not valid: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
+        if (!(fromDate<=record.date && record.date<toDate)) {var errMsg = `[chkContractIntegrity] ContractOverrid date not valid: ${record.itemNo}, should be within from ${fromDate} to ${toDate}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
         
         if (record.toAccountName != contract.toAccountName) {var errMsg = `[chkContractIntegrity] ContractOverrid toAccountName diff: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
 
