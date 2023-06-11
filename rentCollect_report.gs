@@ -383,7 +383,10 @@ function report_event() {
       // Event: bank record
       for (var j=0;j<GLB_BankRecord_arr.length;j++) {
         var record = new itemBankRecord(GLB_BankRecord_arr[j]);
-        if ((contract.fromDate <= record.date) && (record.date < finishDate)){
+        var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
+        var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
+
+        if ((fromDate <= record.date) && (record.date < toDate)){
           if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
             var item    = new itemRptEvent([]);
             var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");

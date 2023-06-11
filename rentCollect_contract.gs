@@ -63,11 +63,15 @@ function rentCollect_contract() {
       // record.show();
       // Logger.log(`AAA ${item.tenantAccount_arr.indexOf(record.fromAccount)}, BBB ${record.fromAccount}`)
       var finishDate;
+
       if (item.endContract) finishDate = new Date(item.endDate.getTime()+CONST_MILLIS_PER_DAY);
       else if (CONST_TODAY_DATE <= item.toDate) finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
       else finishDate = new Date(item.toDate);
 
-      if ((item.fromDate <= record.date) && (record.date < finishDate)){
+      var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
+      var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
+
+      if ((fromDate <= record.date) && (record.date < toDate)){
         if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
           actual_transfer_payment += record.amount;
           SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
