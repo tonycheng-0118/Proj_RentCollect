@@ -331,7 +331,7 @@ function report_event() {
       // Event: rent bill
       var finishDate;
       if (contract.toDate <= CONST_TODAY_DATE) finishDate = contract.toDate;
-      else finishDate = CONST_TODAY_DATE;
+      else finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
       
       for (var j = new Date(contract.fromDate);j < finishDate;) {
         var item    = new itemRptEvent([]);
@@ -404,7 +404,7 @@ function report_event() {
         // for normal case
         if ((contract.fromDate.getTime() <= record.date) && (record.date < finishDate)){
           if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
-            if (contract.tenantAccount_arr.indexOf(record.fromAccount)!=-1) {
+            if (contract.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
               var item    = new itemRptEvent([]);
               var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
               var event   = `5. Bank record.`;
