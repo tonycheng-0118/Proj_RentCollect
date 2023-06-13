@@ -67,10 +67,11 @@ function rentCollect_contract() {
       if (item.endContract) finishDate = new Date(item.endDate.getTime()+CONST_MILLIS_PER_DAY);
       else if (CONST_TODAY_DATE <= item.toDate) finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
       else finishDate = new Date(item.toDate);
+      
 
+      // for contractOverrid case
       var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
       var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
-
       if ((fromDate <= record.date) && (record.date < toDate)){
         if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
           actual_transfer_payment += record.amount;
@@ -79,7 +80,11 @@ function rentCollect_contract() {
           var upd = [item.itemNo,item.rentProperty];
           record.update(upd);
         }
-        else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+      }
+      
+      // for normal case
+      if ((item.fromDate.getTime() <= record.date) && (record.date < finishDate)){
+        if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
           if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
             // Logger.log(`hit record: ${record.show()}`);
             if (record.contractNo == null) { // first record update

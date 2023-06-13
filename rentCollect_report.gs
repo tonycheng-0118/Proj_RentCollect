@@ -383,9 +383,10 @@ function report_event() {
       // Event: bank record
       for (var j=0;j<GLB_BankRecord_arr.length;j++) {
         var record = new itemBankRecord(GLB_BankRecord_arr[j]);
+        
+        // for contractOverrid case
         var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
         var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
-
         if ((fromDate <= record.date) && (record.date < toDate)){
           if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
             var item    = new itemRptEvent([]);
@@ -398,7 +399,11 @@ function report_event() {
             GLB_RptEvent_arr.push(item.itemPack);
             itemNo += 1;
           }
-          else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+        }
+
+        // for normal case
+        if ((contract.fromDate.getTime() <= record.date) && (record.date < finishDate)){
+          if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
             if (contract.tenantAccount_arr.indexOf(record.fromAccount)!=-1) {
               var item    = new itemRptEvent([]);
               var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
