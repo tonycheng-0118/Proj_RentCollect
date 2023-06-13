@@ -239,13 +239,13 @@ function report_status() {
       SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Grey);
     }
     else if ((property.occupied == false) && (property.validContract == true)) {
-      if ((rentArrear + deposit) > 0) {
-        var status = `4.Need to refund by ${rentArrear + deposit}.`;
+      if ((rentArrear) > 0) {
+        var status = `4.Need to refund by ${rentArrear}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
-      else if ((rentArrear + deposit) < 0) {
-        var status = `1.Need to charge by ${Math.abs(rentArrear + deposit)}.`;
+      else if ((rentArrear) < 0) {
+        var status = `1.Need to charge by ${Math.abs(rentArrear)}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }

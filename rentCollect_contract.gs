@@ -36,7 +36,7 @@ function rentCollect_contract() {
     
     var expect_rent_count = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) / item.period; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
     
-    var expect_rent = Math.ceil(expect_rent_count) * item.amount; // will not include deposit
+    var expect_rent = Math.ceil(expect_rent_count) * item.amount + item.deposit; // will include deposit since it is part of the contract expect payment
     // Logger.log(`expect_rent=${expect_rent}, item.fromDate.getDate()=${item.fromDate.getDate()}. ${item.show()}`);
     
     var expect_util = 0;
@@ -113,8 +113,8 @@ function rentCollect_contract() {
     }
     else {
       var isValidContract = (item.endContract == false) || 
-                            ((item.fromDate <= CONST_TODAY_DATE) && (CONST_TODAY_DATE <  item.toDate)                                   ) || 
-                            (                                       (CONST_TODAY_DATE >= item.toDate) && ((rentArrear+item.deposit) != 0));
+                            ((item.fromDate <= CONST_TODAY_DATE) && (CONST_TODAY_DATE <  item.toDate)                      ) || 
+                            (                                       (CONST_TODAY_DATE >= item.toDate) && ((rentArrear) != 0));
     }
     // Logger.log(`GGGG ${isValidContract}, JJJJ: ${item.endContract}`);
     SheetContractName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(isValidContract);
