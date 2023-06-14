@@ -264,7 +264,7 @@ function rentCollect_contract() {
             occupied = true;
           }
           SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(contract.dayRest);
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(contract.amount);
+          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(Math.floor(contract.amount/contract.period));
           SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
           SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
           SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
