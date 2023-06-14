@@ -937,8 +937,8 @@ function chkContractIntegrity(){
       }
 
       if ((a.rentProperty == b.rentProperty) && a_preperty_valid && b_preperty_valid) {
-        if (a_preperty_date_valid == false) {var errMsg = `[chkContractIntegrity] This contractNo: ${a.itemNo} is end and duplicated to contractNo: ${b.itemNo}. A:${a.show()}, B:${b.show()}`; reportErrMsg(errMsg);} 
-        if (b_preperty_date_valid == false) {var errMsg = `[chkContractIntegrity] This contractNo: ${b.itemNo} is end and duplicated to contractNo: ${a.itemNo}. A:${a.show()}, B:${b.show()}`; reportErrMsg(errMsg);}
+        if ((a_preperty_date_valid == false) && (b_preperty_date_valid == true)) {var warnMsg = `[chkContractIntegrity] This contractNo: ${a.itemNo} is end and duplicated to contractNo: ${b.itemNo}. A:${a.show()}, B:${b.show()}`; reportWarnMsg(warnMsg);} 
+        // if (b_preperty_date_valid == false) {var errMsg = `[chkContractIntegrity] This contractNo: ${b.itemNo} is end and duplicated to contractNo: ${a.itemNo}. A:${a.show()}, B:${b.show()}`; reportErrMsg(errMsg);}
       }
     }
   }
