@@ -463,7 +463,7 @@ function report_event() {
 }
 
 function findContractNoPos(contractNo) {
-  for(i=0;i<GLB_Contract_arr.length;i++){
+  for(var i=0;i<GLB_Contract_arr.length;i++){
     var item = new itemContract(GLB_Contract_arr[i]);
     if (item.itemNo == contractNo) return i;
   }

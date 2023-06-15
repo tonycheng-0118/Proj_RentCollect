@@ -246,39 +246,49 @@ function rentCollect_contract() {
   SheetPropertyName.getRange(1+topRowOfs,pos.ColPos_ContractNo,GLB_Property_arr.length,1).setValue(`N/A`);
   SheetPropertyName.getRange(1+topRowOfs,pos.ColPos_TenantName,GLB_Property_arr.length,1).setValue(`N/A`);
   SheetPropertyName.getRange(1+topRowOfs,pos.ColPos_ValidContract,GLB_Property_arr.length,1).setValue(false);
-  for (i=0;i<GLB_Property_arr.length;i++){
+  for (var i=0;i<GLB_Property_arr.length;i++){
     var item = new itemProperty(GLB_Property_arr[i]);
     var isNotLinkContract = true;
-    // Logger.log(`111: ${item.show()}`);
+    var occupied = false;
+    var linkContractNo = -1;
+    var oldestValidContractDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)"); // a super future date
+    // Logger.log(`111: i: ${i}, ${item.show()}`);
     for(j=0;j<GLB_Contract_arr.length;j++) {
       var contract = new itemContract(GLB_Contract_arr[j]);
-      var occupied = false;
       // var isValidContract = SheetContractName.getRange(1+topRowOfs+j,contract.ColPos_ValidContract).getValue();
       // Logger.log(`222: ${contract.show()}, isValidContract: ${isValidContract}`);
       if (contract.validContract) {
         if ((item.rentProperty == contract.rentProperty)){
           // since the contract integrity guarantee only one rentProperty is occupied a time, wii hit contract only once.
-          if (isNotLinkContract == false) {var errMsg = `[rentCollect_contract] contractNo: ${contract.itemNo} re-link to to rentProperty: ${item.rentProperty}`; reportErrMsg(errMsg);} 
+          // But if a futurn increamental contract will make multi contract mapping to same property.
+          // if (isNotLinkContract == false) {var errMsg = `[rentCollect_contract] contractNo: ${contract.itemNo} re-link to to rentProperty: ${item.rentProperty}`; reportErrMsg(errMsg);} 
           
-          if ((contract.fromDate <= CONST_TODAY_DATE) && (CONST_TODAY_DATE < contract.toDate)) {
-            occupied = true;
+          if ((contract.fromDate <= CONST_TODAY_DATE) && (CONST_TODAY_DATE < contract.toDate)) occupied = true;
+          
+          if (oldestValidContractDate > contract.fromDate) {
+            oldestValidContractDate = new Date(contract.fromDate.getTime());
+            linkContractNo = contract.itemNo; // the property.contractNo will link the oldest valid contract.
           }
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(contract.dayRest);
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(Math.floor(contract.amount/contract.period));
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
-          SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
 
-          var upd = [occupied,contract.dayRest,contract.amount,contract.itemNo,contract.tenantName,contract.validContract];
-          item.update(upd);
-          
           isNotLinkContract = false;
+          
         }
       }
     }
 
     if (isNotLinkContract) { // for all contract miss case
       var upd = [false,null,null,null,null,false];
+      item.update(upd);
+    }
+    else {
+      var contract = new itemContract(GLB_Contract_arr[findContractNoPos(linkContractNo)]);
+      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(contract.dayRest);
+      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(Math.floor(contract.amount/contract.period));
+      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
+      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
+      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
+
+      var upd = [occupied,contract.dayRest,contract.amount,contract.itemNo,contract.tenantName,contract.validContract];
       item.update(upd);
     }
 
