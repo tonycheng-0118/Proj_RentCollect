@@ -99,7 +99,7 @@ function rentCollect_debug_print() {
   // show status
   var logPos=0;
   if (errorLogCollection_arr.length > 0) {
-    var text = `Error @ ${CONST_TODAY_DATE}`;
+    var text = `Error @ ${new Date()}`;
     SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#F08080"); // red
     logPos+=1;
     
@@ -110,7 +110,7 @@ function rentCollect_debug_print() {
   } 
   
   if (warnLogCollection_arr.length > 0) {
-    var text = `Warn @ ${CONST_TODAY_DATE}`;
+    var text = `Warn @ ${new Date()}`;
     SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#FF8C00"); // yellow
     logPos+=1;
     
@@ -121,7 +121,7 @@ function rentCollect_debug_print() {
   } 
   
   if (logPos == 0){
-    var text = `PASS @ ${CONST_TODAY_DATE}`;
+    var text = `PASS @ ${new Date()}`;
     SheetREADMEName.getRange(1+PosRowBase,PosColBase).setValue(text).setFontColor("#3CB371"); // green
   }
 
