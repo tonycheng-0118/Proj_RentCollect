@@ -292,7 +292,9 @@ function report_status() {
   // sort with priority
   var report = new itemRptStatus([]);
   var range = SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn());
-  range.sort(report.ColPos_Status);
+  range.sort({column:report.ColPos_RentProperty,ascending: true});
+  range.sort({column:report.ColPos_Status,ascending: true});
+  
 }
 
 function report_event() {
