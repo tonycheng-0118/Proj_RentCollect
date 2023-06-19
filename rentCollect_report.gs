@@ -233,40 +233,41 @@ function report_status() {
     // Logger.log(`contract: ${contract.show()}`);
     // report status with color
     if ((property.occupied == false) && (property.validContract == false)) {
-      var status = "0.Vacancy";
+      var status = "9.Vacancy";
       SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
       SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Grey);
     }
     else if ((property.occupied == false) && (property.validContract == true)) {
       if ((rentArrear) > 0) {
-        var status = `4.Need to refund by ${rentArrear}.`;
+        var status = `5.Need to refund by ${rentArrear}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
       else if ((rentArrear) < 0) {
-        var status = `1.Need to charge by ${Math.abs(rentArrear)}.`;
+        var status = `8.Need to charge by ${Math.abs(rentArrear)}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
       else {
-        var status = `2.Need to final check.`;
+        var status = `7.Need to final check.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
     }
     else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
-        var status = `3.Rent arear is ${Math.floor(rentArrear*10/property.curRent)/10} month.`;
+        var arrearNum = (10000 + Math.abs(Math.floor(rentArrear*10/property.curRent)/10)).toPrecision(6).toString().substring(1); // for add leading zero
+        var status = `6.Rent arear is -${arrearNum} month.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
       else if (property.occupied && property.dayRest <= 30) {
-        var status = `5.Contract near end within ${property.dayRest} days.`;
+        var status = `4.Contract near end within ${property.dayRest} days.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
       else {
-        var status = "9.Good!!!";
+        var status = "0.Good!!!";
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Green);
       }
@@ -293,7 +294,7 @@ function report_status() {
   var range = SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn());
   range.sort({column:report.ColPos_RentProperty,ascending: true});
   range.sort({column:report.ColPos_RentArrear,ascending: true});
-  range.sort({column:report.ColPos_Status,ascending: true});
+  range.sort({column:report.ColPos_Status,ascending: false});
   
 }
 
