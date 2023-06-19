@@ -256,7 +256,7 @@ function report_status() {
     }
     else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
-        var status = `3.Rent arear more than ${Math.abs(CFG_Val_obj["CFG_ReportArrearMargin"])} month.`;
+        var status = `3.Rent arear more than ${Math.abs(Math.floor(rentArrear*10/property.curRent)/10)} month.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
@@ -292,6 +292,7 @@ function report_status() {
   var report = new itemRptStatus([]);
   var range = SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn());
   range.sort({column:report.ColPos_RentProperty,ascending: true});
+  range.sort({column:report.ColPos_RentArrear,ascending: true});
   range.sort({column:report.ColPos_Status,ascending: true});
   
 }
