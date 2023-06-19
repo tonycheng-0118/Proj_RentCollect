@@ -878,14 +878,48 @@ function rentCollect_parser_Contract() {
 
   }
 
-  // to assign contractNo to new contract
+  /////////////////////////////////////////
+  // Post GLB_Contract_arr process
+  /////////////////////////////////////////
   for(i=0;i<GLB_Contract_arr.length;i++){
+    // to assign contractNo to new contract
     var item = new itemContract(GLB_Contract_arr[i]);
     if (item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
       item.itemNo = ++getMaxContractNo;
       GLB_Contract_arr[i][item.ColPos_ItemNo-1] = item.itemNo;
       SheetContractName.getRange(1+topRowOfs+i,item.ColPos_ItemNo).setValue(item.itemNo);
     }
+
+    // check and update end contract date
+    if (item.endContract) { // to update the endDate
+      if (item.endDate.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+        if (CONST_TODAY_DATE < item.fromDate) {
+          if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} EndContract incorrect`; reportErrMsg(errMsg);}
+        }
+        else if (CONST_TODAY_DATE < item.toDate) {
+          var endDate = CONST_TODAY_DATE;
+          GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
+          SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // abnormal end date, terminate contract ahead.
+        }
+        else if (item.toDate <= CONST_TODAY_DATE) {
+          var endDate = item.toDate;
+          GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
+          SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // normal end date
+        }
+        else {
+          if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} how come???`; reportErrMsg(errMsg);}
+        }
+      }
+      else {
+        // leave it what it is
+      }
+    }
+    else {//if (item.endContract == false) { // should be empty
+      GLB_Contract_arr[i][item.ColPos_EndDate] = CONST_SuperFeatureDate; // expected to be not used, just for data type consistency
+      SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(""); 
+    }
+  
+  
   }
   // GLB_Contract_arr.forEach (
   //   function(data) {
@@ -893,6 +927,7 @@ function rentCollect_parser_Contract() {
   //     Logger.log(`RXX: ${item.show()}, getMaxContractNo: ${getMaxContractNo}`);
   //   }
   // )
+
 
   // integrity check cross contract and tenant
   chkContractIntegrity();

@@ -132,37 +132,6 @@ function rentCollect_contract() {
     }
 
     /////////////////////////////////////////
-    // check end contract date
-    /////////////////////////////////////////
-    // var endDate = SheetContractName.getRange(1+topRowOfs+j,item.ColPos_EndDate).getValues();
-    endDate = item.endDate;
-    // Logger.log(`FFF: ${item.endDate}`);
-    if (item.endContract) { // to update the endDate
-      if (endDate.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
-        if (CONST_TODAY_DATE < item.fromDate) {
-          if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} EndContract incorrect`; reportErrMsg(errMsg);}
-        }
-        else if (CONST_TODAY_DATE < item.toDate) {
-          var endDate = CONST_TODAY_DATE;
-          SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // abnormal end date, terminate contract ahead.
-        }
-        else if (item.toDate <= CONST_TODAY_DATE) {
-          var endDate = item.toDate;
-          SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // normal end date
-        }
-        else {
-          if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} how come???`; reportErrMsg(errMsg);}
-        }
-      }
-      else {
-        // leave it what it is
-      }
-    }
-    else {//if (item.endContract == false) { // should be empty
-      SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(""); 
-    }
-
-    /////////////////////////////////////////
     // update item
     /////////////////////////////////////////
     var upd = [isValidContract,rentArrear,rest];
@@ -251,7 +220,7 @@ function rentCollect_contract() {
     var isNotLinkContract = true;
     var occupied = false;
     var linkContractNo = -1;
-    var oldestValidContractDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)"); // a super future date
+    var oldestValidContractDate = CONST_SuperFeatureDate;
     // Logger.log(`111: i: ${i}, ${item.show()}`);
     for(j=0;j<GLB_Contract_arr.length;j++) {
       var contract = new itemContract(GLB_Contract_arr[j]);

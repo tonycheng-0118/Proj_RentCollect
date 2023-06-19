@@ -24,6 +24,8 @@ const SheetREADMEName       = SheetHandle.getSheetByName('README');
 
 const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const CONST_This_Account_Number = "000014853**1373*"; // The self account number shown in the Deposit Apply Record
+const CONST_SuperFeatureDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)");
+const CONST_SuperAncentDate = new Date("Jan 1 1000 00:00:00 GMT+0800 (Taipei Standard Time)");
 
 
 function rentCollect_main() {
