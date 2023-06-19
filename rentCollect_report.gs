@@ -1,7 +1,6 @@
 /////////////////////////////////////////
 // Golbal Var
 /////////////////////////////////////////
-const ReportArrearMargin  = 1.1; // unit the rent of the contract
 const ReportEventValidContract = true; // only show the valid contract
 
 const Color_Grey          = "#DCDCDC";
@@ -256,8 +255,8 @@ function report_status() {
       }
     }
     else if ((property.occupied == true) && (property.validContract == true)) {
-      if (rentArrear + property.curRent*ReportArrearMargin < 0) {
-        var status = `3.Rent arear more than ${Math.abs(ReportArrearMargin)} month.`;
+      if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
+        var status = `3.Rent arear more than ${Math.abs(CFG_Val_obj["CFG_ReportArrearMargin"])} month.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
@@ -387,8 +386,8 @@ function report_event() {
         var record = new itemBankRecord(GLB_BankRecord_arr[j]);
         
         // for contractOverrid case
-        var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
-        var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
+        var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
+        var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
         if ((fromDate <= record.date) && (record.date < toDate)){
           if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
             var item    = new itemRptEvent([]);

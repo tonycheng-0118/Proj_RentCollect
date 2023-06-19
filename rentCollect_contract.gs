@@ -70,8 +70,8 @@ function rentCollect_contract() {
       
 
       // for contractOverrid case
-      var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_FromDateMargin);
-      var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CONST_BankRecordSearch_ToDateMargin);
+      var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
+      var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
       if ((fromDate <= record.date) && (record.date < toDate)){
         if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
           actual_transfer_payment += record.amount;
