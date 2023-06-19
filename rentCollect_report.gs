@@ -239,12 +239,14 @@ function report_status() {
     }
     else if ((property.occupied == false) && (property.validContract == true)) {
       if ((rentArrear) > 0) {
-        var status = `5.Need to refund by ${rentArrear}.`;
+        var rptNum = (1000000 + rentArrear).toPrecision(7).toString().substring(1); // for add leading zero
+        var status = `5.Need to refund by ${rptNum}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
       else if ((rentArrear) < 0) {
-        var status = `8.Need to charge by ${Math.abs(rentArrear)}.`;
+        var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
+        var status = `8.Need to charge by ${rptNum}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
@@ -256,8 +258,8 @@ function report_status() {
     }
     else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
-        var arrearNum = (10000 + Math.abs(Math.floor(rentArrear*10/property.curRent)/10)).toPrecision(6).toString().substring(1); // for add leading zero
-        var status = `6.Rent arear is -${arrearNum} month.`;
+        var rptNum = (1000 + Math.abs(Math.floor(rentArrear*10/property.curRent)/10)).toPrecision(5).toString().substring(1); // for add leading zero
+        var status = `6.Rent arear is -${rptNum} month.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
