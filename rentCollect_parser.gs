@@ -831,8 +831,12 @@ function rentCollect_parser_Contract() {
     var tenantName = data[i][7].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // tenantAccunt_arr
-    if (Object.keys(GLB_Tenant_obj).indexOf(tenantName)==-1) {var errMsg = `[rentCollect_contract] This is not a valid TenantName: ${tenantName}`;reportErrMsg(errMsg);}
-    var tenantAccunt_arr = GLB_Tenant_obj[tenantName];
+    if (chkValidTenantName(tenantName)){
+      var tenantAccunt_arr = GLB_Tenant_obj[tenantName];
+    } 
+    else {
+      var tenantAccunt_arr = []; // to not handing
+    }
 
     // toAccountName
     chkNotEmptyEntry(data[i][8])
@@ -892,6 +896,19 @@ function rentCollect_parser_Contract() {
 
   // integrity check cross contract and tenant
   chkContractIntegrity();
+}
+
+function chkValidTenantName(tenantName){
+
+  var tenantName_arr = Object.keys(GLB_Tenant_obj);
+  var match = false;
+  for (var i =0;i<tenantName_arr.length;i++){
+    if ((match == false) && (tenantName_arr[i] == tenantName)) match = true;
+  }
+  
+  if (match==false) {var errMsg = `[chkValidTenantName] This is not a valid TenantName: ${tenantName}`;reportErrMsg(errMsg);}
+  
+  return match;
 }
 
 function chkValidAccount(account){
