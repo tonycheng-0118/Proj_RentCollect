@@ -274,7 +274,10 @@ class itemBankRecord {
       (this.date.toString()         == that.date.toString()) &&
       (this.action                  == that.action) && 
       (this.amount                  == that.amount) &&
+      (this.fromAccountName         == that.fromAccountName) &&
       (this.fromAccount             == that.fromAccount) &&
+      (this.toAccountName           == that.toAccountName) &&
+      (this.toAccount               == that.toAccount) &&
       (this.balance                 == that.balance)
     ) {
       Logger.log(`AAA: ${this.show()}`);
@@ -376,8 +379,85 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
+  rentCollect_parser_Record_ESUN(); // 玉山銀行
   rentCollect_parser_Record_KTB(); // 京城銀行
   rentCollect_parser_Record_CTBC(); // 中國信託
+}
+
+function rentCollect_parser_Record_ESUN() { // 玉山銀行
+  /////////////////////////////////////////
+  // README
+  // With the upcoming new items in sheet.Import, this function will parse them and merge them with the sheet.Database.
+  /////////////////////////////////////////
+  
+  /////////////////////////////////////////
+  // Setting
+  /////////////////////////////////////////
+  const importRowOfs = 9; // the offset from the top row, A1 is ofs 1
+  const importRowSub = 3;  // the last row to ignore
+  const importColOfs = 0;  // the offset from the left col, A1 is ofs 0
+  const importContentLen = 9;
+  const records_obj = [["玉山1001968210899","玉山0899","1001968210899"]];
+  // for (const [k,v] of Object.entries(records_obj)) {
+  //   Logger.log(`key: ${k}, value: ${v[1]}`);
+  // }
+  
+  /////////////////////////////////////////
+  // Import from source sheet
+  /////////////////////////////////////////
+  for (const [k,v] of Object.entries(records_obj)) {
+    
+    var isImportValid = rentCollect_import(v[0],false);
+
+    if (isImportValid) {
+      var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importRowSub, importContentLen).getValues();
+      for(i=0;i<data.length;i++){
+        // itemNo
+        var itemNo = i;
+
+        // date
+        if (typeof(data[i][0])==`string`) var date = new Date(data[i][0].toString().replace(/\*/g,"")); // to eliminate leading *
+        else var date = new Date(data[i][0]);
+
+        // action
+        if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")=="")) {
+          // when 支出 non-empty and 存入 is empty, then it is withdraw
+          withdraw = true;
+          deposit  = false;
+        } 
+        else if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")=="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")!="")) {
+          // when 支出 empty and 存入 is non-empty, then it is deposit
+          withdraw = false;
+          deposit  = true;
+        }
+        else {
+          Logger.log(`withdraw: ${withdraw}, deposit: ${deposit}, a:${data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")}, b:${data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")}`)
+          if (1) {var errMsg = `[rentCollect_parser_Record_KTB] For ${v[0]} @ date: ${date}, no withdraw or deposit found!`; reportErrMsg(errMsg);}
+        }
+        var act = action_mapping("ESUN", i, data[i][2].toString(), withdraw, deposit);
+
+        // amount
+        var amount = (act == "TransferOut" || act == "Withdraw" || act == "OtherOut") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+        // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+
+        // balance
+        var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+        
+        // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+        // from
+        var fromNote = note_mapping("ESUN", i, act, [data[i][2].toString(),data[i][6].toString(),data[i][7].toString(),data[i][8].toString()]);
+        
+        if (act != ""){
+          GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+        }
+        
+        // Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
+      }
+
+      merge_BankRecord(v[1],v[2]);
+    }
+  }
+  
 }
 
 function rentCollect_parser_Record_KTB() { // 京城銀行
@@ -411,7 +491,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
         var itemNo = i;
 
         // date
-        var date = data[i][0];
+        var date = new Date(data[i][0]);
 
         // action
         if ((data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")!="") & (data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")=="")) {
@@ -486,7 +566,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
     var itemNo = i;
 
     // date
-    var date = data[i][1];
+    var date = new Date(data[i][1]);
 
     // action
     var act = action_mapping("CTBC", i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
@@ -615,6 +695,26 @@ function note_mapping(type, id, act, note_in) {
       return [fromAccountName,fromAccount];
     }
   }
+  else if (type == "ESUN"){
+    if (act == "TransferIn"){
+      // retrieve fromAccountName
+      var regExp = new RegExp("([0-9]{3}/[0-9]{10}\d*)","gi"); // escape word
+      if (note_in[2].match(regExp) != null) {
+        var fromAccount = (regExp.exec(note_in[2])[0]);
+      }
+      else {
+        var fromAccount = "";
+      }
+      var fromAccountName = note_in[1].replace(/[\s|\n|\r|\t]/g,"") + ";" + note_in[3].replace(/[\s|\n|\r|\t]/g,"");
+      
+      return [fromAccountName,fromAccount];
+    }
+    if ((act == "OtherIn") || (act == "OtherOut")){
+      var fromAccount = "";
+      var fromAccountName = note_in[0].replace(/[\s|\n|\r|\t]/g,""); // to prevent duplicate no used record
+      return [fromAccountName,fromAccount];
+    }
+  }
   else {
     if (1) {var errMsg = `[note_mapping] import format does not support at id: ${id}?? act is: ${act}, note_in: ${note_in}`; reportErrMsg(errMsg);}
   }
@@ -673,6 +773,26 @@ function action_mapping(type, id, act_in, withdraw, deposit){
     if (isDeposit && CONST_KTB_actList.indexOf(act[0])!=-1){
       return "Deposit"
       // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    }
+
+    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+    return ""
+  }
+  else if (type=="ESUN"){
+    var regExp = new RegExp(".*[匯|轉].*","gi");
+    if (regExp.exec(act[0])!=null) {
+      if (isWithdraw) return "TransferOut";
+      if (isDeposit)  return "TransferIn";
+    }
+
+    var regExp = new RegExp(".*[存].*","gi");
+    if (regExp.exec(act[0])!=null) {
+      if (isWithdraw) return "Withdraw";
+      if (isDeposit ) return "Deposit";
+    }
+    else { // like interest, load, bank adjustment, which is not record of interesting
+      if (isWithdraw) return "OtherOut";
+      if (isDeposit ) return "OtherIn";
     }
 
     if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
