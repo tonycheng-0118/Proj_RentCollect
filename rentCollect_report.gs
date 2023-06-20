@@ -258,8 +258,8 @@ function report_status() {
     }
     else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
-        var rptNum = (1000 + Math.abs(Math.floor(rentArrear*10/property.curRent)/10)).toPrecision(5).toString().substring(1); // for add leading zero
-        var status = `6.Rent arear is -${rptNum} month.`;
+        var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
+        var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
