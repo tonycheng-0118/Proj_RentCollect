@@ -68,36 +68,51 @@ function rentCollect_contract() {
       else if (CONST_TODAY_DATE <= item.toDate) finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
       else finishDate = new Date(item.toDate);
       
-
-      // for contractOverrid case
-      var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
-      var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
-      if ((fromDate <= record.date) && (record.date < toDate)){
-        if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
-          actual_transfer_payment += record.amount;
-          SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
-          SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
-          var upd = [item.itemNo,item.rentProperty];
-          record.update(upd);
+      // The bankRecord search method. Must sync with rptEvent part.
+      var match = false;
+      if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+        // for manually assign contract No record
+        var fromDate = new Date(item.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
+        var toDate   = new Date(finishDate.getTime()   +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
+        if ((fromDate <= record.date) && (record.date < toDate)){
+          match = true;
         }
       }
-      
-      // for normal case
-      if ((item.fromDate.getTime() <= record.date) && (record.date < finishDate)){
-        if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
-          if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
-            // Logger.log(`hit record: ${record.show()}`);
-            if (record.contractNo == null) { // first record update
-              actual_transfer_payment += record.amount;
-              SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
-              SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
-              var upd = [item.itemNo,item.rentProperty];
-              record.update(upd);
+      else {
+        // for normal case
+        if ((item.fromDate.getTime() <= record.date) && (record.date < finishDate)){
+          if (record.contractNo == null) { // first record update
+            // for account search 
+            if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
+              match = true;
             }
-            else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo??`; reportErrMsg(errMsg);}
-            else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty??`; reportErrMsg(errMsg);}
+            // for account name search
+            else if (item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
+              var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
+              for (k=0;k<accountName_arr.length;k++){
+                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A]?") + "$";
+                Logger.log(`srhPtn: ${srhPtn}`);
+                var regExp = new RegExp(srhPtn,"gi");
+                var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
+                for (kk=0;kk<fromAccountName_arr.length;kk++){
+                  if (fromAccountName_arr[kk].toString().match(regExp) != null){
+                    match = true;
+                  }
+                }
+              }
+            }
           }
+          else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo??`; reportErrMsg(errMsg);}
+          else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty??`; reportErrMsg(errMsg);}
         }
+      }
+
+      if (match) {
+        actual_transfer_payment += record.amount;
+        SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
+        SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
+        var upd = [item.itemNo,item.rentProperty];
+        record.update(upd);
       }
     }
     

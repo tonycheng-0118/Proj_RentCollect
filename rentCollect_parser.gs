@@ -4,7 +4,8 @@
 const CONST_CTBC_actWithdrawList = ["現金","中信卡"]; // A list to collect all of the known withdraw action apart from Tranfer
 const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅"]; // A list to collect all of the known deposit action apart from Tranfer
 const CONST_KTB_actList = ["現金","現金D","現金E","本交A","利息D","退票D"];
-
+const GLB_Tenant_AccountName_Pos = 0;
+const GLB_Tenant_Account_Pos = 1;
 
 var GLB_Tenant_obj      = new Object();
 var GLB_Import_arr      = new Array();
@@ -304,31 +305,32 @@ class itemContract {
     this.amount                   = item[5];
     this.period                   = item[6];
     this.tenantName               = item[7];
-    this.tenantAccount_arr        = item[8];
-    this.toAccountName            = item[9];
-    this.toAccount                = item[10];
-    this.endContract              = item[11];
-    this.note                     = item[12];
-    this.fileLink                 = item[13];
-    this.endDate                  = item[14];
+    this.tenantAccountName_regex  = item[8];
+    this.tenantAccount_arr        = item[9];
+    this.toAccountName            = item[10];
+    this.toAccount                = item[11];
+    this.endContract              = item[12];
+    this.note                     = item[13];
+    this.fileLink                 = item[14];
+    this.endDate                  = item[15];
     this.validContract            = null;
     this.rentArear                = null;
     this.dayRest                  = null;
     
     this.ColPos_ItemNo            = 1;
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 14;
-    this.ColPos_ValidContract     = 15;
-    this.ColPos_RentArrear        = 16;
-    this.ColPos_DayRest           = 17;
+    this.ColPos_EndDate           = 15;
+    this.ColPos_ValidContract     = 16;
+    this.ColPos_RentArrear        = 17;
+    this.ColPos_DayRest           = 18;
 
     this.itemPack                 = item;
-    this.itemPackMaxLen           = 18;
+    this.itemPackMaxLen           = 19;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.validContract          = item[15];
-      this.rentArear              = item[16];
-      this.dayRest                = item[17];
+      this.validContract          = item[16];
+      this.rentArear              = item[17];
+      this.dayRest                = item[18];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemContract] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -352,13 +354,14 @@ class itemContract {
       (this.toDate.toString()       == that.toDate.toString()) && 
       (this.rentProperty            == that.rentProperty) &&
       (this.tenantName              == that.tenantName) &&
+      (this.tenantAccountName_regex == that.tenantAccountName_regex) &&
       (this.tenantAccount_arr.join() == that.tenantAccount_arr.join())
     ) return true
     else return false
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccunt_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };
@@ -848,7 +851,9 @@ function rentCollect_parser_Tenant() {
   // Parse to itemTenant 
   /////////////////////////////////////////
   const topRowOfs = 1;
-  const accountColOfs = 3;
+  const tenantNameColOfs = 1;
+  const accountNameColOfs = 3;
+  const accountColOfs = 4;
   var all_tenant_arr  = new Array();
   var all_account_arr = new Array();
   SheetTenantName.getRange(1+topRowOfs,1,SheetTenantName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
@@ -859,7 +864,7 @@ function rentCollect_parser_Tenant() {
     var account_arr = new Array();
     if (data[i].length<accountColOfs+1) {var errMsg = `[rentCollect_parser_Tenant] The tenant account data is missing for ${itemNo}`; reportErrMsg(errMsg);}
     chkNotEmptyEntry(data[i][1]);
-    for (a=accountColOfs;a<data[i].length;a++){
+    for (var a=accountColOfs;a<data[i].length;a++){
       if (data[i][a].toString().replace(/ /g,'')!='') {
         var account = data[i][a].toString().replace(/ /g,'');
         account_arr.push(account);
@@ -868,9 +873,10 @@ function rentCollect_parser_Tenant() {
       }
     }
 
-    var tenant = data[i][1].toString().replace(/[\s|\n|\r|\t]/g,"");
+    var tenant = data[i][tenantNameColOfs].toString().replace(/[\s|\n|\r|\t]/g,"");
+    var accountName = data[i][accountNameColOfs].toString().replace(/[\s|\n|\r|\t]/g,"");
     all_tenant_arr.push(tenant);
-    GLB_Tenant_obj[tenant] = account_arr; // hash table, key=telantName, value=[Account]
+    GLB_Tenant_obj[tenant] = [accountName,account_arr]; // hash table, key=telantName, value=[Account]
   
     // Write TenantNo
     SheetTenantName.getRange(1+topRowOfs+i,1).setValue(itemNo);
@@ -887,7 +893,9 @@ function rentCollect_parser_Tenant() {
   // chkValidTenant(GLB_Tenant_obj);
 
   // for (const [k,v] of Object.entries(GLB_Tenant_obj)) {
-  //   Logger.log(`key: ${k}, value: ${v}`);
+  //   Logger.log(`key: ${k}, value[0]: ${v[0]}, value[1]: ${v[1]}`);
+  //   Logger.log(`GLB_Tenant_obj[tenantName][0]: ${GLB_Tenant_obj[k][0]}`)
+  //   Logger.log(`GLB_Tenant_obj[tenantName][1]: ${GLB_Tenant_obj[k][1]}`);
   // }
   
   // check duplicated tenant
@@ -949,12 +957,14 @@ function rentCollect_parser_Contract() {
     chkNotEmptyEntry(data[i][7]);
     var tenantName = data[i][7].toString().replace(/[\s|\n|\r|\t]/g,"");
 
-    // tenantAccunt_arr
+    // tenantAccount_arr
     if (chkValidTenantName(tenantName)){
-      var tenantAccunt_arr = GLB_Tenant_obj[tenantName];
+      var tenantAccountName_regex = GLB_Tenant_obj[tenantName][GLB_Tenant_AccountName_Pos];
+      var tenantAccount_arr = GLB_Tenant_obj[tenantName][GLB_Tenant_Account_Pos];
     } 
     else {
-      var tenantAccunt_arr = []; // to not handing
+      var tenantAccountName_regex = "";
+      var tenantAccount_arr = []; // to not handing
     }
 
     // toAccountName
@@ -986,7 +996,7 @@ function rentCollect_parser_Contract() {
     else if ((typeof(endDate) == `object`)) chk_illegal = false;
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endDate: ${endDate}`; reportErrMsg(errMsg);}
     
-    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccunt_arr,toAccountName,toAccount,endContract,note,fileLink,endDate]);
+    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccountName_regex,tenantAccount_arr,toAccountName,toAccount,endContract,note,fileLink,endDate]);
 
     // var item = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`RRR: ${item.show()}`);

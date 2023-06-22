@@ -388,39 +388,48 @@ function report_event() {
       // Event: bank record
       for (var j=0;j<GLB_BankRecord_arr.length;j++) {
         var record = new itemBankRecord(GLB_BankRecord_arr[j]);
-        
-        // for contractOverrid case
-        var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
-        var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
-        if ((fromDate <= record.date) && (record.date < toDate)){
-          if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { // for manually assign contract No record
-            var item    = new itemRptEvent([]);
-            var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
-            var event   = `5. Bank record.`;
-            var amount  = record.amount;
-            var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
-            item.update(upd);
-            // SheetRptEventName.appendRow(item.itemPack);
-            GLB_RptEvent_arr.push(item.itemPack);
-            itemNo += 1;
+        var match = false;
+        if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+          // for manually assign contract No record
+          var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
+          var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
+          if ((fromDate <= record.date) && (record.date < toDate)){
+            match = true;
           }
         }
-
-        // for normal case
-        if ((contract.fromDate.getTime() <= record.date) && (record.date < finishDate)){
-          if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+        else {
+          // for normal case
+          if ((contract.fromDate.getTime() <= record.date) && (record.date < finishDate)){
+            // for account search
             if (contract.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
-              var item    = new itemRptEvent([]);
-              var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
-              var event   = `5. Bank record.`;
-              var amount  = record.amount;
-              var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
-              item.update(upd);
-              // SheetRptEventName.appendRow(item.itemPack);
-              GLB_RptEvent_arr.push(item.itemPack);
-              itemNo += 1;
+              match = true;
+            }
+            // for account name search
+            else if (contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
+              var accountName_arr = contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
+              for (k=0;k<accountName_arr.length;k++){
+                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A]?") + "$";
+                var regExp = new RegExp(srhPtn,"gi");
+                var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
+                for (kk=0;kk<fromAccountName_arr.length;kk++){
+                  if (fromAccountName_arr[kk].toString().match(regExp) != null){
+                    match = true;
+                  }
+                }
+              }
             }
           }
+        }
+        
+        if (match) {
+          var item    = new itemRptEvent([]);
+          var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
+          var event   = `5. Bank record.`;
+          var amount  = record.amount;
+          var upd     = [itemNo,date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount];
+          item.update(upd);
+          GLB_RptEvent_arr.push(item.itemPack);
+          itemNo += 1;
         }
       }
 
