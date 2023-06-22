@@ -78,7 +78,7 @@ function rentCollect_contract() {
           match = true;
         }
       }
-      else {
+      else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
         // for normal case
         if ((item.fromDate.getTime() <= record.date) && (record.date < finishDate)){
           if (record.contractNo == null) { // first record update
