@@ -170,6 +170,9 @@ function rentCollect_contract() {
           if (Math.abs(value) > margin) {
             if (value > 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
             else if (value < 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} less than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
+
+            var msg = "Warn.1";
+            SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
           }
         }
       }

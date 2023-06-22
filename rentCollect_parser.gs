@@ -247,6 +247,7 @@ class itemBankRecord {
     this.contractOverrid        = item[11];
     this.contractNo             = null;
     this.rentProperty           = null;
+    this.ColPos_RecordCheck     = 11;
     this.ColPos_ContractNo      = 13;
     this.ColPos_rentProperty    = 14;
     
