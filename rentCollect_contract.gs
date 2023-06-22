@@ -91,7 +91,7 @@ function rentCollect_contract() {
               var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
               for (k=0;k<accountName_arr.length;k++){
                 var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A]?") + "$";
-                Logger.log(`srhPtn: ${srhPtn}`);
+                // Logger.log(`srhPtn: ${srhPtn}`);
                 var regExp = new RegExp(srhPtn,"gi");
                 var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
                 for (kk=0;kk<fromAccountName_arr.length;kk++){
@@ -156,9 +156,24 @@ function rentCollect_contract() {
   }
 
   /////////////////////////////////////////
-  // link to BankRecord 
+  // check BankRecord and contract correlation 
   /////////////////////////////////////////
-
+  for (var i=0;i<GLB_BankRecord_arr.length;i++) {
+      var item =new itemBankRecord(GLB_BankRecord_arr[i]);
+      // check amount
+      if (item.contractNo != null) {
+        var contract = new itemContract(GLB_Contract_arr[findContractNoPos(item.contractNo)]);
+        if (item.recordCheck.toString() != "Checked") {
+          var value = item.amount - contract.amount;
+          var margin = Math.floor(contract.amount * CFG_Val_obj["CFG_BankRecordCheck_AmountMargin"]);
+          var rate   = (Math.abs(value) / contract.amount);
+          if (Math.abs(value) > margin) {
+            if (value > 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
+            else if (value < 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} less than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
+          }
+        }
+      }
+  }
 
   /////////////////////////////////////////
   // link to UtilBill 
