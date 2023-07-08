@@ -20,6 +20,7 @@ const SheetMiscCostName     = SheetHandle.getSheetByName('MiscCost');
 const SheetPropertyName     = SheetHandle.getSheetByName('Property');
 const SheetRptStatusName    = SheetHandle.getSheetByName('RptStatus');
 const SheetRptEventName     = SheetHandle.getSheetByName('RptEvent');
+const SheetRptAnalysisName  = SheetHandle.getSheetByName('RptAnalysis');
 const SheetREADMEName       = SheetHandle.getSheetByName('README');
 
 const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -27,7 +28,7 @@ const CONST_This_Account_Number = "000014853**1373*"; // The self account number
 const CONST_SuperFeatureDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)");
 const CONST_SuperAncentDate = new Date("Jan 1 1000 00:00:00 GMT+0800 (Taipei Standard Time)");
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_MonthAccRent_NUM"];
 var CFG_Val_obj = new Object();
 
 
@@ -70,7 +71,7 @@ function getCFG(){
 }
 
 function removeFilter(){
-  var sheetName_arr = [SheetImportName,SheetBankRecordName,SheetBankRecordBKName,SheetContractName,SheetTenantName,SheetUtilBillName,SheetMiscCostName,SheetPropertyName,SheetRptStatusName,SheetRptEventName];
+  var sheetName_arr = [SheetImportName,SheetBankRecordName,SheetBankRecordBKName,SheetContractName,SheetTenantName,SheetUtilBillName,SheetMiscCostName,SheetPropertyName,SheetRptStatusName,SheetRptEventName,SheetRptAnalysisName];
   
   sheetName_arr.forEach(
     function(sheetName){

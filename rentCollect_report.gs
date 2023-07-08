@@ -8,6 +8,47 @@ const Color_Yellow        = "#FFFF99";
 const Color_Red           = "#F08080";
 const Color_Green         = "#90EE90";
 
+class itemRptAnalysis {
+  constructor (item) {
+    this.itemNo;
+    this.propertyGroup;
+    this.monthAccRent;
+    
+    this.ColPos_ItemNo            = 1;
+    this.ColPos_PropertyGroupName = 2;
+    this.ColPos_PropertyGroup     = 3;
+    this.ColPos_MonthAccRent      = 4;
+
+    this.itemPack               = item;
+    this.itemPackMaxLen         = 4;
+
+    if (this.itemPack.length == this.itemPackMaxLen) {
+      this.itemNo             = item[0];
+      this.propertyGroupName  = item[1];
+      this.propertyGroup      = item[2];
+      this.monthAccRent       = item[3];
+    }
+    else if (this.itemPack.length > this.itemPackMaxLen) {
+      if (1) {var errMsg = `[itemRptAnalysis] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+    }
+  };
+
+  update (upd) {
+    this.itemNo             = upd[0];
+    this.propertyGroupName  = upd[1];
+    this.propertyGroup      = upd[2];
+    this.monthAccRent       = upd[3];
+    
+    for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
+  }
+
+  show(){
+    var text = `itemRptStatus: \n(itemNo=${this.itemNo}, propertyGroupName=${this.propertyGroupName}, propertyGroup=${this.propertyGroup}, monthAccRent=${this.monthAccRent})`;
+    return text;
+  };
+
+}
+
 class itemRptStatus {
   constructor (item) {
     this.itemNo;
@@ -136,8 +177,73 @@ class itemRptEvent {
 }
 
 function rentCollect_report() {
+  report_analysis();
   report_status();
   report_event();
+}
+
+function report_analysis() {
+  /////////////////////////////////////////
+  // README
+  /////////////////////////////////////////
+  
+  /////////////////////////////////////////
+  // Setting
+  /////////////////////////////////////////
+  const topRowOfs = 1; // the offset from the top row, A2 is 1
+  
+  /////////////////////////////////////////
+  // Clear sheet
+  /////////////////////////////////////////
+  var pos = new itemRptAnalysis([]);
+  SheetTenantName.getRange(1+topRowOfs,pos.ColPos_ItemNo,SheetRptAnalysisName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
+  SheetTenantName.getRange(1          ,pos.ColPos_MonthAccRent,SheetRptAnalysisName.getLastRow(),CFG_Val_obj["CFG_MonthAccRent_NUM"]).clear(); // clear MonthAccRent column including header
+  
+  /////////////////////////////////////////
+  // Cal month acc rent
+  /////////////////////////////////////////
+  var data = SheetRptAnalysisName.getRange(1+topRowOfs,1,SheetRptAnalysisName.getLastRow()-topRowOfs,SheetRptAnalysisName.getLastColumn()).getValues();
+  for(i=0;i<data.length;i++){
+    var itemNo = i;
+    
+    var monthAccRent_arr = new Array();
+
+    var propertyGroup_regex = data[i][pos.ColPos_PropertyGroup-1].toString().replace(/[\s|\n|\r|\t]/g,"");
+    var srhGroup_arr = propertyGroup_regex.split(";");
+    
+    var stDate = new Date(CONST_TODAY_DATE.getTime());
+    stDate.setDate(1); 
+    stDate.setMonth(CONST_TODAY_DATE.getMonth());
+    var edDate = new Date(CONST_TODAY_DATE.getTime());
+    edDate.setDate(1); 
+    edDate.setMonth(CONST_TODAY_DATE.getMonth()+1);
+    for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
+      var accRent = 0;  
+      for (k=0;k<srhGroup_arr.length;k++){
+        var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z]?") + "$";
+        var regExp = new RegExp(srhPtn,"gi");
+        for (var kk=0;kk<GLB_BankRecord_arr.length;kk++) {
+          var item =new itemBankRecord(GLB_BankRecord_arr[kk]);
+          if (item.rentProperty != null) {
+            if ((stDate <= item.date) && (item.date < edDate)) {
+              if (item.rentProperty.toString().match(regExp) != null) {
+                accRent += item.amount;
+              }
+            }
+          }
+        }
+      }
+      SheetRptAnalysisName.getRange(1,pos.ColPos_MonthAccRent+j).setValue(`${stDate.getMonth()+1}/${stDate.getFullYear()}`);
+      stDate.setMonth(stDate.getMonth()-1);
+      edDate.setMonth(edDate.getMonth()-1);
+      monthAccRent_arr.push(accRent);
+    }
+    // Logger.log(`monthAccRent_arr.length=${monthAccRent_arr.length}, monthAccRent_arr=${monthAccRent_arr}`);
+    SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_ItemNo).setValue(i);
+    SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_MonthAccRent,1,monthAccRent_arr.length).setValues([monthAccRent_arr]);
+    
+  }
+  
 }
 
 function report_status() {
@@ -408,7 +514,7 @@ function report_event() {
             else if (contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
               var accountName_arr = contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
               for (k=0;k<accountName_arr.length;k++){
-                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A]?") + "$";
+                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z]?") + "$";
                 var regExp = new RegExp(srhPtn,"gi");
                 var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
                 for (kk=0;kk<fromAccountName_arr.length;kk++){
