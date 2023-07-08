@@ -90,7 +90,7 @@ function rentCollect_contract() {
             else if (item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
               var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
               for (k=0;k<accountName_arr.length;k++){
-                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z]?") + "$";
+                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
                 // Logger.log(`srhPtn: ${srhPtn}`);
                 var regExp = new RegExp(srhPtn,"gi");
                 var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");

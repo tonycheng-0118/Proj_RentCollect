@@ -196,8 +196,8 @@ function report_analysis() {
   // Clear sheet
   /////////////////////////////////////////
   var pos = new itemRptAnalysis([]);
-  SheetTenantName.getRange(1+topRowOfs,pos.ColPos_ItemNo,SheetRptAnalysisName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
-  SheetTenantName.getRange(1          ,pos.ColPos_MonthAccRent,SheetRptAnalysisName.getLastRow(),CFG_Val_obj["CFG_MonthAccRent_NUM"]).clear(); // clear MonthAccRent column including header
+  SheetRptAnalysisName.getRange(1+topRowOfs,pos.ColPos_ItemNo,SheetRptAnalysisName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
+  SheetRptAnalysisName.getRange(1          ,pos.ColPos_MonthAccRent,SheetRptAnalysisName.getLastRow(),CFG_Val_obj["CFG_MonthAccRent_NUM"]).clear(); // clear MonthAccRent column including header
   
   /////////////////////////////////////////
   // Cal month acc rent
@@ -220,7 +220,7 @@ function report_analysis() {
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
       var accRent = 0;  
       for (k=0;k<srhGroup_arr.length;k++){
-        var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z]?") + "$";
+        var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var regExp = new RegExp(srhPtn,"gi");
         for (var kk=0;kk<GLB_BankRecord_arr.length;kk++) {
           var item =new itemBankRecord(GLB_BankRecord_arr[kk]);
@@ -514,7 +514,7 @@ function report_event() {
             else if (contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
               var accountName_arr = contract.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
               for (k=0;k<accountName_arr.length;k++){
-                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z]?") + "$";
+                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
                 var regExp = new RegExp(srhPtn,"gi");
                 var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
                 for (kk=0;kk<fromAccountName_arr.length;kk++){
