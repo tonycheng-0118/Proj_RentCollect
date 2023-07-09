@@ -210,11 +210,17 @@ function report_analysis() {
     var srhGroup_arr = propertyGroup_regex.split(";");
     
     var stDate = new Date(CONST_TODAY_DATE.getTime());
-    stDate.setDate(1); 
-    stDate.setMonth(CONST_TODAY_DATE.getMonth());
+    stDate.setSeconds(0);
+    stDate.setMinutes(0);
+    stDate.setHours(0);
+    stDate.setDate(1);
+    stDate.setMonth(CONST_TODAY_DATE.getMonth()); 
     var edDate = new Date(CONST_TODAY_DATE.getTime());
-    edDate.setDate(1); 
-    edDate.setMonth(CONST_TODAY_DATE.getMonth()+1);
+    edDate.setSeconds(0);
+    edDate.setMinutes(0);
+    edDate.setHours(0);
+    edDate.setDate(1);
+    edDate.setMonth(CONST_TODAY_DATE.getMonth()+1); 
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
       var accRent = 0;
       var accRentDetails_arr = new Array();
