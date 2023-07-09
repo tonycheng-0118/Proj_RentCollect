@@ -205,8 +205,6 @@ function report_analysis() {
   var data = SheetRptAnalysisName.getRange(1+topRowOfs,1,SheetRptAnalysisName.getLastRow()-topRowOfs,SheetRptAnalysisName.getLastColumn()).getValues();
   for(i=0;i<data.length;i++){
     var itemNo = i;
-    
-    var monthAccRent_arr = new Array();
 
     var propertyGroup_regex = data[i][pos.ColPos_PropertyGroup-1].toString().replace(/[\s|\n|\r|\t]/g,"");
     var srhGroup_arr = propertyGroup_regex.split(";");
@@ -218,7 +216,8 @@ function report_analysis() {
     edDate.setDate(1); 
     edDate.setMonth(CONST_TODAY_DATE.getMonth()+1);
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
-      var accRent = 0;  
+      var accRent = 0;
+      var accRentDetails_arr = new Array();
       for (k=0;k<srhGroup_arr.length;k++){
         var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var regExp = new RegExp(srhPtn,"gi");
@@ -227,20 +226,21 @@ function report_analysis() {
           if (item.rentProperty != null) {
             if ((stDate <= item.date) && (item.date < edDate)) {
               if (item.rentProperty.toString().match(regExp) != null) {
+                accRentDetails_arr.push(`${item.itemNo}\t${item.rentProperty}\t${item.amount}\n`);
                 accRent += item.amount;
               }
             }
           }
         }
       }
-      SheetRptAnalysisName.getRange(1,pos.ColPos_MonthAccRent+j).setValue(`${stDate.getMonth()+1}/${stDate.getFullYear()}`);
-      stDate.setMonth(stDate.getMonth()-1);
+      SheetRptAnalysisName.getRange(0+topRowOfs,pos.ColPos_MonthAccRent+j).setValue(`${stDate.getMonth()+1}/${stDate.getFullYear()}`);
+      SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_MonthAccRent+j).setValue(accRent).setNote(`${accRentDetails_arr}`);
+      stDate.setMonth(stDate.getMonth()-1); 
       edDate.setMonth(edDate.getMonth()-1);
-      monthAccRent_arr.push(accRent);
+
+      
     }
-    // Logger.log(`monthAccRent_arr.length=${monthAccRent_arr.length}, monthAccRent_arr=${monthAccRent_arr}`);
     SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_ItemNo).setValue(i);
-    SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_MonthAccRent,1,monthAccRent_arr.length).setValues([monthAccRent_arr]);
     
   }
   
