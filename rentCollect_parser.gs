@@ -931,10 +931,12 @@ function rentCollect_parser_Contract() {
 
     // fromDate
     chkNotEmptyEntry(data[i][1]);
-    var fromDate = data[i][1];
+    var fromDate = new Date(data[i][1]);
+    fromDate.setSeconds(0);fromDate.setMinutes(0);fromDate.setHours(0);
 
     // toDate
-    var toDate = data[i][2];
+    var toDate = new Date(data[i][2]);
+    toDate.setSeconds(0);toDate.setMinutes(0);toDate.setHours(0);
     chkNotEmptyEntry(data[i][2]);
     if (toDate <= fromDate) {var errMsg = `[rentCollect_contract] This is not a valid toDate: contractNo: ${itemNo}`;reportErrMsg(errMsg);}
 
@@ -1028,12 +1030,12 @@ function rentCollect_parser_Contract() {
           if (1) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} EndContract incorrect`; reportErrMsg(errMsg);}
         }
         else if (CONST_TODAY_DATE < item.toDate) {
-          var endDate = CONST_TODAY_DATE;
+          var endDate = new Date(CONST_TODAY_DATE.getTime());
           GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
           SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // abnormal end date, terminate contract ahead.
         }
         else if (item.toDate <= CONST_TODAY_DATE) {
-          var endDate = item.toDate;
+          var endDate = new Date(item.toDate.getTime());
           GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
           SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // normal end date
         }
@@ -1191,7 +1193,8 @@ function rentCollect_parser_UtilBill() {
     
     // date
     chkNotEmptyEntry(data[i][1]);
-    var date = data[i][1];
+    var date = new Date(data[i][1]);
+    date.setSeconds(0);date.setMinutes(0);date.setHours(0);
 
     // rentProperty
     chkNotEmptyEntry(data[i][2]);
@@ -1230,7 +1233,8 @@ function rentCollect_parser_MiscCost() {
     
     // date
     chkNotEmptyEntry(data[i][1]);
-    var date = data[i][1];
+    var date = new Date(data[i][1]);
+    date.setSeconds(0);date.setMinutes(0);date.setHours(0);
 
     // rentProperty
     chkNotEmptyEntry(data[i][2]);

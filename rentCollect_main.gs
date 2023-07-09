@@ -39,7 +39,7 @@ function rentCollect_main() {
   removeFilter();
 
   // top setting
-  getCFG();
+  mainCFG();
   
   // main
   rentCollect_parser();
@@ -51,7 +51,8 @@ function rentCollect_main() {
 }
 
 
-function getCFG(){
+function mainCFG(){
+  // getCFG
   for (i=0;i<CFG_Key_arr.length;i++){
     var cfg_key = CFG_Key_arr[i];
     var tf = SheetREADMEName.createTextFinder(cfg_key);
@@ -68,6 +69,9 @@ function getCFG(){
       Logger.log(`CFG: key:${key}, value:${CFG_Val_obj[key]}`);
     }
   )
+
+  // set CONST
+  CONST_TODAY_DATE.setSeconds(0);CONST_TODAY_DATE.setMinutes(0);CONST_TODAY_DATE.setHours(0);
 }
 
 function removeFilter(){

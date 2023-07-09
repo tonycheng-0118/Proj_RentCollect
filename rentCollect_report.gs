@@ -210,15 +210,9 @@ function report_analysis() {
     var srhGroup_arr = propertyGroup_regex.split(";");
     
     var stDate = new Date(CONST_TODAY_DATE.getTime());
-    stDate.setSeconds(0);
-    stDate.setMinutes(0);
-    stDate.setHours(0);
     stDate.setDate(1);
     stDate.setMonth(CONST_TODAY_DATE.getMonth()); 
     var edDate = new Date(CONST_TODAY_DATE.getTime());
-    edDate.setSeconds(0);
-    edDate.setMinutes(0);
-    edDate.setHours(0);
     edDate.setDate(1);
     edDate.setMonth(CONST_TODAY_DATE.getMonth()+1); 
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
@@ -228,12 +222,12 @@ function report_analysis() {
         var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var regExp = new RegExp(srhPtn,"gi");
         for (var kk=0;kk<GLB_BankRecord_arr.length;kk++) {
-          var item =new itemBankRecord(GLB_BankRecord_arr[kk]);
-          if (item.rentProperty != null) {
-            if ((stDate <= item.date) && (item.date < edDate)) {
-              if (item.rentProperty.toString().match(regExp) != null) {
-                accRentDetails_arr.push(`${item.itemNo}\t${item.rentProperty}\t${item.amount}\n`);
-                accRent += item.amount;
+          var record =new itemBankRecord(GLB_BankRecord_arr[kk]);
+          if (record.rentProperty != null) {
+            if ((stDate <= record.date) && (record.date < edDate)) {
+              if (record.rentProperty.toString().match(regExp) != null) {
+                accRentDetails_arr.push(`${record.itemNo}\t${record.rentProperty}\t${record.amount}\n`);
+                accRent += record.amount;
               }
             }
           }
