@@ -1,4 +1,4 @@
-function rentCollect_import(depositRecordName, newRecordEnable) {
+function rentCollect_import(depositRecordName, newRecordEnable, header_offset, tail_offset) {
   /////////////////////////////////////////
   // README
   /////////////////////////////////////////
@@ -57,7 +57,7 @@ function rentCollect_import(depositRecordName, newRecordEnable) {
     if (sheetTMPImportPreName){
       // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
       Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
-      sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName);
+      sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName,header_offset,tail_offset);
     }
     else { // for 1st time case
       if (newRecordEnable){
@@ -115,7 +115,7 @@ function rentCollect_import(depositRecordName, newRecordEnable) {
 
 }
 
-function chkImportIntegrity(sheet_src,sheet_dst){
+function chkImportIntegrity(sheet_src,sheet_dst,header_offset,tail_offset){
   /////////////////////////////////////////
   // The idea of integrity is to check the consecutive match item in dst.
   /////////////////////////////////////////
@@ -141,8 +141,8 @@ function chkImportIntegrity(sheet_src,sheet_dst){
   var match_cnt=0;
   var match_start = false;
   var match_end   = false;
-  for (var i =1;i<dst_arr.length;i++){ // i=0 is header
-    for (var j=j_cur+1;j<src_arr.length;j++){
+  for (var i =header_offset;i<dst_arr.length-tail_offset;i++){ // i=0 is header
+    for (var j=j_cur+1;j<src_arr.length-tail_offset;j++){
       // Logger.log(`KKK: dst[${i}]: ${dst_arr[i]},\n     src[${j}]: ${src_arr[j]}`);
       if (dst_arr[i] == src_arr[j]) {
         match_start = true;

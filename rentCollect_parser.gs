@@ -399,7 +399,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   // Setting
   /////////////////////////////////////////
   const importRowOfs = 9; // the offset from the top row, A1 is ofs 1
-  const importRowSub = 3;  // the last row to ignore
+  const importLastRowSub = 3;  // the last row to ignore
   const importColOfs = 0;  // the offset from the left col, A1 is ofs 0
   const importContentLen = 9;
   const records_obj = [["玉山1001968210899","玉山0899","1001968210899"]];
@@ -412,10 +412,10 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   /////////////////////////////////////////
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var isImportValid = rentCollect_import(v[0],false);
+    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub);
 
     if (isImportValid) {
-      var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importRowSub, importContentLen).getValues();
+      var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
         var itemNo = i;
@@ -475,6 +475,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   // Setting
   /////////////////////////////////////////
   const importRowOfs = 1; // the offset from the top row, A1 is ofs 0
+  const importLastRowSub = 0;  // the last row to ignore
   const importColOfs = 0; // the offset from the left col, A1 is ofs 0
   const importContentLen = 8;
   const records_obj = [["台幣交易明細查詢_9859","京城9859","005220099859"],["台幣交易明細查詢_9141","京城9141","005228009141"],["台幣交易明細查詢_8135","京城8135","005228008135"],["台幣交易明細查詢_3835","京城3835","005220113835"]];
@@ -487,7 +488,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   /////////////////////////////////////////
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var isImportValid = rentCollect_import(v[0],false);
+    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub);
 
     if (isImportValid) {
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
@@ -555,11 +556,13 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // const SheetImportName = SheetHandle.getSheetByName('Import');
   // const SheetDatabaseName = SheetHandle.getSheetByName('Database');
+  const importRowOfs = 1; // the offset from the top row, A1 is ofs 0
+  const importLastRowSub = 0;  // the last row to ignore
   
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  rentCollect_import("DEPOSIT_APPLY_RECORD",false);
+  rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
 
   /////////////////////////////////////////
   // Parse to itemRecord
