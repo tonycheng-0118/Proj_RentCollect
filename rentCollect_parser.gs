@@ -321,10 +321,10 @@ class itemContract {
     
     this.ColPos_ItemNo            = 1;
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 15;
-    this.ColPos_ValidContract     = 16;
-    this.ColPos_RentArrear        = 17;
-    this.ColPos_DayRest           = 18;
+    this.ColPos_EndDate           = 14;
+    this.ColPos_ValidContract     = 15;
+    this.ColPos_RentArrear        = 16;
+    this.ColPos_DayRest           = 17;
 
     this.itemPack                 = item;
     this.itemPackMaxLen           = 19;
@@ -562,40 +562,41 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
+  var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
 
   /////////////////////////////////////////
   // Parse to itemRecord
   /////////////////////////////////////////
-  // var GLB_Record_arr = new Array();
-  var data = SheetImportName.getDataRange().getValues();
-  for(i=0;i<data.length;i++){
-    // itemNo
-    var itemNo = i;
+  if (isImportValid) {
+    var data = SheetImportName.getDataRange().getValues();
+    for(i=0;i<data.length;i++){
+      // itemNo
+      var itemNo = i;
 
-    // date
-    var date = new Date(data[i][1]);
+      // date
+      var date = new Date(data[i][1]);
 
-    // action
-    var act = action_mapping("CTBC", i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
+      // action
+      var act = action_mapping("CTBC", i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
 
-    // amount
-    var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
-    // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
+      // amount
+      var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+      // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
-    // balance
-    var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
-    
-    // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
-    // from
-    var fromNote = note_mapping("CTBC", i, act, data[i][6].toString());
-    
-    if (act != ""){
-      GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+      // balance
+      var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+      
+      Logger.log(`CCC: i: ${i}, date: ${date}, act: ${act}, amount: ${amount}, balance: ${balance}, data: ${data[i]}`);
+      // from
+      var fromNote = note_mapping("CTBC", i, act, data[i][6].toString());
+      
+      if (act != ""){
+        GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
+      }
     }
-  }
 
-  merge_BankRecord("中國信託","000014853**1373*");
+    merge_BankRecord("中國信託","000014853**1373*");
+  }
 }
 
 function merge_BankRecord(toAccountName,toAccount) {
