@@ -314,25 +314,26 @@ class itemContract {
     this.endContract              = item[12];
     this.note                     = item[13];
     this.fileLink                 = item[14];
-    this.endDate                  = item[15];
+    this.org                      = item[15];
+    this.endDate                  = item[16];
     this.validContract            = null;
     this.rentArear                = null;
     this.dayRest                  = null;
     
     this.ColPos_ItemNo            = 1;
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 14;
-    this.ColPos_ValidContract     = 15;
-    this.ColPos_RentArrear        = 16;
-    this.ColPos_DayRest           = 17;
+    this.ColPos_EndDate           = 15;
+    this.ColPos_ValidContract     = 16;
+    this.ColPos_RentArrear        = 17;
+    this.ColPos_DayRest           = 18;
 
     this.itemPack                 = item;
-    this.itemPackMaxLen           = 19;
+    this.itemPackMaxLen           = 20;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.validContract          = item[16];
-      this.rentArear              = item[17];
-      this.dayRest                = item[18];
+      this.validContract          = item[17];
+      this.rentArear              = item[18];
+      this.dayRest                = item[19];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemContract] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -363,7 +364,7 @@ class itemContract {
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},org=${this.org},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };
@@ -586,7 +587,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
       // balance
       var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
       
-      Logger.log(`CCC: i: ${i}, date: ${date}, act: ${act}, amount: ${amount}, balance: ${balance}, data: ${data[i]}`);
+      //Logger.log(`CCC: i: ${i}, date: ${date}, act: ${act}, amount: ${amount}, balance: ${balance}, data: ${data[i]}`);
       // from
       var fromNote = note_mapping("CTBC", i, act, data[i][6].toString());
       
@@ -996,15 +997,18 @@ function rentCollect_parser_Contract() {
     // fileLink
     var fileLink = data[i][12].toString().replace(/[\s|\n|\r|\t]/g,"");
 
+    // org
+    var org = data[i][13].toString().replace(/[\s|\n|\r|\t]/g,"");
+
     // endDate
     var chk_illegal = true;
-    var endDate = data[i][13];
+    var endDate = data[i][14];
     
     if ((typeof(endDate) == `string`) && (endDate.replace(/ /g,'') == '')) chk_illegal = false;
     else if ((typeof(endDate) == `object`)) chk_illegal = false;
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endDate: ${endDate}`; reportErrMsg(errMsg);}
     
-    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccountName_regex,tenantAccount_arr,toAccountName,toAccount,endContract,note,fileLink,endDate]);
+    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccountName_regex,tenantAccount_arr,toAccountName,toAccount,endContract,note,fileLink,org,endDate]);
 
     // var item = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`RRR: ${item.show()}`);
@@ -1035,12 +1039,12 @@ function rentCollect_parser_Contract() {
         }
         else if (CONST_TODAY_DATE < item.toDate) {
           var endDate = new Date(CONST_TODAY_DATE.getTime());
-          GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
+          GLB_Contract_arr[i][item.ColPos_EndDate+1] = endDate; // pos of endData in GLB_Contract_arr is ColPos_EndDate+1
           SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // abnormal end date, terminate contract ahead.
         }
         else if (item.toDate <= CONST_TODAY_DATE) {
-          var endDate = new Date(item.toDate.getTime());
-          GLB_Contract_arr[i][item.ColPos_EndDate] = endDate;
+          var endDate = new Date(item.toDate.getTime()-CONST_MILLIS_PER_DAY); // toDate is excluded
+          GLB_Contract_arr[i][item.ColPos_EndDate+1] = endDate;
           SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(endDate); // normal end date
         }
         else {
@@ -1052,7 +1056,7 @@ function rentCollect_parser_Contract() {
       }
     }
     else {//if (item.endContract == false) { // should be empty
-      GLB_Contract_arr[i][item.ColPos_EndDate] = CONST_SuperFeatureDate; // expected to be not used, just for data type consistency
+      GLB_Contract_arr[i][item.ColPos_EndDate+1] = CONST_SuperFeatureDate; // expected to be not used, just for data type consistency
       SheetContractName.getRange(1+topRowOfs+i,item.ColPos_EndDate).setValue(""); 
     }
   
