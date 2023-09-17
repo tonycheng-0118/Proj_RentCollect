@@ -159,23 +159,37 @@ function rentCollect_contract() {
   // check BankRecord and contract correlation 
   /////////////////////////////////////////
   for (var i=0;i<GLB_BankRecord_arr.length;i++) {
-      var item =new itemBankRecord(GLB_BankRecord_arr[i]);
-      // check amount
-      if (item.contractNo != null) {
-        var contract = new itemContract(GLB_Contract_arr[findContractNoPos(item.contractNo)]);
-        if (item.recordCheck.toString() != "Checked") {
-          var value = item.amount - contract.amount;
-          var margin = Math.floor(contract.amount * CFG_Val_obj["CFG_BankRecordCheck_AmountMargin"]);
-          var rate   = (Math.abs(value) / contract.amount);
-          if (Math.abs(value) > margin) {
-            if (value > 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
-            else if (value < 0) {var warnMsg = `[rentCollect_contract] BankRecord @ ${item.itemNo} less than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
-
-            var msg = "Warn.1";
+    var item =new itemBankRecord(GLB_BankRecord_arr[i]);
+    // [Warn.1] check amount
+    if (item.contractNo != null) {
+      var contract = new itemContract(GLB_Contract_arr[findContractNoPos(item.contractNo)]);
+      if (item.recordCheck.toString() != "Checked") {
+        var value = item.amount - contract.amount;
+        var margin = Math.floor(contract.amount * CFG_Val_obj["CFG_BankRecordCheck_AmountMargin"]);
+        var rate   = (Math.abs(value) / contract.amount);
+        if (Math.abs(value) > margin) {
+          if (value > 0) {var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
+          else if (value < 0) {var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${value}, rate is ${rate}!`; reportWarnMsg(warnMsg);}
+          
+          if (value > 0) {
+            var msg = "Warn.1a";
+            SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+          } else if (value < 0) {
+            var msg = "Warn.1b";
             SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
           }
         }
       }
+    }
+
+    // [Warn.2] check undefined LN_ContractNo
+    if ((item.action == "TransferIn" || item.action == "Deposit") && (item.contractNo == null)) {
+      if (item.recordCheck.toString() != "Checked") {
+        if (1) {var warnMsg = `[rentCollect_contract][Warn.2] BankRecord @ ${item.itemNo} has no defined LN_ContractNo!`; reportWarnMsg(warnMsg);}
+        var msg = "Warn.2";
+        SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+      }
+    }
   }
 
   /////////////////////////////////////////
