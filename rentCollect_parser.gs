@@ -244,19 +244,21 @@ class itemBankRecord {
     this.toAccount              = item[8];
     this.mergeDate              = item[9];
     this.recordCheck            = item[10];
-    this.contractOverrid        = item[11];
+    this.recordNote             = item[11];
+    this.contractOverrid        = item[12];
     this.contractNo             = null;
     this.rentProperty           = null;
     this.ColPos_RecordCheck     = 11;
-    this.ColPos_ContractNo      = 13;
-    this.ColPos_rentProperty    = 14;
+    this.ColPos_RecordNote      = 12;
+    this.ColPos_ContractNo      = 14;
+    this.ColPos_rentProperty    = 15;
     
     this.itemPack               = item;
-    this.itemPackMaxLen         = 14;
+    this.itemPackMaxLen         = 15;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.contractNo           = item[12];
-      this.rentProperty         = item[13];
+      this.contractNo           = item[13];
+      this.rentProperty         = item[14];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -290,7 +292,7 @@ class itemBankRecord {
   }
 
   show(){
-    var text = `itemBankRecord: \n(itemNo=${this.itemNo},date=${this.date},action=${this.action},amount=${this.amount},balance=${this.balance},fromAccountName=${this.fromAccountName},fromAccount=${this.fromAccount},toAccountName=${this.toAccountName},toAccount=${this.toAccount},mergeDate=${this.mergeDate},recordCheck=${this.recordCheck},contractOverrid=${this.contractOverrid},contractNo=${this.contractNo},rentProperty=${this.rentProperty})`;
+    var text = `itemBankRecord: \n(itemNo=${this.itemNo},date=${this.date},action=${this.action},amount=${this.amount},balance=${this.balance},fromAccountName=${this.fromAccountName},fromAccount=${this.fromAccount},toAccountName=${this.toAccountName},toAccount=${this.toAccount},mergeDate=${this.mergeDate},recordCheck=${this.recordCheck},recordNote=${this.recordNote},contractOverrid=${this.contractOverrid},contractNo=${this.contractNo},rentProperty=${this.rentProperty})`;
     // Logger.log(text);
     return text;
   };
@@ -604,7 +606,7 @@ function merge_BankRecord(toAccountName,toAccount) {
   
   const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   const bankRecordColOfs = 1; // to exclude itemNo
-  const bankRecordContentLen = 11;
+  const bankRecordContentLen = 12;
   
   /////////////////////////////////////////
   // Merge existed item
@@ -617,7 +619,7 @@ function merge_BankRecord(toAccountName,toAccount) {
     }
 
     var Compare_BankRecord_arr  = new Array();
-    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-5).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, ContractOverrid]
+    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-6).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid]
     for(i=0;i<compare_data.length;i++){
       Compare_BankRecord_arr.push(compare_data[i]);
     }
@@ -625,7 +627,7 @@ function merge_BankRecord(toAccountName,toAccount) {
   
   for(i=0;i<GLB_Import_arr.length;i++){
     if (Compare_BankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
-      GLB_BankRecord_arr.push(GLB_Import_arr[i].concat([toAccountName,toAccount,CONST_TODAY_DATE,"",""]));// expand a placeholder for RecordCheck, ContractOverrid
+      GLB_BankRecord_arr.push(GLB_Import_arr[i].concat([toAccountName,toAccount,CONST_TODAY_DATE,"","",""]));// expand a placeholder for RecordCheck, RecordNote, ContractOverrid
     }
     else {
       // Found duplicated itemRecord, passed.
