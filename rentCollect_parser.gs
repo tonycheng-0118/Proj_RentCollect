@@ -445,11 +445,11 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
         var act = action_mapping("ESUN", i, data[i][2].toString(), withdraw, deposit);
 
         // amount
-        var amount = (act == "TransferOut" || act == "Withdraw" || act == "OtherOut") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+        var amount = ((act == "TransferOut" || act == "Withdraw" || act == "OtherOut") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
         // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
         // balance
-        var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+        var balance = (data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
         
         // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
         // from
@@ -525,11 +525,11 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
         var act = action_mapping("KTB", i, data[i][2].toString(), withdraw, deposit);
 
         // amount
-        var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+        var amount = ((act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
         // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
         // balance
-        var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+        var balance = (data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
         
         // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
         // from
@@ -583,11 +583,11 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
       var act = action_mapping("CTBC", i, data[i][2].toString(), data[i][3].toString(), data[i][4].toString());
 
       // amount
-      var amount = (act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+      var amount = ((act == "TransferOut" || act == "Withdraw") ? data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"") : data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
       // Logger.log("i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
 
       // balance
-      var balance = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+      var balance = (data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"")) * 1;
       
       //Logger.log(`CCC: i: ${i}, date: ${date}, act: ${act}, amount: ${amount}, balance: ${balance}, data: ${data[i]}`);
       // from

@@ -119,8 +119,8 @@ function chkImportIntegrity(sheet_src,sheet_dst,header_offset,tail_offset){
   /////////////////////////////////////////
   // The idea of integrity is to check the consecutive match item in dst.
   /////////////////////////////////////////
-  var src_arr = new Array();
-  var dst_arr = new Array();
+  var src_arr = new Array(); // new source
+  var dst_arr = new Array(); // previous one
   var src = sheet_src.getDataRange().getValues();
   var dst = sheet_dst.getDataRange().getValues();
   var pass = false;
@@ -165,7 +165,7 @@ function chkImportIntegrity(sheet_src,sheet_dst,header_offset,tail_offset){
     // Logger.log(`Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j_cur}]: ${src_arr[j_cur]}`);
   }
 
-  if (match_start==false) {var errMsg = `[chkImportIntegrity] No matched at all. Matched count: ${match_cnt},\n dst[${i}]: ${dst_arr[i]},\n src[${j}]: ${src_arr[j]}`; reportErrMsg(errMsg);}
+  if (match_start==false) {var errMsg = `[chkImportIntegrity] No matched at all. Matched count: ${match_cnt},\n The last check item is \n dst[${i-1}]: ${dst_arr[i-1]},\n src[${j-1}]: ${src_arr[j-1]}.\n Check if format is alligned.\n src: is incoming one, dst is previous one.`; reportErrMsg(errMsg);}
 
   return pass;
 
