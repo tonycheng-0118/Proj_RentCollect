@@ -221,13 +221,27 @@ function report_analysis() {
       for (k=0;k<srhGroup_arr.length;k++){
         var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var regExp = new RegExp(srhPtn,"gi");
+        // from BankRecord
         for (var kk=0;kk<GLB_BankRecord_arr.length;kk++) {
           var record =new itemBankRecord(GLB_BankRecord_arr[kk]);
           if (record.rentProperty != null) {
             if ((stDate <= record.date) && (record.date < edDate)) {
               if (record.rentProperty.toString().match(regExp) != null) {
-                accRentDetails_arr.push(`${record.itemNo}\t${record.rentProperty}\t${record.amount}\n`);
+                accRentDetails_arr.push(`Record: ${record.itemNo}\t${record.rentProperty}\t${record.amount}\n`);
                 accRent += record.amount;
+              }
+            }
+          }
+        }
+
+        // from MiscCost Cash_Rent
+        for (var kk=0;kk<GLB_MiscCost_arr.length;kk++) {
+          var misc =new itemMiscCost(GLB_MiscCost_arr[kk]);
+          if ((misc.rentProperty != null) && (misc.type == misc.MiscType_CashRent)) {
+            if ((stDate <= misc.date) && (misc.date < edDate)) {
+              if (misc.rentProperty.toString().match(regExp) != null) {
+                accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${misc.rentProperty}\t${misc.amount}\n`);
+                accRent += misc.amount;
               }
             }
           }
