@@ -45,7 +45,6 @@ function rentCollect_main() {
   rentCollect_parser();
   rentCollect_contract();
   rentCollect_report();
-
   //
   rentCollect_debug_print();
 }

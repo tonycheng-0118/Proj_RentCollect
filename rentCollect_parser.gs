@@ -465,7 +465,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
       merge_BankRecord(v[1],v[2]);
     }
   }
-  
+
 }
 
 function rentCollect_parser_Record_KTB() { // 京城銀行

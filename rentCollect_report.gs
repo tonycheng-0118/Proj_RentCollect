@@ -379,7 +379,14 @@ function report_status() {
     else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
-        var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month.`;
+        
+        var rentDay = new Date(contract.fromDate);
+        if (CONST_TODAY_DATE.getDate() >= contract.fromDate.getDate()) rentDay.setMonth(CONST_TODAY_DATE.getMonth()+1);
+        else rentDay.setMonth(CONST_TODAY_DATE.getMonth());
+        rentDay.setFullYear(CONST_TODAY_DATE.getFullYear());
+        var rentDayDist = (rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY;
+        
+        var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, next payment window wthin ${rentDayDist}.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
