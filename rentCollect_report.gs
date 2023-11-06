@@ -384,9 +384,9 @@ function report_status() {
         if (CONST_TODAY_DATE.getDate() >= contract.fromDate.getDate()) rentDay.setMonth(CONST_TODAY_DATE.getMonth()+1);
         else rentDay.setMonth(CONST_TODAY_DATE.getMonth());
         rentDay.setFullYear(CONST_TODAY_DATE.getFullYear());
-        var rentDayDist = (rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY;
+        var rentDayDist = Math.floor((rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY);
         
-        var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, next payment window wthin ${rentDayDist}.`;
+        var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
         SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
