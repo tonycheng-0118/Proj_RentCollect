@@ -110,6 +110,24 @@ function reportWarnMsg(errMsg){
   }
 }
 
+var warnGenUtilBill_arr = new Array(); // to auto gen the potental UtilBill item. format: [type] UtilBill item
+function reportWarnGenUtilBill(errMsg){
+  if (errMsg!=null) {
+    var err = '[WarnGenUtilBill]\t' + errMsg;
+    console.warn(err);
+    warnGenUtilBill_arr.push(err);
+  }
+}
+
+var warnGenMiscCost_arr = new Array(); // to auto gen the potental MiscCost item. format: [type] MiscCost item
+function reportWarnGenMiscCost(errMsg){
+  if (errMsg!=null) {
+    var err = '[WarnGenMiscCost]\t' + errMsg;
+    console.warn(err);
+    warnGenMiscCost_arr.push(err);
+  }
+}
+
 function rentCollect_debug_print() {
 
   // locate ErrorLog row offset
@@ -140,17 +158,32 @@ function rentCollect_debug_print() {
       logPos+=1;
     }
   } 
+
   
   if (warnLogCollection_arr.length > 0) {
     var text = `Warn @ ${new Date()}`;
     SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text).setFontColor("#FF8C00"); // yellow
     logPos+=1;
     
+    // for UtilBill paste
+    if (warnGenUtilBill_arr.length > 0) {
+      var text = `WarnGenUtilBill List`;
+      SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(text).setBackground("#CBC3E3").setNote(`${warnGenUtilBill_arr}`); // Red Purple
+      logPos+=1;
+    }
+
+    // for MiscCost paste
+    if (warnGenMiscCost_arr.length > 0) {
+      var text = `WarnGenMiscCost List`;
+      SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(text).setBackground("#CF9FFF").setNote(`${warnGenMiscCost_arr}`); // Light Violet
+      logPos+=1;
+    }
+    
     for (var i=0;i<warnLogCollection_arr.length;i++) {
       SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(warnLogCollection_arr[i]).setBackground("#FF8C00"); // yellow
       logPos+=1;
     }
-  } 
+  }
   
   if (logPos == 0){
     var text = `PASS @ ${new Date()}`;
