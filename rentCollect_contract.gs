@@ -173,7 +173,7 @@ function rentCollect_contract() {
             reportWarnMsg(warnMsg);
 
             // for UtilBill paste
-            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}\n`;
+            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
             reportWarnGenUtilBill(warnMsg);
           
           } else if (value < 0) {
@@ -181,7 +181,7 @@ function rentCollect_contract() {
             reportWarnMsg(warnMsg);
 
             // for MiscCost paste
-            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}\n`;
+            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
             reportWarnGenMiscCost(warnMsg);
           }
           
