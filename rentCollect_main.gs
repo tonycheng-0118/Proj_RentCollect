@@ -143,7 +143,7 @@ function rentCollect_debug_print() {
   var posRowBase = all[all.length-1].getRow();
   var posColBase = all[all.length-1].getColumn();
   if (SheetREADMEName.getLastRow() > posRowBase) {
-    SheetREADMEName.getRange(1+posRowBase,posColBase,SheetREADMEName.getLastRow()-posRowBase,SheetREADMEName.getLastColumn()-posColBase+1).clear();
+    SheetREADMEName.getRange(1+posRowBase,posColBase,SheetREADMEName.getLastRow()-posRowBase+1,SheetREADMEName.getLastColumn()-posColBase+1).setNote(null).clear();
   }
   
   // show status
