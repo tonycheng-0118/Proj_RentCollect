@@ -227,7 +227,7 @@ function report_analysis() {
           if (record.rentProperty != null) {
             if ((stDate <= record.date) && (record.date < edDate)) {
               if (record.rentProperty.toString().match(regExp) != null) {
-                accRentDetails_arr.push(`Record: ${record.itemNo}\t${record.rentProperty}\t${record.amount}\n`);
+                accRentDetails_arr.push(`Record: ${record.itemNo}\t${Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd')}\t${record.rentProperty}\t${record.amount}\n`);
                 accRent += record.amount;
               }
             }
@@ -240,7 +240,7 @@ function report_analysis() {
           if ((misc.rentProperty != null) && (misc.type == misc.MiscType_CashRent)) {
             if ((stDate <= misc.date) && (misc.date < edDate)) {
               if (misc.rentProperty.toString().match(regExp) != null) {
-                accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${misc.rentProperty}\t${misc.amount}\n`);
+                accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${Utilities.formatDate(misc.date, 'GMT+8', 'yyyy/MM/dd')}\t${misc.rentProperty}\t${misc.amount}\n`);
                 accRent += misc.amount;
               }
             }
