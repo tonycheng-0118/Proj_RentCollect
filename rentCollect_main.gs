@@ -45,8 +45,10 @@ function rentCollect_main() {
   rentCollect_parser();
   rentCollect_contract();
   rentCollect_report();
-  //
+  // error log
   rentCollect_debug_print();
+  // back up
+  rentCollect_backup();
 }
 
 
@@ -190,6 +192,13 @@ function rentCollect_debug_print() {
     SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text).setFontColor("#3CB371"); // green
   }
 
+}
+
+function rentCollect_backup() {
+  // delete previous backup
+  SheetHandle.deleteSheet(SheetBankRecordBKName);
+  // copy the latest to backup
+  SheetBankRecordName.copyTo(SheetHandle).setName("BankRecordBK");
 }
 
 
