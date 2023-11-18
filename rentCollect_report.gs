@@ -12,21 +12,24 @@ class itemRptAnalysis {
   constructor (item) {
     this.itemNo;
     this.propertyGroup;
+    this.propertyExclude;
     this.monthAccRent;
     
     this.ColPos_ItemNo            = 1;
     this.ColPos_PropertyGroupName = 2;
     this.ColPos_PropertyGroup     = 3;
-    this.ColPos_MonthAccRent      = 4;
+    this.ColPos_PropertyExclude   = 4;
+    this.ColPos_MonthAccRent      = 5;
 
     this.itemPack               = item;
-    this.itemPackMaxLen         = 4;
+    this.itemPackMaxLen         = 5;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
       this.itemNo             = item[0];
       this.propertyGroupName  = item[1];
       this.propertyGroup      = item[2];
-      this.monthAccRent       = item[3];
+      this.propertyExclude    = item[3];
+      this.monthAccRent       = item[4];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemRptAnalysis] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -37,13 +40,14 @@ class itemRptAnalysis {
     this.itemNo             = upd[0];
     this.propertyGroupName  = upd[1];
     this.propertyGroup      = upd[2];
-    this.monthAccRent       = upd[3];
+    this.propertyExclude    = upd[3];
+    this.monthAccRent       = upd[4];
     
     for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
   }
 
   show(){
-    var text = `itemRptStatus: \n(itemNo=${this.itemNo}, propertyGroupName=${this.propertyGroupName}, propertyGroup=${this.propertyGroup}, monthAccRent=${this.monthAccRent})`;
+    var text = `itemRptStatus: \n(itemNo=${this.itemNo}, propertyGroupName=${this.propertyGroupName}, propertyGroup=${this.propertyGroup}, propertyExclude=${this.propertyExclude}, monthAccRent=${this.monthAccRent})`;
     return text;
   };
 
@@ -208,6 +212,8 @@ function report_analysis() {
 
     var propertyGroup_regex = data[i][pos.ColPos_PropertyGroup-1].toString().replace(/[\s|\n|\r|\t]/g,"");
     var srhGroup_arr = propertyGroup_regex.split(";");
+    var propertyExclude_regex = data[i][pos.ColPos_PropertyExclude-1].toString().replace(/[\s|\n|\r|\t]/g,"");
+    var srhExclude_arr = propertyExclude_regex.split(";");
     
     var stDate = new Date(CONST_TODAY_DATE.getTime());
     stDate.setDate(1);
@@ -219,14 +225,25 @@ function report_analysis() {
       var accRent = 0;
       var accRentDetails_arr = new Array();
       for (k=0;k<srhGroup_arr.length;k++){
-        var srhPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
-        var regExp = new RegExp(srhPtn,"gi");
+        var srhMatchPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
+        var srhMatchRegexp = new RegExp(srhMatchPtn,"gi");
         // from BankRecord
         for (var kk=0;kk<GLB_BankRecord_arr.length;kk++) {
           var record =new itemBankRecord(GLB_BankRecord_arr[kk]);
           if (record.rentProperty != null) {
-            if ((stDate <= record.date) && (record.date < edDate)) {
-              if (record.rentProperty.toString().match(regExp) != null) {
+            var isExclude = 0;
+            // search exclude property
+            for (kkk=0;kkk<srhExclude_arr.length;kkk++){
+              var srhExcludePtn = "^" + srhExclude_arr[kkk].toString() + "$";
+              var srhExcludeRegexp = new RegExp(srhExcludePtn,"gi");
+              if (record.rentProperty.toString().match(srhExcludeRegexp) != null) {
+                isExclude = 1;
+              }
+            }
+            
+            // search match property
+            if ((isExclude==0) && (stDate <= record.date) && (record.date < edDate)) {
+              if (record.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`Record: ${record.itemNo}\t${Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd')}\t${record.rentProperty}\t${record.amount}\n`);
                 accRent += record.amount;
               }
@@ -238,8 +255,19 @@ function report_analysis() {
         for (var kk=0;kk<GLB_MiscCost_arr.length;kk++) {
           var misc =new itemMiscCost(GLB_MiscCost_arr[kk]);
           if ((misc.rentProperty != null) && (misc.type == misc.MiscType_CashRent)) {
-            if ((stDate <= misc.date) && (misc.date < edDate)) {
-              if (misc.rentProperty.toString().match(regExp) != null) {
+            var isExclude = 0;
+            // search exclude property
+            for (kkk=0;kkk<srhExclude_arr.length;kkk++){
+              var srhExcludePtn = "^" + srhExclude_arr[kkk].toString() + "$";
+              var srhExcludeRegexp = new RegExp(srhExcludePtn,"gi");
+              if (misc.rentProperty.toString().match(srhExcludeRegexp) != null) {
+                isExclude = 1;
+              }
+            }
+
+            // search match property
+            if ((isExclude==0) && (stDate <= misc.date) && (misc.date < edDate)) {
+              if (misc.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${Utilities.formatDate(misc.date, 'GMT+8', 'yyyy/MM/dd')}\t${misc.rentProperty}\t${misc.amount}\n`);
                 accRent += misc.amount;
               }
