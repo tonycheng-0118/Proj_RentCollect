@@ -220,7 +220,11 @@ function rentCollect_contract() {
     for(j=0;j<GLB_Contract_arr.length;j++){
       var contract = new itemContract(GLB_Contract_arr[j]);
       // contract.show();
-      if ((contract.fromDate <= item.date) && (item.date < contract.toDate) && (item.rentProperty == contract.rentProperty)) {
+      var finishDate;
+      if (contract.endContract) finishDate = new Date(contract.endDate.getTime()+CONST_MILLIS_PER_DAY);
+      else finishDate = new Date(contract.toDate);
+      
+      if ((contract.fromDate <= item.date) && (item.date < finishDate) && (item.rentProperty == contract.rentProperty)) {
         // var isValidContract = SheetContractName.getRange(1+topRowOfs+j,contract.ColPos_ValidContract).getValues();
         SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
         SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
@@ -250,7 +254,11 @@ function rentCollect_contract() {
     for(j=0;j<GLB_Contract_arr.length;j++){
       var contract = new itemContract(GLB_Contract_arr[j]);
       // contract.show();
-      if ((contract.fromDate <= item.date) && (item.date < contract.toDate) && (item.rentProperty == contract.rentProperty)) {
+      var finishDate;
+      if (contract.endContract) finishDate = new Date(contract.endDate.getTime()+CONST_MILLIS_PER_DAY);
+      else finishDate = new Date(contract.toDate);
+
+      if ((contract.fromDate <= item.date) && (item.date < finishDate) && (item.rentProperty == contract.rentProperty)) {
         // var isValidContract = SheetContractName.getRange(1+topRowOfs+i,contract.ColPos_ValidContract).getValue();
         SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
         SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
