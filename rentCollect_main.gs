@@ -33,7 +33,10 @@ var CFG_Val_obj = new Object();
 
 
 function rentCollect_main() {
-  Logger.log("This rentCollect_main");
+  
+  //start
+  var time_start = new Date();
+  Logger.log(`rentCollect_main start @ ${Utilities.formatDate(time_start, "GMT+8", "HH:mm:ss")}`);
   
   // to remove filter from sheet in case of not closing the filter.
   removeFilter();
@@ -45,6 +48,15 @@ function rentCollect_main() {
   rentCollect_parser();
   rentCollect_contract();
   rentCollect_report();
+
+  // finish
+  var time_finish = new Date();
+  var time_exec = (time_finish.getTime() - time_start.getTime()) / 1000; // getTime() is ms
+  Logger.log(`rentCollect_main finish @ ${Utilities.formatDate(time_finish, "GMT+8", "HH:mm:ss")}, time_exec(s): ${time_exec}`);
+  if (1) {
+    var info = `[rentCollect_main] time_exec(s): ${time_exec}`; reportInfoMsg(info);
+  }
+
   // error log
   rentCollect_debug_print();
 
@@ -111,6 +123,15 @@ function reportWarnMsg(errMsg){
   }
 }
 
+var infoLogCollection_arr = new Array(); // to collect all all info string. format: [type] info_msg
+function reportInfoMsg(errMsg){
+  if (errMsg!=null) {
+    var err = '[Info]' + errMsg;
+    console.info(err);
+    infoLogCollection_arr.push(err);
+  }
+}
+
 var warnGenUtilBill_arr = new Array(); // to auto gen the potental UtilBill item. format: [type] UtilBill item
 function reportWarnGenUtilBill(errMsg){
   if (errMsg!=null) {
@@ -149,11 +170,11 @@ function rentCollect_debug_print() {
   
   // show status
   var logPos=0;
+  var text = `Updated date @ ${new Date()}`;
+  SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text);
+  logPos+=1;
+
   if (errorLogCollection_arr.length > 0) {
-    var text = `Error @ ${new Date()}`;
-    SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text).setFontColor("#F08080"); // red
-    logPos+=1;
-    
     for (var i=0;i<errorLogCollection_arr.length;i++) {
       SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(errorLogCollection_arr[i]).setBackground("#F08080"); // red
       logPos+=1;
@@ -162,10 +183,6 @@ function rentCollect_debug_print() {
 
   
   if (warnLogCollection_arr.length > 0) {
-    var text = `Warn @ ${new Date()}`;
-    SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text).setFontColor("#FF8C00"); // yellow
-    logPos+=1;
-    
     // for UtilBill paste
     if (warnGenUtilBill_arr.length > 0) {
       var text = `WarnGenUtilBill List`;
@@ -185,10 +202,18 @@ function rentCollect_debug_print() {
       logPos+=1;
     }
   }
-  
+
   if (logPos == 0){
     var text = `PASS @ ${new Date()}`;
-    SheetREADMEName.getRange(1+posRowBase,posColBase).setValue(text).setFontColor("#3CB371"); // green
+    SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(text).setFontColor("#3CB371"); // green
+    logPos+=1;
+  }
+
+  if (infoLogCollection_arr.length > 0) {
+    for (var i=0;i<infoLogCollection_arr.length;i++) {
+      SheetREADMEName.getRange(logPos+1+posRowBase,posColBase).setValue(infoLogCollection_arr[i]).setBackground("#3CB371"); // green
+      logPos+=1;
+    }
   }
 
 }

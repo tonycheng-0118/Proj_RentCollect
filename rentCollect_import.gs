@@ -9,7 +9,6 @@ function rentCollect_import(depositRecordName, newRecordEnable, header_offset, t
   /////////////////////////////////////////
   // Setting
   /////////////////////////////////////////
-  const bankRecordBackUpEnable = (MODE_VERIFY == false); // if tesing merge SheetBankRecordName, turn this off to prevent from overriding SheetBankRecordBKName
   const depositRecordPreName = depositRecordName + "_pre";
   // const depositRecorColPosNote = 6; 
 
@@ -73,13 +72,6 @@ function rentCollect_import(depositRecordName, newRecordEnable, header_offset, t
 
     if (sts_integrity) {
       Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
-      
-      // backup BankRecord to BankRecordBK for in case
-      if (bankRecordBackUpEnable) {
-        Logger.log(`[Info] start to backup to SheetBankRecordBKName.`)
-        SheetBankRecordBKName.getDataRange().clearContent();
-        SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
-      }
 
       // copy from depositRecordName to ImportPre
       // SheetImportPreName.getRange('A:G').clearContent();
@@ -202,4 +194,15 @@ function deleteEmptyRows(sh){
   }
   sh.getDataRange().clear();
   sh.getRange(1,1,targetData.length,targetData[0].length).setValues(targetData);
+}
+
+function bankRecordBackUp(){
+  // if tesing merge SheetBankRecordName, turn this off to prevent from overriding SheetBankRecordBKName
+  const bankRecordBackUpEnable = (MODE_VERIFY == false); 
+  // backup BankRecord to BankRecordBK for in case
+  if (bankRecordBackUpEnable) {
+    Logger.log(`[Info] start to backup to SheetBankRecordBKName.`)
+    SheetBankRecordBKName.getDataRange().clearContent();
+    SheetBankRecordName.getDataRange().copyTo(SheetBankRecordBKName.getRange('A1'));
+  }
 }

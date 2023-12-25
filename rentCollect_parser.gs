@@ -387,9 +387,15 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
-  rentCollect_parser_Record_ESUN(); // 玉山銀行
-  rentCollect_parser_Record_KTB(); // 京城銀行
-  rentCollect_parser_Record_CTBC(); // 中國信託
+  var isParseValid = true; // will be false if one of isImpoertValid is false
+  
+  isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
+  isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
+  isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
+
+  if (isParseValid) {
+    bankRecordBackUp();
+  }
 }
 
 function rentCollect_parser_Record_ESUN() { // 玉山銀行
@@ -413,9 +419,11 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
+  var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
     var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub);
+    isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
@@ -466,6 +474,8 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
     }
   }
 
+  return isParseValid;
+
 }
 
 function rentCollect_parser_Record_KTB() { // 京城銀行
@@ -489,9 +499,11 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
+  var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
     var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub);
+    isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
@@ -546,6 +558,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
     }
   }
   
+  return isParseValid;
 }
 
 function rentCollect_parser_Record_CTBC() { // 中國信託
@@ -566,6 +579,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   // Import from source sheet
   /////////////////////////////////////////
   var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
+  var isParseValid = isImportValid;
 
   /////////////////////////////////////////
   // Parse to itemRecord
@@ -600,6 +614,8 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
 
     merge_BankRecord("中國信託","000014853**1373*");
   }
+
+  return isParseValid;
 }
 
 function merge_BankRecord(toAccountName,toAccount) {
