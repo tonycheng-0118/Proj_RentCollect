@@ -200,8 +200,8 @@ function report_analysis() {
   // Clear sheet
   /////////////////////////////////////////
   var pos = new itemRptAnalysis([]);
-  SheetRptAnalysisName.getRange(1+topRowOfs,pos.ColPos_ItemNo,SheetRptAnalysisName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
-  SheetRptAnalysisName.getRange(1          ,pos.ColPos_MonthAccRent,SheetRptAnalysisName.getLastRow(),CFG_Val_obj["CFG_MonthAccRent_NUM"]).clear(); // clear MonthAccRent column including header
+  SheetRptAnalysisName.getRange(1+topRowOfs,pos.ColPos_ItemNo,SheetRptAnalysisName.getLastRow()-topRowOfs,1).clear({ formatOnly: false, contentsOnly: true }); // clear itemNo column
+  SheetRptAnalysisName.getRange(1          ,pos.ColPos_MonthAccRent,SheetRptAnalysisName.getLastRow(),CFG_Val_obj["CFG_MonthAccRent_NUM"]).clear({ formatOnly: false, contentsOnly: true }); // clear MonthAccRent column including header
   
   /////////////////////////////////////////
   // Cal month acc rent
@@ -301,7 +301,7 @@ function report_status() {
   /////////////////////////////////////////
   // Update Status
   /////////////////////////////////////////
-  if (SheetRptStatusName.getLastRow()>1) SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn()).clear(); // in case of empty
+  if (SheetRptStatusName.getLastRow()>1) SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn()).clear({ formatOnly: false, contentsOnly: true }); // in case of empty
   for (var i=0;i<GLB_Property_arr.length;i++){
     var item = new itemRptStatus([]);
     var property = new itemProperty(GLB_Property_arr[i]);
@@ -471,7 +471,7 @@ function report_event() {
   /////////////////////////////////////////
   // Update Event
   /////////////////////////////////////////
-  if (SheetRptEventName.getLastRow()>1) SheetRptEventName.getRange(1+topRowOfs,1,SheetRptEventName.getLastRow()-topRowOfs,SheetRptEventName.getLastColumn()).clear(); // in case of empty
+  if (SheetRptEventName.getLastRow()>1) SheetRptEventName.getRange(1+topRowOfs,1,SheetRptEventName.getLastRow()-topRowOfs,SheetRptEventName.getLastColumn()).clear({ formatOnly: false, contentsOnly: true }); // in case of empty
   
   var itemNo          = 0;
 
