@@ -1,37 +1,3 @@
-/////////////////////////////////////////
-// Golbal Var
-/////////////////////////////////////////
-// Release vs Verify
-// const CONST_TODAY_DATE = new Date(); 
-// const SheetHandle      = SpreadsheetApp.openById("1mfZNNZLIzVbhaUwr88iEe8XUWP0qnHdmF8x2eVpXfVY"); // Proj_RentCollect
-// const MODE_VERIFY      = false;
-const CONST_TODAY_DATE = new Date("Wed May 17 2023 22:46:10 GMT+0800 (Taipei Standard Time)"); // for Proj_RentCollect_VERIFY, it is fixed.
-const SheetHandle      = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY.
-const MODE_VERIFY      = true;
-
-// Sheet Name
-const SheetImportName       = SheetHandle.getSheetByName('Import');
-const SheetBankRecordName   = SheetHandle.getSheetByName('BankRecord');
-const SheetBankRecordBKName = SheetHandle.getSheetByName('BankRecordBK');
-const SheetContractName     = SheetHandle.getSheetByName('Contract');
-const SheetTenantName       = SheetHandle.getSheetByName('Tenant');
-const SheetUtilBillName     = SheetHandle.getSheetByName('UtilBill');
-const SheetMiscCostName     = SheetHandle.getSheetByName('MiscCost');
-const SheetPropertyName     = SheetHandle.getSheetByName('Property');
-const SheetRptStatusName    = SheetHandle.getSheetByName('RptStatus');
-const SheetRptEventName     = SheetHandle.getSheetByName('RptEvent');
-const SheetRptAnalysisName  = SheetHandle.getSheetByName('RptAnalysis');
-const SheetREADMEName       = SheetHandle.getSheetByName('README');
-
-const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-const CONST_This_Account_Number = "000014853**1373*"; // The self account number shown in the Deposit Apply Record
-const CONST_SuperFeatureDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)");
-const CONST_SuperAncentDate = new Date("Jan 1 1000 00:00:00 GMT+0800 (Taipei Standard Time)");
-
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract"];
-var CFG_Val_obj = new Object();
-
-
 function rentCollect_main() {
   
   //start
