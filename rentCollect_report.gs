@@ -123,7 +123,7 @@ function report_status() {
   for (var i=0;i<GLB_Property_arr.length;i++){
     var item = new itemRptStatus([]);
     var property = new itemProperty(GLB_Property_arr[i]);
-    Logger.log(`property for status: ${property.show()}`);
+    // Logger.log(`property for status: ${property.show()}`);
 
     var itemNo = i;
     var rentProperty  = property.rentProperty;
@@ -226,11 +226,22 @@ function report_status() {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         
-        var rentDay = new Date(contract.fromDate);
-        if (CONST_TODAY_DATE.getDate() >= contract.fromDate.getDate()) rentDay.setMonth(CONST_TODAY_DATE.getMonth()+1);
-        else rentDay.setMonth(CONST_TODAY_DATE.getMonth());
-        rentDay.setFullYear(CONST_TODAY_DATE.getFullYear());
-        var rentDayDist = Math.floor((rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY);
+        // var rentDay = new Date();
+        // rentDay.setSeconds(0);
+        // rentDay.setMinutes(0);
+        // rentDay.setHours(0);
+        // rentDay.setDate(contract.fromDate.getDate());
+        // rentDay.setMonth(CONST_TODAY_DATE.getMonth());
+        // rentDay.setFullYear(CONST_TODAY_DATE.getFullYear());
+        // if (rentDay < CONST_TODAY_DATE) rentDay += CONST_MILLIS_PER_DAY*30; // for estimated rentDayDist, varied by diff month
+        // var rentDayDist = Math.floor((rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY);
+        var rentDayDist = 0;
+        var rentDay = contract.fromDate.getDate();
+        if (CONST_TODAY_DATE.getDate() < rentDay) {
+          rentDayDist = CONST_TODAY_DATE.getDate() + 30 - rentDay;
+        } else {
+          rentDayDist = CONST_TODAY_DATE.getDate()      - rentDay;
+        }
         
         var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
         // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
