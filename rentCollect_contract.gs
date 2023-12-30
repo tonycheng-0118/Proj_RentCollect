@@ -226,9 +226,9 @@ function rentCollect_contract() {
       
       if ((contract.fromDate <= item.date) && (item.date < finishDate) && (item.rentProperty == contract.rentProperty)) {
         // var isValidContract = SheetContractName.getRange(1+topRowOfs+j,contract.ColPos_ValidContract).getValues();
-        SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
-        SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
-        SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
+        // SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
+        // SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
+        // SheetUtilBillName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
         
         var upd = [contract.itemNo,contract.tenantName,contract.validContract];
         item.update(upd);
@@ -239,7 +239,11 @@ function rentCollect_contract() {
     }
     if (isNotLinkContract) {var errMsg = `[rentCollect_contract] UtilBillNo: ${item.itemNo} cannot link to any ContractNo`; reportErrMsg(errMsg);}
   }
+  // write out
+  var item = new itemUtilBill(GLB_UtilBill_arr[0]);
+  SheetUtilBillName.getRange(1+topRowOfs,1,GLB_UtilBill_arr.length,item.itemPackMaxLen).setValues(GLB_UtilBill_arr);
 
+  
   /////////////////////////////////////////
   // link to MiscCost 
   /////////////////////////////////////////
@@ -260,9 +264,9 @@ function rentCollect_contract() {
 
       if ((contract.fromDate <= item.date) && (item.date < finishDate) && (item.rentProperty == contract.rentProperty)) {
         // var isValidContract = SheetContractName.getRange(1+topRowOfs+i,contract.ColPos_ValidContract).getValue();
-        SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
-        SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
-        SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
+        // SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
+        // SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
+        // SheetMiscCostName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
         
         var upd = [contract.itemNo,contract.tenantName,contract.validContract];
         item.update(upd);
@@ -273,6 +277,9 @@ function rentCollect_contract() {
     }
     if (isNotLinkContract) {var errMsg = `[rentCollect_contract] MiscCostNo: ${item.itemNo} cannot link to any ContractNo`; reportErrMsg(errMsg);}
   }
+  // write out
+  var item = new itemMiscCost(GLB_MiscCost_arr[0]);
+  SheetMiscCostName.getRange(1+topRowOfs,1,GLB_MiscCost_arr.length,item.itemPackMaxLen).setValues(GLB_MiscCost_arr);
 
   /////////////////////////////////////////
   // link to Property 
@@ -320,17 +327,22 @@ function rentCollect_contract() {
     }
     else {
       var contract = new itemContract(GLB_Contract_arr[findContractNoPos(linkContractNo)]);
-      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(contract.dayRest);
-      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(Math.floor(contract.amount/contract.period));
-      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
-      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
-      SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
+      // SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(contract.dayRest);
+      // SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(Math.floor(contract.amount/contract.period));
+      // SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contract.itemNo);
+      // SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(contract.tenantName);
+      // SheetPropertyName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(contract.validContract);
 
       var upd = [occupied,contract.dayRest,contract.amount,contract.itemNo,contract.tenantName,contract.validContract];
       item.update(upd);
     }
 
   }
+
+  // write out
+  var item = new itemProperty(GLB_Property_arr[0]);
+  SheetPropertyName.getRange(1+topRowOfs,1,GLB_Property_arr.length,item.itemPackMaxLen).setValues(GLB_Property_arr);
 }
+
 
 

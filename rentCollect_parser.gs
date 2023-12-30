@@ -12,6 +12,7 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
+  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   var isParseValid = true; // will be false if one of isImpoertValid is false
   
   isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
@@ -19,7 +20,13 @@ function rentCollect_parser_Record() {
   isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
 
   if (isParseValid) {
+    // backup
     bankRecordBackUp();
+    
+    // Write Out
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
+    Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
   }
 }
 
@@ -303,9 +310,9 @@ function merge_BankRecord(toAccountName,toAccount) {
   /////////////////////////////////////////
   // Write Out
   /////////////////////////////////////////
-  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
-  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-  Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
+  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
+  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
+  // Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
   
 }
 
@@ -864,7 +871,7 @@ function rentCollect_parser_UtilBill() {
     // item.show()
 
     // Write UtilBillNo
-    SheetUtilBillName.getRange(1+topRowOfs+i,1).setValue(itemNo);
+    // SheetUtilBillName.getRange(1+topRowOfs+i,1).setValue(itemNo);
 
   }
 
