@@ -415,7 +415,7 @@ function isContractLegalDateRange (date, contract, isContractOverrid) {
   
   if (item.endContract) {
     finishDate = new Date(item.endDate.getTime()+CONST_MILLIS_PER_DAY);
-  } else if (CONST_TODAY_DATE <= item.toDate) {
+  } else if ((item.fromDate <= CONST_TODAY_DATE) && (CONST_TODAY_DATE < item.toDate)) {
     finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
   } else {
     finishDate = new Date(item.toDate);

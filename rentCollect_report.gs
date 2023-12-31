@@ -202,27 +202,25 @@ function report_status() {
       var status = "9.Vacancy";
       // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
       // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Grey);
-    }
-    else if ((property.occupied == false) && (property.validContract == true)) {
+    } else if ((property.occupied == false) && (property.validContract == true)) {
       if ((rentArrear) > 0) {
         var rptNum = (1000000 + rentArrear).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `5.Need to refund by ${rptNum}.`;
         // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
-      }
-      else if ((rentArrear) < 0) {
+      } else if ((rentArrear) < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `8.Need to charge by ${rptNum}.`;
         // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
-      }
-      else {
+      } else if (CONST_TODAY_DATE < contract.fromDate) {
+        var status = `1.Contract is not started yet.`;
+      } else {
         var status = `7.Need to final check.`;
         // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
         // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
-    }
-    else if ((property.occupied == true) && (property.validContract == true)) {
+    } else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         
