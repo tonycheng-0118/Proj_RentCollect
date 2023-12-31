@@ -28,7 +28,6 @@ function rentCollect_main() {
 
 }
 
-
 function mainCFG(){
   // getCFG
   for (i=0;i<CFG_Key_arr.length;i++){

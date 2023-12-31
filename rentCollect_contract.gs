@@ -58,7 +58,14 @@ function rentCollect_contract() {
       }
 
       if (match) {
+        // accumulate expect_util
         expect_util += util.amount;
+        
+        // upd event
+        var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
+        var event   = `3. Util bill is ${util.amount}`;
+        var amount  = -1 * util.amount;
+        setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
       }
     }
 
@@ -81,11 +88,18 @@ function rentCollect_contract() {
       }
       
       if (match) {
-          if (misc.type == misc.MiscType_CashRent) {
-            actual_cash_payment += misc.amount; // cash paid by the tenant, TODO, find a better way to collect the cash payment.
-          } else {
-            expect_misc += misc.expect_misc();
-          }
+        // accumulate actual_cash_payment and expect_misc
+        if (misc.type == misc.MiscType_CashRent) {
+          actual_cash_payment += misc.amount; // cash paid by the tenant, TODO, find a better way to collect the cash payment.
+        } else {
+          expect_misc += misc.expect_misc();
+        }
+
+        // upd event
+        var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
+        var event   = `4. Misc cost, type = ${misc.type}.`;
+        var amount  = -1 * misc.expect_misc();
+        setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
       }
     }
     
@@ -133,11 +147,18 @@ function rentCollect_contract() {
       }
 
       if (match) {
+        // accumulate payment and update record
         actual_transfer_payment += record.amount;
         SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
         SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
         var upd = [item.itemNo,item.rentProperty];
         record.update(upd);
+
+        // upd event
+        var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
+        var event   = `5. Bank record.`;
+        var amount  = record.amount;
+        setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
       }
     }
     

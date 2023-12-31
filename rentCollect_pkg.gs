@@ -9,7 +9,6 @@ const CONST_TODAY_DATE = new Date("Wed May 17 2023 22:46:10 GMT+0800 (Taipei Sta
 const SheetHandle      = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY.
 const MODE_VERIFY      = true;
 
-
 // Sheet Name
 const SheetImportName       = SheetHandle.getSheetByName('Import');
 const SheetBankRecordName   = SheetHandle.getSheetByName('BankRecord');
@@ -48,6 +47,9 @@ var GLB_MiscCost_arr    = new Array();
 var GLB_Property_arr    = new Array();
 var GLB_RptStatus_arr   = new Array();
 var GLB_RptEvent_arr    = new Array();
+
+// var
+var GLB_rptEventItemNo = 0;
 
 /////////////////////////////////////////
 // Class
