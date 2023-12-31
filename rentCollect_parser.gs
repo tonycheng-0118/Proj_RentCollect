@@ -53,6 +53,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
+      var GLB_Import_arr = new Array();
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -133,6 +134,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
+      var GLB_Import_arr = new Array();
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -212,6 +214,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   // Parse to itemRecord
   /////////////////////////////////////////
   if (isImportValid) {
+    var GLB_Import_arr = new Array();
     var data = SheetImportName.getDataRange().getValues();
     for(i=0;i<data.length;i++){
       // itemNo
