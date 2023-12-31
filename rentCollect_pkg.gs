@@ -124,20 +124,21 @@ class itemUtilBill {
     this.rentProperty           = item[2]; 
     this.amount                 = item[3];
     this.note                   = item[4];
+    this.contractOverrid        = item[5];
     this.contractNo             = null;
     this.tenantName             = null;
     this.validContract          = null;
-    this.ColPos_ContractNo      = 6;
-    this.ColPos_TenantName      = 7;
-    this.ColPos_ValidContract   = 8;
+    this.ColPos_ContractNo      = 7;
+    this.ColPos_TenantName      = 8;
+    this.ColPos_ValidContract   = 9;
     
     this.itemPack               = item;
-    this.itemPackMaxLen         = 8;
+    this.itemPackMaxLen         = 9;
         
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.contractNo             = item[5];
-      this.tenantName             = item[6];
-      this.validContract          = item[7];
+      this.contractNo             = item[6];
+      this.tenantName             = item[7];
+      this.validContract          = item[8];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemUtilBill] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -167,7 +168,7 @@ class itemUtilBill {
   }
 
   show(){
-    var text = `itemUtilBill: \n(itemNo=${this.itemNo},date=${this.date},rentProperty=${this.rentProperty},amount=${this.amount},note=${this.note},contractNo=${this.contractNo},tenantName=${this.tenantName},validContract=${this.validContract})`;
+    var text = `itemUtilBill: \n(itemNo=${this.itemNo},date=${this.date},rentProperty=${this.rentProperty},amount=${this.amount},note=${this.note},contractOverrid=${this.contractOverrid},contractNo=${this.contractNo},tenantName=${this.tenantName},validContract=${this.validContract})`;
     // Logger.log(text);
     return text;
   };
@@ -183,13 +184,14 @@ class itemMiscCost {
     this.amount           = item[3];
     this.type             = item[4];
     this.note             = item[5];
+    this.contractOverrid  = item[6];
     this.contractNo       = null;
     this.tenantName       = null;
     this.validContract    = null;
     
-    this.ColPos_ContractNo      = 7;
-    this.ColPos_TenantName      = 8;
-    this.ColPos_ValidContract   = 9;
+    this.ColPos_ContractNo      = 8;
+    this.ColPos_TenantName      = 9;
+    this.ColPos_ValidContract   = 10;
 
     this.MiscType_Charge_Fee    = `0.Charge_Fee`;
     this.MiscType_CashRent      = `1.Cash_Rent`;
@@ -199,12 +201,12 @@ class itemMiscCost {
     this.MiscType_Refund        = `6.Refund`;
     
     this.itemPack               = item;
-    this.itemPackMaxLen         = 9;
+    this.itemPackMaxLen         = 10;
     
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.contractNo             = item[6];
-      this.tenantName             = item[7];
-      this.validContract          = item[8];
+      this.contractNo             = item[7];
+      this.tenantName             = item[8];
+      this.validContract          = item[9];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemMiscCost] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -255,7 +257,7 @@ class itemMiscCost {
   }
 
   show(){
-    var text = `itemMiscCost: \n(itemNo=${this.itemNo},date=${this.date},rentProperty=${this.rentProperty},amount=${this.amount},type=${this.type},note=${this.note},contractNo=${this.contractNo},tenantName=${this.tenantName},validContract=${this.validContract})`;
+    var text = `itemMiscCost: \n(itemNo=${this.itemNo},date=${this.date},rentProperty=${this.rentProperty},amount=${this.amount},type=${this.type},note=${this.note},contractOverrid=${this.contractOverrid},contractNo=${this.contractNo},tenantName=${this.tenantName},validContract=${this.validContract})`;
     // Logger.log(text);
     return text;
   };

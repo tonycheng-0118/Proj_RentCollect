@@ -343,32 +343,62 @@ function report_event() {
       // Event: util bill
       for (var j=0;j<GLB_UtilBill_arr.length;j++) {
         var util = new itemUtilBill(GLB_UtilBill_arr[j]);
-        if ((contract.fromDate <= util.date) && (util.date < contract.toDate) && (util.rentProperty == contract.rentProperty)){
-          var item    = new itemRptEvent([]);
-          var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
-          var event   = `3. Util bill is ${util.amount}`;
-          var amount  = -1 * util.amount;
-          var upd     = [itemNo,util.date,util.rentProperty,contract.tenantName,contract.itemNo,event,amount];
-          item.update(upd);
-          // SheetRptEventName.appendRow(item.itemPack);
-          GLB_RptEvent_arr.push(item.itemPack);
-          itemNo += 1;
+        var match = false;
+
+        if (util.rentProperty == contract.rentProperty) {
+          if (util.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+            // for manually assign contract No record
+            if (isContractLegalDateRange(new Date(util.date),contract,true)) {
+              match = true;
+            }
+          } else if (util.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+            if (isContractLegalDateRange(new Date(util.date),contract,false)) {
+              match = true;
+            }
+          }
+
+          if (match) {
+            var item    = new itemRptEvent([]);
+            var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
+            var event   = `3. Util bill is ${util.amount}`;
+            var amount  = -1 * util.amount;
+            var upd     = [itemNo,util.date,util.rentProperty,contract.tenantName,contract.itemNo,event,amount];
+            item.update(upd);
+            // SheetRptEventName.appendRow(item.itemPack);
+            GLB_RptEvent_arr.push(item.itemPack);
+            itemNo += 1;
+          }
         }
       }
       
       // Event: misc bill
       for (var j=0;j<GLB_MiscCost_arr.length;j++) {
         var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
-        if ((contract.fromDate <= misc.date) && (misc.date < contract.toDate) && (misc.rentProperty == contract.rentProperty)){
-          var item    = new itemRptEvent([]);
-          var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
-          var event   = `4. Misc cost, type = ${misc.type}.`;
-          var amount  = -1 * misc.expect_misc(); // due to the rentArrear is to sub this item
-          var upd     = [itemNo,date,misc.rentProperty,contract.tenantName,contract.itemNo,event,amount];
-          item.update(upd);
-          // SheetRptEventName.appendRow(item.itemPack);
-          GLB_RptEvent_arr.push(item.itemPack);
-          itemNo += 1;
+        var match = false;
+        if (misc.rentProperty == contract.rentProperty) {
+          if (misc.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+            // for manually assign contract No record
+            if (isContractLegalDateRange(new Date(misc.date),contract,true)) {
+              match = true;
+            }
+          } else if (misc.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
+            if (isContractLegalDateRange(new Date(misc.date),contract,false)) {
+              match = true;
+            }
+          }
+
+          if (match) {
+            var item    = new itemRptEvent([]);
+            var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
+            var event   = `4. Misc cost, type = ${misc.type}.`;
+            var amount  = -1 * misc.expect_misc();
+
+            var upd     = [itemNo,date,misc.rentProperty,contract.tenantName,contract.itemNo,event,amount];
+            item.update(upd);
+            // SheetRptEventName.appendRow(item.itemPack);
+            GLB_RptEvent_arr.push(item.itemPack);
+            itemNo += 1;
+          }
         }
       }
       
@@ -378,15 +408,12 @@ function report_event() {
         var match = false;
         if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == contract.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
           // for manually assign contract No record
-          var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
-          var toDate   = new Date(finishDate.getTime()       +CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_ToDateMargin"]);
-          if ((fromDate <= record.date) && (record.date < toDate)){
+          if (isContractLegalDateRange(new Date(record.date),contract,true)) {
             match = true;
           }
-        }
-        else {
+        } else if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == "") {
           // for normal case
-          if ((contract.fromDate.getTime() <= record.date) && (record.date < finishDate)){
+          if (isContractLegalDateRange(new Date(record.date),contract,false)){
             // for account search
             if (contract.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
               match = true;

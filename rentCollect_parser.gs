@@ -22,11 +22,6 @@ function rentCollect_parser_Record() {
   if (isParseValid) {
     // backup
     bankRecordBackUp();
-    
-    // Write Out
-    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
-    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-    Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
   }
 }
 
@@ -310,9 +305,9 @@ function merge_BankRecord(toAccountName,toAccount) {
   /////////////////////////////////////////
   // Write Out
   /////////////////////////////////////////
-  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
-  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-  // Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
+  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
+  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
+  Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
   
 }
 
@@ -864,11 +859,14 @@ function rentCollect_parser_UtilBill() {
 
     // note
     var note = data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"");
+
+    // contractOverrid
+    var contractOverrid = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
     
-    GLB_UtilBill_arr.push([itemNo,date,rentProperty,amount,note]);
+    GLB_UtilBill_arr.push([itemNo,date,rentProperty,amount,note,contractOverrid]);
     
-    // var item = new itemUtilBill(GLB_UtilBill_arr[i]);
-    // item.show()
+    var item = new itemUtilBill(GLB_UtilBill_arr[i]);
+    item.show()
 
     // Write UtilBillNo
     // SheetUtilBillName.getRange(1+topRowOfs+i,1).setValue(itemNo);
@@ -908,14 +906,17 @@ function rentCollect_parser_MiscCost() {
 
     // note
     var note = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"");
+
+    // contractOverrid
+    var contractOverrid = data[i][6].toString().replace(/[\s|\n|\r|\t]/g,"");
     
-    GLB_MiscCost_arr.push([itemNo,date,rentProperty,amount,type,note]);
+    GLB_MiscCost_arr.push([itemNo,date,rentProperty,amount,type,note,contractOverrid]);
     
     var item = new itemMiscCost(GLB_MiscCost_arr[i]);
-    // item.show()
+    item.show()
 
     // Write UtilBillNo
-    SheetMiscCostName.getRange(1+topRowOfs+i,1).setValue(itemNo);
+    // SheetMiscCostName.getRange(1+topRowOfs+i,1).setValue(itemNo);
 
   }
 
