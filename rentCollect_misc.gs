@@ -154,3 +154,17 @@ function mainCFG(){
   // to split the content
   VAR_WarnContract_arr = CFG_Val_obj["CFG_BankRecord_WarnContract"].toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
 }
+
+// function doPost(){
+//   const token ='UBcpzSiSgNnvRkoySrODkkjYswDkMjy0dzZ9UBSN9Dr';
+  
+//   var message = `HAHA: ${CFG_Key_arr}`;
+
+//   UrlFetchApp.fetch('https://notify-api.line.me/api/notify',{
+//     'headers':{'Authorization': 'Bearer ' + token,},
+//     'method':'post',
+//     'payload':{
+//     'message':message
+//     }
+//   });
+// }

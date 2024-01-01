@@ -206,7 +206,7 @@ function report_status() {
     }
   
     // collect into array
-    item.update([itemNo,rentProperty,occupied,isValidContract,tenantName,rentArrear,deposit,curRent,dayRest,contractNo,accBalance,status]);
+    item.update([itemNo,rentProperty,tenantName,rentArrear,deposit,curRent,dayRest,contractNo,accBalance,status,occupied,isValidContract]);
     GLB_RptStatus_arr.push(item.itemPack);
   
   }

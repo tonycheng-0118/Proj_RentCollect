@@ -460,28 +460,28 @@ class itemRptStatus {
   constructor (item) {
     this.itemNo;
     this.rentProperty;
-    this.occupied;
     this.tenantName;
     this.rentArrear;
     this.deposit;
     this.curRent;
     this.dayRest;
-    this.validContract;
     this.contractNo;
     this.accBalance;
     this.status;
+    this.occupied;
+    this.validContract;
 
     this.ColPos_RentProperty    = 2;
-    this.ColPos_Occupied        = 3;
-    this.ColPos_ValidContract   = 4;
-    this.ColPos_TenantName      = 5;
-    this.ColPos_RentArrear      = 6;
-    this.ColPos_Deposit         = 7;
-    this.ColPos_CurRent         = 8;
-    this.ColPos_DayRest         = 9;
-    this.ColPos_ContractNo      = 10;
-    this.ColPos_AccBalance      = 11;
-    this.ColPos_Status          = 12;
+    this.ColPos_TenantName      = 3;
+    this.ColPos_RentArrear      = 4;
+    this.ColPos_Deposit         = 5;
+    this.ColPos_CurRent         = 6;
+    this.ColPos_DayRest         = 7;
+    this.ColPos_ContractNo      = 8;
+    this.ColPos_AccBalance      = 9;
+    this.ColPos_Status          = 10;
+    this.ColPos_Occupied        = 11;
+    this.ColPos_ValidContract   = 12;
 
     this.itemPack               = item;
     this.itemPackMaxLen         = 12;
@@ -489,16 +489,16 @@ class itemRptStatus {
     if (this.itemPack.length == this.itemPackMaxLen) {
       this.itemNo       = item[0];
       this.rentProperty = item[1];
-      this.occupied     = item[2];
-      this.validContract= item[3];
-      this.tenantName   = item[4];
-      this.rentArrear   = item[5];
-      this.deposit      = item[6];
-      this.curRent      = item[7];
-      this.dayRest      = item[8];
-      this.contractNo   = item[9];
-      this.accBalance   = item[10];
-      this.status       = item[11];
+      this.tenantName   = item[2];
+      this.rentArrear   = item[3];
+      this.deposit      = item[4];
+      this.curRent      = item[5];
+      this.dayRest      = item[6];
+      this.contractNo   = item[7];
+      this.accBalance   = item[8];
+      this.status       = item[9];
+      this.occupied     = item[10];
+      this.validContract= item[11];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemRptEvent] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -508,16 +508,16 @@ class itemRptStatus {
   update (upd) {
     this.itemNo       = upd[0];
     this.rentProperty = upd[1];
-    this.occupied     = upd[2];
-    this.validContract= upd[3];
-    this.tenantName   = upd[4];
-    this.rentArrear   = upd[5];
-    this.deposit      = upd[6];
-    this.curRent      = upd[7];
-    this.dayRest      = upd[8];
-    this.contractNo   = upd[9];
-    this.accBalance   = upd[10];
-    this.status       = upd[11];
+    this.tenantName   = upd[2];
+    this.rentArrear   = upd[3];
+    this.deposit      = upd[4];
+    this.curRent      = upd[5];
+    this.dayRest      = upd[6];
+    this.contractNo   = upd[7];
+    this.accBalance   = upd[8];
+    this.status       = upd[9];
+    this.occupied     = upd[10];
+    this.validContract= upd[11];
     
     for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
   }
