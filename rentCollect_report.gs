@@ -144,8 +144,7 @@ function report_status() {
       //     Logger.log(`IUY: Property.itemNo: ${i}, contractNo: ${contractNo}, rentArrear: ${rentArrear}, item: ${item.show()}`);
       //   }
       // )
-    } 
-    else {
+    } else {
       var tenantName    = "N/A";
       var contractNo    = "N/A";
       var contract      = "N/A";
@@ -164,75 +163,28 @@ function report_status() {
     for (var j=0;j < GLB_MiscCost_arr.length;j++){
       var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
       if (misc.rentProperty == property.rentProperty) {
-        // if (misc.type == misc.MiscType_Charge_Fee)  accBalance += misc.amount;
-        // if (misc.type == misc.MiscType_CashRent)    accBalance += misc.amount;
-        // if (misc.type == misc.MiscType_Repare_Fee)  accBalance -= misc.amount;
-        // if (misc.type == misc.MiscType_Refund)      accBalance -= misc.amount;
         accBalance += misc.balance_misc();
       }
     }
     
-    
-    
-    // SheetRptStatusName.getRange(1+topRowOfs+i,1).setValue(itemNo);
-    // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_RentProperty).setValue(rentProperty);
-    // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Occupied).setValue(occupied);
-    // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_ValidContract).setValue(isValidContract);
-    // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_AccBalance).setValue(accBalance);
-    
-    // Link the information from sheets
-    // if (occupied) { // if not occupied, left the blank along
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(tenantName);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_RentArrear).setValue(rentArrear);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Deposit).setValue(deposit);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_CurRent).setValue(curRent);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_DayRest).setValue(dayRest);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contractNo);
-    // }
-    // else if (isValidContract) { // may have end of cnstract but with unpaid rents case.
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_TenantName).setValue(tenantName);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_RentArrear).setValue(rentArrear);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Deposit).setValue(deposit);
-    //   SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_ContractNo).setValue(contractNo);
-    // }
-    
-    // Logger.log(`contract: ${contract.show()}`);
     // report status with color
     if ((property.occupied == false) && (property.validContract == false)) {
       var status = "9.Vacancy";
-      // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-      // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Grey);
     } else if ((property.occupied == false) && (property.validContract == true)) {
-      if ((rentArrear) > 0) {
+      if (CONST_TODAY_DATE < contract.fromDate) {
+        var status = `1.Contract is not started yet.`;
+      } else if ((rentArrear) > 0) {
         var rptNum = (1000000 + rentArrear).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `5.Need to refund by ${rptNum}.`;
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       } else if ((rentArrear) < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `8.Need to charge by ${rptNum}.`;
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
-      } else if (CONST_TODAY_DATE < contract.fromDate) {
-        var status = `1.Contract is not started yet.`;
       } else {
         var status = `7.Need to final check.`;
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
     } else if ((property.occupied == true) && (property.validContract == true)) {
       if (rentArrear + property.curRent*CFG_Val_obj["CFG_ReportArrearMargin"] < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
-        
-        // var rentDay = new Date();
-        // rentDay.setSeconds(0);
-        // rentDay.setMinutes(0);
-        // rentDay.setHours(0);
-        // rentDay.setDate(contract.fromDate.getDate());
-        // rentDay.setMonth(CONST_TODAY_DATE.getMonth());
-        // rentDay.setFullYear(CONST_TODAY_DATE.getFullYear());
-        // if (rentDay < CONST_TODAY_DATE) rentDay += CONST_MILLIS_PER_DAY*30; // for estimated rentDayDist, varied by diff month
-        // var rentDayDist = Math.floor((rentDay - CONST_TODAY_DATE) / CONST_MILLIS_PER_DAY);
         var rentDayDist = 0;
         var rentDay = contract.fromDate.getDate();
         if (CONST_TODAY_DATE.getDate() < rentDay) {
@@ -242,21 +194,14 @@ function report_status() {
         }
         
         var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Red);
       }
       else if (property.occupied && property.dayRest <= 30) {
         var status = `4.Contract near end within ${property.dayRest} days.`;
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Yellow);
       }
       else {
         var status = "0.Good!!!";
-        // SheetRptStatusName.getRange(1+topRowOfs+i,item.ColPos_Status).setValue(status);
-        // SheetRptStatusName.getRange(1+topRowOfs+i,1,1,SheetRptStatusName.getLastColumn()).setBackground(Color_Green);
       }
-    }
-    else {
+    } else {
       if (isValidContract == false) {var errMsg = `[rentCollect_report] How come a occupied property w/o valid contract, statusNo: ${item.itemNo}`;reportErrMsg(errMsg);}
     }
   
