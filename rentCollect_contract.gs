@@ -213,31 +213,39 @@ function rentCollect_contract() {
         var value = item.amount - contract.amount;
         var margin = Math.floor(contract.amount * CFG_Val_obj["CFG_BankRecordCheck_AmountMargin"]);
         var rate   = (Math.abs(value) / contract.amount);
-        if (Math.abs(value) > margin) {
-          if (value > 0) {
-            var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`;
-            reportWarnMsg(warnMsg);
+        
+        if (VAR_WarnContract_arr.indexOf(item.contractNo.toString())==-1) {
+          if (Math.abs(value) > margin) {
+            if (value > 0) {
+              // for UtilBill paste for not warn contract
+              var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`;
+              reportWarnMsg(warnMsg);
 
-            // for UtilBill paste
-            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
-            reportWarnGenUtilBill(warnMsg);
-          
-          } else if (value < 0) {
-            var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate}!`;
-            reportWarnMsg(warnMsg);
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
+              reportWarnGenUtilBill(warnMsg);
 
-            // for MiscCost paste
-            var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
-            reportWarnGenMiscCost(warnMsg);
+              var msg = "Warn.1a";
+              SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+            } else if (value < 0) {
+              // for MiscCost paste for not warn contract
+              var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate}!`;
+              reportWarnMsg(warnMsg);
+
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
+              reportWarnGenMiscCost(warnMsg);
+
+              var msg = "Warn.1b";
+              SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+            }
+          } else {
+            // within the margin, ignore it.
           }
-          
-          if (value > 0) {
-            var msg = "Warn.1a";
-            SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
-          } else if (value < 0) {
-            var msg = "Warn.1b";
-            SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
-          }
+        } else {
+          var warnMsg = `[rentCollect_contract][Warn.1x] Contract: ${item.contractNo} has BankRecord @ ${item.itemNo} with amount ${item.amount}!`;
+          reportWarnMsg(warnMsg);
+
+          var msg = "Warn.1x";
+          SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
         }
       }
     }

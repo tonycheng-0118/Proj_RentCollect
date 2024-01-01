@@ -148,6 +148,9 @@ function mainCFG(){
     }
   )
 
+  // to normalize CFG
   // set CONST
   CONST_TODAY_DATE.setSeconds(0);CONST_TODAY_DATE.setMinutes(0);CONST_TODAY_DATE.setHours(0);
+  // to split the content
+  VAR_WarnContract_arr = CFG_Val_obj["CFG_BankRecord_WarnContract"].toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
 }
