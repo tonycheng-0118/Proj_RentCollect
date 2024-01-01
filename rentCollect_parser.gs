@@ -12,8 +12,9 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
-  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   var isParseValid = true; // will be false if one of isImpoertValid is false
+
+  load_BankRecord();
   
   isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
   isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
@@ -22,6 +23,7 @@ function rentCollect_parser_Record() {
   if (isParseValid) {
     // backup
     bankRecordBackUp();
+    write_BankRecord();
   }
 }
 
@@ -53,7 +55,6 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
-      var GLB_Import_arr = new Array();
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -134,7 +135,6 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
-      var GLB_Import_arr = new Array();
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -214,7 +214,6 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   // Parse to itemRecord
   /////////////////////////////////////////
   if (isImportValid) {
-    var GLB_Import_arr = new Array();
     var data = SheetImportName.getDataRange().getValues();
     for(i=0;i<data.length;i++){
       // itemNo
@@ -248,15 +247,12 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   return isParseValid;
 }
 
-function merge_BankRecord(toAccountName,toAccount) {
+function load_BankRecord() {
   
   const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   const bankRecordColOfs = 1; // to exclude itemNo
   const bankRecordContentLen = 12;
   
-  /////////////////////////////////////////
-  // Merge existed item
-  /////////////////////////////////////////
   GLB_BankRecord_arr = new Array();  // Since GLB_BankRecord_arr is a Global array, will regen this content every time merge starting.
   if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
     var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
@@ -264,21 +260,82 @@ function merge_BankRecord(toAccountName,toAccount) {
       GLB_BankRecord_arr.push(data[i]);
     }
 
-    var Compare_BankRecord_arr  = new Array();
+    VAR_CompareBankRecord_arr = new Array();
     var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-6).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid]
     for(i=0;i<compare_data.length;i++){
-      Compare_BankRecord_arr.push(compare_data[i]);
+      VAR_CompareBankRecord_arr.push(compare_data[i]);
     }
   }
+}
+
+function merge_BankRecord(toAccountName,toAccount) {
+  
+  // const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
+  // const bankRecordColOfs = 1; // to exclude itemNo
+  // const bankRecordContentLen = 12;
+  
+  /////////////////////////////////////////
+  // Merge existed item
+  /////////////////////////////////////////
+  // GLB_BankRecord_arr = new Array();  // Since GLB_BankRecord_arr is a Global array, will regen this content every time merge starting.
+  // if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
+  //   var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
+  //   for(i=0;i<data.length;i++){
+  //     GLB_BankRecord_arr.push(data[i]);
+  //   }
+
+  //   var VAR_CompareBankRecord_arr  = new Array();
+  //   var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-6).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid]
+  //   for(i=0;i<compare_data.length;i++){
+  //     VAR_CompareBankRecord_arr.push(compare_data[i]);
+  //   }
+  // }
   
   for(i=0;i<GLB_Import_arr.length;i++){
-    if (Compare_BankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
+    if (VAR_CompareBankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
       GLB_BankRecord_arr.push(GLB_Import_arr[i].concat([toAccountName,toAccount,CONST_TODAY_DATE,"","",""]));// expand a placeholder for RecordCheck, RecordNote, ContractOverrid
     }
     else {
       // Found duplicated itemRecord, passed.
     }
   }
+
+  // /////////////////////////////////////////
+  // // Sort itemRecord with Date in acending order
+  // /////////////////////////////////////////
+  // GLB_BankRecord_arr.sort(
+  //   function(x,y){
+  //     var xp = x[0];
+  //     var yp = y[0];
+  //     return xp == yp ? 0 : xp < yp ? -1 : 1;
+  //   }
+  // )
+  
+  // /////////////////////////////////////////
+  // // Attach with serial number
+  // /////////////////////////////////////////
+  // for(var i=0;i<GLB_BankRecord_arr.length;i++){
+  //   GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
+  // }
+
+  // // GLB_BankRecord_arr.forEach (
+  // //   function(data) {
+  // //     var item = new itemBankRecord(data);
+  // //     Logger.log(`MNB: ${item.itemPack.length}, ${item.show()}`);
+  // //   }
+  // // )
+
+  // /////////////////////////////////////////
+  // // Write Out
+  // /////////////////////////////////////////
+  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
+  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
+  // Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
+  
+}
+
+function write_BankRecord() {
+  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
 
   /////////////////////////////////////////
   // Sort itemRecord with Date in acending order
@@ -298,20 +355,12 @@ function merge_BankRecord(toAccountName,toAccount) {
     GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
   }
 
-  // GLB_BankRecord_arr.forEach (
-  //   function(data) {
-  //     var item = new itemBankRecord(data);
-  //     Logger.log(`MNB: ${item.itemPack.length}, ${item.show()}`);
-  //   }
-  // )
-
   /////////////////////////////////////////
   // Write Out
   /////////////////////////////////////////
   SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
   SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
   Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
-  
 }
 
 function note_mapping(type, id, act, note_in) {

@@ -481,8 +481,8 @@ function findContractNoPos(contractNo) {
 
 function setRptEventItem(date,rentProperty,tenantName,contractNo,event,amount) {
   var item    = new itemRptEvent([]);
-  var upd     = [GLB_rptEventItemNo,date,rentProperty,tenantName,contractNo,event,amount];
+  var upd     = [VAR_rptEventItemNo,date,rentProperty,tenantName,contractNo,event,amount];
   item.update(upd);
   GLB_RptEvent_arr.push(item.itemPack);
-  GLB_rptEventItemNo++;
+  VAR_rptEventItemNo++;
 }

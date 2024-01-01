@@ -49,7 +49,8 @@ var GLB_RptStatus_arr   = new Array();
 var GLB_RptEvent_arr    = new Array();
 
 // var
-var GLB_rptEventItemNo = 0;
+var VAR_rptEventItemNo = 0;
+var VAR_CompareBankRecord_arr = new Array();
 
 /////////////////////////////////////////
 // Class
