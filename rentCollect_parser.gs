@@ -24,6 +24,8 @@ function rentCollect_parser_Record() {
     // backup
     bankRecordBackUp();
     write_BankRecord();
+  } else {
+    if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
   }
 }
 
@@ -55,6 +57,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
+      GLB_Import_arr = new Array(); // to empty the same global array
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -135,6 +138,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
+      GLB_Import_arr = new Array(); // to empty the same global array
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs, importContentLen).getValues();
       for(i=0;i<data.length;i++){
         // itemNo
@@ -214,6 +218,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   // Parse to itemRecord
   /////////////////////////////////////////
   if (isImportValid) {
+    GLB_Import_arr = new Array(); // to empty the same global array
     var data = SheetImportName.getDataRange().getValues();
     for(i=0;i<data.length;i++){
       // itemNo

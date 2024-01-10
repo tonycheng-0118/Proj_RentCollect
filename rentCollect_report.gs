@@ -249,7 +249,7 @@ function report_event() {
 
   for (var i=0;i<GLB_Contract_arr.length;i++){
     var contract = new itemContract(GLB_Contract_arr[i]);
-    Logger.log(`contract for event: ${contract.show()}`)
+    // Logger.log(`contract for event: ${contract.show()}`)
     if ((contract.validContract || CFG_Val_obj["CFG_ReportEvent_ShowEndContract"]) && (contract.fromDate <= CONST_TODAY_DATE)) {
       // Event: start contract with deposit
       var fromDate= Utilities.formatDate(contract.fromDate, "GMT+8", "yyyy/MM/dd");
