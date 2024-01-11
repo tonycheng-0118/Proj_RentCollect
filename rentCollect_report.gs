@@ -187,10 +187,10 @@ function report_status() {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         var rentDayDist = 0;
         var rentDay = contract.fromDate.getDate();
-        if (CONST_TODAY_DATE.getDate() < rentDay) {
-          rentDayDist = CONST_TODAY_DATE.getDate() + 30 - rentDay;
+        if (rentDay > CONST_TODAY_DATE.getDate()) {
+          rentDayDist = rentDay      - CONST_TODAY_DATE.getDate();
         } else {
-          rentDayDist = CONST_TODAY_DATE.getDate()      - rentDay;
+          rentDayDist = rentDay + 30 - CONST_TODAY_DATE.getDate();
         }
         
         var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
