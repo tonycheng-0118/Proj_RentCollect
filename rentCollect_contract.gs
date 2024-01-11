@@ -231,7 +231,7 @@ function rentCollect_contract() {
               var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate}!`;
               reportWarnMsg(warnMsg);
 
-              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, record msg: ${item.fromAccountName} , rate: ${rate}, contractNo: ${item.contractNo}\n`;
               reportWarnGenMiscCost(warnMsg);
 
               var msg = "Warn.1b";
