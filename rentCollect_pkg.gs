@@ -468,6 +468,7 @@ class itemRptStatus {
     this.contractNo;
     this.accBalance;
     this.status;
+    this.note;
     this.occupied;
     this.validContract;
 
@@ -480,11 +481,12 @@ class itemRptStatus {
     this.ColPos_ContractNo      = 8;
     this.ColPos_AccBalance      = 9;
     this.ColPos_Status          = 10;
-    this.ColPos_Occupied        = 11;
-    this.ColPos_ValidContract   = 12;
+    this.ColPos_Note            = 11;
+    this.ColPos_Occupied        = 12;
+    this.ColPos_ValidContract   = 13;
 
     this.itemPack               = item;
-    this.itemPackMaxLen         = 12;
+    this.itemPackMaxLen         = 13;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
       this.itemNo       = item[0];
@@ -497,8 +499,9 @@ class itemRptStatus {
       this.contractNo   = item[7];
       this.accBalance   = item[8];
       this.status       = item[9];
-      this.occupied     = item[10];
-      this.validContract= item[11];
+      this.note         = item[10];
+      this.occupied     = item[11];
+      this.validContract= item[12];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemRptEvent] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -516,14 +519,15 @@ class itemRptStatus {
     this.contractNo   = upd[7];
     this.accBalance   = upd[8];
     this.status       = upd[9];
-    this.occupied     = upd[10];
-    this.validContract= upd[11];
+    this.note         = upd[10];
+    this.occupied     = upd[11];
+    this.validContract= upd[12];
     
     for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
   }
 
   show(){
-    var text = `itemRptStatus: \n(itemNo=${this.itemNo}, rentProperty=${this.rentProperty}, occupied=${this.occupied},tenantName=${this.tenantName},rentArrear=${this.rentArrear},deposit=${this.deposit},curRent=${this.curRent},dayRest=${this.dayRest},validContract=${this.validContract},contractNo=${this.contractNo},accBalance=${this.accBalance},status=${this.status})`;
+    var text = `itemRptStatus: \n(itemNo=${this.itemNo}, rentProperty=${this.rentProperty}, occupied=${this.occupied},tenantName=${this.tenantName},rentArrear=${this.rentArrear},deposit=${this.deposit},curRent=${this.curRent},dayRest=${this.dayRest},validContract=${this.validContract},contractNo=${this.contractNo},accBalance=${this.accBalance},status=${this.status},note=${this.note})`;
     return text;
   };
 
