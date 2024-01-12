@@ -28,7 +28,7 @@ const CONST_This_Account_Number = "000014853**1373*"; // The self account number
 const CONST_SuperFeatureDate = new Date("Jan 1 3000 00:00:00 GMT+0800 (Taipei Standard Time)");
 const CONST_SuperAncentDate = new Date("Jan 1 1000 00:00:00 GMT+0800 (Taipei Standard Time)");
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken"];
 var CFG_Val_obj = new Object();
 
 // Array

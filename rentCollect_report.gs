@@ -25,6 +25,7 @@ function report_analysis() {
   // Cal month acc rent
   /////////////////////////////////////////
   var data = SheetRptAnalysisName.getRange(1+topRowOfs,1,SheetRptAnalysisName.getLastRow()-topRowOfs,SheetRptAnalysisName.getLastColumn()).getValues();
+  var isLinePost = false; // only post the top left one
   for(i=0;i<data.length;i++){
     var itemNo = i;
 
@@ -42,6 +43,7 @@ function report_analysis() {
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
       var accRent = 0;
       var accRentDetails_arr = new Array();
+      var linePostDetails_arr = new Array();
       for (k=0;k<srhGroup_arr.length;k++){
         var srhMatchPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var srhMatchRegexp = new RegExp(srhMatchPtn,"gi");
@@ -63,6 +65,7 @@ function report_analysis() {
             if ((isExclude==0) && (stDate <= record.date) && (record.date < edDate)) {
               if (record.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`Record: ${record.itemNo}\t${Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd')}\t${record.rentProperty}\t${record.amount}\n`);
+                linePostDetails_arr.push(`${Utilities.formatDate(record.date, 'GMT+8', 'MM/dd')} ${record.rentProperty} ${record.amount}\n`);
                 accRent += record.amount;
               }
             }
@@ -87,6 +90,7 @@ function report_analysis() {
             if ((isExclude==0) && (stDate <= misc.date) && (misc.date < edDate)) {
               if (misc.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${Utilities.formatDate(misc.date, 'GMT+8', 'yyyy/MM/dd')}\t${misc.rentProperty}\t${misc.amount}\n`);
+                linePostDetails_arr.push(`${Utilities.formatDate(misc.date, 'GMT+8', 'MM/dd')} ${misc.rentProperty} ${misc.amount}\n`);
                 accRent += misc.amount;
               }
             }
@@ -97,6 +101,15 @@ function report_analysis() {
       SheetRptAnalysisName.getRange(1+topRowOfs+i,pos.ColPos_MonthAccRent+j).setValue(accRent).setNote(`${accRentDetails_arr}`);
       stDate.setMonth(stDate.getMonth()-1); 
       edDate.setMonth(edDate.getMonth()-1);
+
+      // line post
+      if (!isLinePost) {
+        isLinePost = true;
+        if (CONST_TODAY_DATE.getDay()==6) { // always post on Saturday
+          var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostDetails_arr.join("\n");
+          doLinePost(msg)
+        }
+      }
 
       
     }
