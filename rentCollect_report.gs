@@ -106,7 +106,7 @@ function report_analysis() {
       if (!isLinePost) {
         isLinePost = true;
         if (CONST_TODAY_DATE.getDay()==6) { // always post on Saturday
-          var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostDetails_arr.join("\n");
+          var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostDetails_arr.join("");
           doLinePost(msg)
         }
       }
