@@ -561,8 +561,8 @@ function rentCollect_parser_Tenant() {
   /////////////////////////////////////////
   const topRowOfs = 1;
   const tenantNameColOfs = 1;
-  const accountNameColOfs = 3;
-  const accountColOfs = 4;
+  const accountNameColOfs = 4;
+  const accountColOfs = 5;
   var all_tenant_arr  = new Array();
   var all_account_arr = new Array();
   SheetTenantName.getRange(1+topRowOfs,1,SheetTenantName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
@@ -689,9 +689,9 @@ function rentCollect_parser_Contract() {
     // endContract
     var tmp = data[i][10].toString().replace(/[\s|\n|\r|\t]/g,"");
     var endContract;
-    if (tmp == "") endContract = false
-    else if (tmp == "EndContract") endContract = true
-    else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endContract: ${tmp}`; reportErrMsg(errMsg);}
+    if (tmp == "EndContract") endContract = true
+    else endContract = false
+    // else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endContract: ${tmp}`; reportErrMsg(errMsg);}
 
     // note
     var note = data[i][11].toString().replace(/[\s|\n|\r|\t]/g,"");
