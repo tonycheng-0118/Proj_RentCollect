@@ -856,8 +856,9 @@ function chkContractIntegrity(){
   for (i=0;i<GLB_BankRecord_arr.length;i++){ // less likely duplicated, check for assurance
     var record = new itemBankRecord(GLB_BankRecord_arr[i]);
     if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") != "") {
-      if (findContractNoPos(record.contractOverrid)==-1) {var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);}
-      else {
+      if (findContractNoPos(record.contractOverrid)==-1) {
+        var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);
+      } else if (record.recordCheck.toString() != "Checked"){
         var contract = new itemContract(GLB_Contract_arr[findContractNoPos(record.contractOverrid)]);
 
         var fromDate = new Date(contract.fromDate.getTime()-CONST_MILLIS_PER_DAY*CFG_Val_obj["CFG_BankRecordSearch_FromDateMargin"]);
