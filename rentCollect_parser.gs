@@ -578,7 +578,9 @@ function rentCollect_parser_Tenant() {
         var account = data[i][a].toString().replace(/ /g,'');
         account_arr.push(account);
         all_account_arr.push(account);
-        chkValidAccount(account);
+        if (chkValidAccount(account) == false) {
+          var errMsg = `[rentCollect_parser_Tenant] chkValidAccount failed at itemNo: ${itemNo}`; reportErrMsg(errMsg);
+        }
       }
     }
 
@@ -683,7 +685,10 @@ function rentCollect_parser_Contract() {
     var toAccountName = data[i][8].toString().replace(/[\s|\n|\r|\t]/g,"");
     
     // toAccount
-    chkValidAccount(data[i][9])
+
+    if (chkValidAccount(data[i][9]) == false) {
+      var errMsg = `[rentCollect_parser_Contract] chkValidAccount failed at itemNo: ${itemNo}`; reportErrMsg(errMsg);
+    }
     var toAccount = data[i][9].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // endContract
