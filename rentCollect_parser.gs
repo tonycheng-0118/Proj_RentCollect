@@ -375,9 +375,11 @@ function note_mapping(type, id, act, note_in) {
     if (act == "TransferIn"){
       // rid of self account number
       var note_tmp = note_in.replace(CONST_This_Account_Number,"");
+      var note_tmp = note_tmp.replace(/\s\*\*\s/g,"**");
 
       // retrieve fromAccountName
       var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
+      // Logger.log(`[note_mapping] type: ${type}, id: ${id}, act: ${act}, note_in: ${note_in}, note_tmp: ${note_tmp}`);
       var fromAccount = regExp.exec(note_tmp)[0];
       var fromAccountName = note_tmp.replace(regExp,"").replace(/[\s|\n|\r|\t]/g,"").split("\n");
       
