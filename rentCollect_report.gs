@@ -105,7 +105,7 @@ function report_analysis() {
       // line post
       if (!isLinePost) {
         isLinePost = true;
-        if (CONST_TODAY_DATE.getDay()==6) { // always post on Saturday
+        if (CONST_TODAY_DATE.getDay()==1) { // always post on Monday
           var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostDetails_arr.join("");
           doLinePost(msg)
         }
@@ -128,11 +128,14 @@ function report_status() {
   // Setting
   /////////////////////////////////////////
   const topRowOfs = 1; // the offset from the top row, A2 is 1
+  const dayRestThreshold = 14; // report those contract with restDay less than dayRestThreshold.
 
   /////////////////////////////////////////
   // Update Status
   /////////////////////////////////////////
   if (SheetRptStatusName.getLastRow()>1) SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn()).clear({ formatOnly: false, contentsOnly: true }); // in case of empty
+  var linePostDayRest_arr = new Array();
+  var isLinePost = false;
   for (var i=0;i<GLB_Property_arr.length;i++){
     var item = new itemRptStatus([]);
     var property = new itemProperty(GLB_Property_arr[i]);
@@ -160,6 +163,11 @@ function report_status() {
       var note          = "N/A";
       var curRent       = "N/A";
       var dayRest       = "N/A";
+    }
+
+    // collect those contract with RestDay exced threshold
+    if (isValidContract && (dayRest < dayRestThreshold)) {
+      linePostDayRest_arr.push(`${rentProperty}: ${dayRest} to end contract. Note: ${note}.\n`);
     }
 
     // accumulate all bank record in this property
@@ -235,6 +243,15 @@ function report_status() {
   range.sort({column:item.ColPos_RentProperty,ascending: true});
   range.sort({column:item.ColPos_RentArrear,ascending: true});
   range.sort({column:item.ColPos_Status,ascending: false});
+
+  // line post
+  if (!isLinePost) {
+    isLinePost = true;
+    if (CONST_TODAY_DATE.getDay()==6) { // post on Saturday
+      var msg = "目前合約少於" + dayRestThreshold + "天的合約數有" + linePostDayRest_arr.length + "份" + "\n\n" + linePostDayRest_arr.join("\n");
+      doLinePost(msg)
+    }
+  }
   
 }
 
