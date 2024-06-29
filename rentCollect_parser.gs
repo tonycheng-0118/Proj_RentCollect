@@ -374,8 +374,8 @@ function note_mapping(type, id, act, note_in) {
   if (type == "CTBC") {
     if (act == "TransferIn"){
       // rid of self account number
-      var note_tmp = note_in.replace(CONST_This_Account_Number,"");
-      var note_tmp = note_tmp.replace(/\s\*\*\s/g,"**");
+      var note_tmp = note_in.replace(/\s\*\*\s/g,"**");
+      var note_tmp = note_tmp.replace(CONST_This_Account_Number,"");    
 
       // retrieve fromAccountName
       var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
