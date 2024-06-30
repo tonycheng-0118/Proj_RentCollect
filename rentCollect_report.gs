@@ -210,12 +210,12 @@ function report_status() {
         }
         
         var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
-      }
-      else if (property.occupied && property.dayRest <= CONST_DayRestThreshold) {
+      } else if (property.dayRest < 0) {
+        var status = `3.Previuos consecutive contract is overdue and starts the new one, check the old contract.`;
+      } else if (property.dayRest <= CONST_DayRestThreshold) {
         var status = `4.Contract near end within ${property.dayRest} days.`;
         linePostDayRest_arr.push(`${rentProperty}: within ${dayRest}. Note: ${note}.\n`);
-      }
-      else {
+      } else {
         var status = "0.Good!!!";
       }
     } else {
