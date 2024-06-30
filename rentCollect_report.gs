@@ -43,7 +43,7 @@ function report_analysis() {
     for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
       var accRent = 0;
       var accRentDetails_arr = new Array();
-      var linePostDetails_arr = new Array();
+      var linePostRentRecord_arr = new Array();
       for (k=0;k<srhGroup_arr.length;k++){
         var srhMatchPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var srhMatchRegexp = new RegExp(srhMatchPtn,"gi");
@@ -65,7 +65,7 @@ function report_analysis() {
             if ((isExclude==0) && (stDate <= record.date) && (record.date < edDate)) {
               if (record.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`Record: ${record.itemNo}\t${Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd')}\t${record.rentProperty}\t${record.amount}\n`);
-                linePostDetails_arr.push(`${Utilities.formatDate(record.date, 'GMT+8', 'MM/dd')} ${record.rentProperty} ${record.amount}\n`);
+                linePostRentRecord_arr.push(`${Utilities.formatDate(record.date, 'GMT+8', 'MM/dd')} ${record.rentProperty} ${record.amount}\n`);
                 accRent += record.amount;
               }
             }
@@ -90,7 +90,7 @@ function report_analysis() {
             if ((isExclude==0) && (stDate <= misc.date) && (misc.date < edDate)) {
               if (misc.rentProperty.toString().match(srhMatchRegexp) != null) {
                 accRentDetails_arr.push(`MISC: ${misc.itemNo}\t${Utilities.formatDate(misc.date, 'GMT+8', 'yyyy/MM/dd')}\t${misc.rentProperty}\t${misc.amount}\n`);
-                linePostDetails_arr.push(`${Utilities.formatDate(misc.date, 'GMT+8', 'MM/dd')} ${misc.rentProperty} ${misc.amount}\n`);
+                linePostRentRecord_arr.push(`${Utilities.formatDate(misc.date, 'GMT+8', 'MM/dd')} ${misc.rentProperty} ${misc.amount}\n`);
                 accRent += misc.amount;
               }
             }
@@ -105,8 +105,8 @@ function report_analysis() {
       // line post
       if (!isLinePost) {
         isLinePost = true;
-        if (CONST_TODAY_DATE.getDay()==1) { // always post on Monday
-          var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostDetails_arr.join("");
+        if (CONST_TODAY_DATE.getDay()==CONST_LinePostRentRecordWeek) {
+          var msg = "目前總金額: " + accRent.toString() + "\n\n" + linePostRentRecord_arr.join("");
           doLinePost(msg)
         }
       }
@@ -128,12 +128,14 @@ function report_status() {
   // Setting
   /////////////////////////////////////////
   const topRowOfs = 1; // the offset from the top row, A2 is 1
-  const dayRestThreshold = 14; // report those contract with restDay less than dayRestThreshold.
+  const CONST_DayRestThreshold = 14; // report those contract with restDay less than dayRestThreshold.
 
   /////////////////////////////////////////
   // Update Status
   /////////////////////////////////////////
   if (SheetRptStatusName.getLastRow()>1) SheetRptStatusName.getRange(1+topRowOfs,1,SheetRptStatusName.getLastRow()-topRowOfs,SheetRptStatusName.getLastColumn()).clear({ formatOnly: false, contentsOnly: true }); // in case of empty
+  var linePostVacancy_arr = new Array();
+  var linePostOverdue_arr = new Array();
   var linePostDayRest_arr = new Array();
   var isLinePost = false;
   for (var i=0;i<GLB_Property_arr.length;i++){
@@ -165,11 +167,6 @@ function report_status() {
       var dayRest       = "N/A";
     }
 
-    // collect those contract with RestDay exced threshold
-    if (isValidContract && (dayRest < dayRestThreshold)) {
-      linePostDayRest_arr.push(`${rentProperty}: ${dayRest} to end contract. Note: ${note}.\n`);
-    }
-
     // accumulate all bank record in this property
     var accBalance = 0;
     for (var j=0;j < GLB_BankRecord_arr.length;j++){
@@ -186,15 +183,18 @@ function report_status() {
     // report status with color
     if ((property.occupied == false) && (property.validContract == false)) {
       var status = "9.Vacancy";
+      linePostVacancy_arr.push(`${rentProperty}.\n`);
     } else if ((property.occupied == false) && (property.validContract == true)) {
       if (CONST_TODAY_DATE < contract.fromDate) {
         var status = `1.Contract is not started yet.`;
       } else if ((rentArrear) > 0) {
         var rptNum = (1000000 + rentArrear).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `5.Need to refund by ${rptNum}.`;
+        linePostOverdue_arr.push(`${rentProperty}. Status: ${status}.\n`);
       } else if ((rentArrear) < 0) {
         var rptNum = (1000000 + Math.abs(rentArrear)).toPrecision(7).toString().substring(1); // for add leading zero
         var status = `8.Need to charge by ${rptNum}.`;
+        linePostOverdue_arr.push(`${rentProperty}. Status: ${status}.\n`);
       } else {
         var status = `7.Need to final check.`;
       }
@@ -211,8 +211,9 @@ function report_status() {
         
         var status = `6.Rent arear is -${rptNum}, ${Math.floor(rentArrear*10/property.curRent)/10} month, ${rentDayDist} due days.`;
       }
-      else if (property.occupied && property.dayRest <= 30) {
+      else if (property.occupied && property.dayRest <= CONST_DayRestThreshold) {
         var status = `4.Contract near end within ${property.dayRest} days.`;
+        linePostDayRest_arr.push(`${rentProperty}: within ${dayRest}. Note: ${note}.\n`);
       }
       else {
         var status = "0.Good!!!";
@@ -247,8 +248,18 @@ function report_status() {
   // line post
   if (!isLinePost) {
     isLinePost = true;
-    if (CONST_TODAY_DATE.getDay()==6) { // post on Saturday
-      var msg = "目前合約少於" + dayRestThreshold + "天的合約數有" + linePostDayRest_arr.length + "份" + "\n\n" + linePostDayRest_arr.join("\n");
+    if (CONST_TODAY_DATE.getDay()==CONST_LinePostVacancyWeek) {
+      var msg = "目前未出租的物件有" + linePostVacancy_arr.length + "件" + "\n\n" + linePostVacancy_arr.join("");
+      doLinePost(msg)
+    }
+
+    if (CONST_TODAY_DATE.getDay()==CONST_LinePostOverdueWeek) {
+      var msg = "目前合約已結束待確認有" + linePostOverdue_arr.length + "件" + "\n\n" + linePostOverdue_arr.join("");
+      doLinePost(msg)
+    }
+
+    if (CONST_TODAY_DATE.getDay()==CONST_LinePostDayRestWeek) {
+      var msg = "目前合約少於" + CONST_DayRestThreshold + "天的合約數有" + linePostDayRest_arr.length + "份" + "\n\n" + linePostDayRest_arr.join("\n");
       doLinePost(msg)
     }
   }
