@@ -33,7 +33,7 @@ const CONST_LinePostVacancyWeek = 6;
 const CONST_LinePostOverdueWeek = 6;
 const CONST_LinePostDayRestWeek = 6;
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken"];
 var CFG_Val_obj = new Object();
 
 // Array
@@ -322,10 +322,10 @@ class itemBankRecord {
       (this.date.toString()         == that.date.toString()) &&
       (this.action                  == that.action) && 
       (this.amount                  == that.amount) &&
-      (this.fromAccountName         == that.fromAccountName) &&
-      (this.fromAccount             == that.fromAccount) &&
-      (this.toAccountName           == that.toAccountName) &&
-      (this.toAccount               == that.toAccount) &&
+      // (this.fromAccountName         == that.fromAccountName) &&
+      // (this.fromAccount             == that.fromAccount) &&
+      // (this.toAccountName           == that.toAccountName) &&
+      // (this.toAccount               == that.toAccount) &&
       (this.balance                 == that.balance)
     ) {
       Logger.log(`AAA: ${this.show()}`);
