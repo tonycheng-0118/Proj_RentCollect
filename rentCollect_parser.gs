@@ -567,15 +567,17 @@ function rentCollect_parser_Tenant() {
   /////////////////////////////////////////
   const topRowOfs = 1;
   const tenantNameColOfs = 1;
+  const tenantStatusColOfs = 3;
   const accountNameColOfs = 4;
   const accountColOfs = 5;
-  var all_tenant_arr  = new Array();
-  var all_account_arr = new Array();
+  var all_tenant_chk_arr  = new Array();
+  var all_account_chk_arr = new Array();
   SheetTenantName.getRange(1+topRowOfs,1,SheetTenantName.getLastRow()-topRowOfs,1).clear(); // clear itemNo column
   var data = SheetTenantName.getRange(1+topRowOfs,1,SheetTenantName.getLastRow()-topRowOfs,SheetTenantName.getLastColumn()).getValues();
   for(i=0;i<data.length;i++){
     var itemNo = i;
     
+    var status = data[i][tenantStatusColOfs].toString().replace(/[\s|\n|\r|\t]/g,"");
     var account_arr = new Array();
     if (data[i].length<accountColOfs+1) {var errMsg = `[rentCollect_parser_Tenant] The tenant account data is missing for ${itemNo}`; reportErrMsg(errMsg);}
     chkNotEmptyEntry(data[i][1]);
@@ -583,7 +585,7 @@ function rentCollect_parser_Tenant() {
       if (data[i][a].toString().replace(/ /g,'')!='') {
         var account = data[i][a].toString().replace(/ /g,'');
         account_arr.push(account);
-        all_account_arr.push(account);
+        if (status != "EndContract") { all_account_chk_arr.push(account);} // only check those valid contract
         if (chkValidAccount(account) == false) {
           var errMsg = `[rentCollect_parser_Tenant] chkValidAccount failed at itemNo: ${itemNo}`; reportErrMsg(errMsg);
         }
@@ -592,7 +594,7 @@ function rentCollect_parser_Tenant() {
 
     var tenant = data[i][tenantNameColOfs].toString().replace(/[\s|\n|\r|\t]/g,"");
     var accountName = data[i][accountNameColOfs].toString().replace(/[\s|\n|\r|\t]/g,"");
-    all_tenant_arr.push(tenant);
+    all_tenant_chk_arr.push(tenant);
     GLB_Tenant_obj[tenant] = [accountName,account_arr]; // hash table, key=telantName, value=[Account]
   
     // Write TenantNo
@@ -616,16 +618,16 @@ function rentCollect_parser_Tenant() {
   // }
   
   // check duplicated tenant
-  for (i=0;i<all_tenant_arr.length-1;i++){
-    for (j=i+1;j<all_tenant_arr.length;j++){
-      if (all_tenant_arr[i] == all_tenant_arr[j]) {var errMsg = `[rentCollect_parser_Tenant] tenant: ${all_tenant_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+  for (i=0;i<all_tenant_chk_arr.length-1;i++){
+    for (j=i+1;j<all_tenant_chk_arr.length;j++){
+      if (all_tenant_chk_arr[i] == all_tenant_chk_arr[j]) {var errMsg = `[rentCollect_parser_Tenant] tenant: ${all_tenant_chk_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
     }
   }
 
   // check duplicated account
-  for (i=0;i<all_account_arr.length-1;i++){
-    for (j=i+1;j<all_account_arr.length;j++){
-      if (all_account_arr[i] == all_account_arr[j]) {var errMsg = `[rentCollect_parser_Tenant] account: ${all_account_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+  for (i=0;i<all_account_chk_arr.length-1;i++){
+    for (j=i+1;j<all_account_chk_arr.length;j++){
+      if (all_account_chk_arr[i] == all_account_chk_arr[j]) {var errMsg = `[rentCollect_parser_Tenant] account: ${all_account_chk_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
     }
   }
 
