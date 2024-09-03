@@ -524,7 +524,7 @@ function rentCollect_parser_chkDuplicated() {
     for (i=0;i<GLB_BankRecord_arr.length-1;i++){ // less likely duplicated, check for assurance
       for (j=i+1;j<GLB_BankRecord_arr.length;j++){
         var a = new itemBankRecord(GLB_BankRecord_arr[i]);
-        if (a.recordCheck.toString() != "Checked") {
+        if ((a.recordCheck.toString() != "Checked") && (a.amount != 0)) {
           if (a.compare(GLB_BankRecord_arr[j])) {var errMsg = `[rentCollect_parser_chkDuplicated] BankRecord:[${i}]: ${GLB_BankRecord_arr[i]}, BankRecord:[${j}]: ${GLB_BankRecord_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
         }
       }
@@ -868,6 +868,7 @@ function chkContractIntegrity(){
   //ContractOverrid correlate to existed contractNo
   for (i=0;i<GLB_BankRecord_arr.length;i++){ // less likely duplicated, check for assurance
     var record = new itemBankRecord(GLB_BankRecord_arr[i]);
+    // Logger.log(`DEBUG20240903: ${record.show()}`)
     if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") != "") {
       if (findContractNoPos(record.contractOverrid)==-1) {
         var errMsg = `[chkContractIntegrity] ContractOverrid contractNo not existed: ${record.itemNo}. ${record.show()}`; reportErrMsg(errMsg);
