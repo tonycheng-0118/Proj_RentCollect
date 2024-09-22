@@ -627,7 +627,10 @@ function rentCollect_parser_Tenant() {
   // check duplicated account
   for (i=0;i<all_account_chk_arr.length-1;i++){
     for (j=i+1;j<all_account_chk_arr.length;j++){
-      if (all_account_chk_arr[i] == all_account_chk_arr[j]) {var errMsg = `[rentCollect_parser_Tenant] account: ${all_account_chk_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+      var srhMatchPtn = "^" + all_account_chk_arr[i].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
+      var srhMatchRegexp = new RegExp(srhMatchPtn,"gi");
+      var srhMatchRegexpHit = srhMatchRegexp.exec(all_account_chk_arr[j]);
+      if (srhMatchRegexpHit) {var errMsg = `[rentCollect_parser_Tenant] account: ${all_account_chk_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
     }
   }
 
@@ -803,19 +806,20 @@ function chkValidTenantName(tenantName){
 }
 
 function chkValidAccount(account){
-    var regExpCTBC = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
-    var meetCTBC = regExpCTBC.exec(account);
+    // 20240917: for regex account, the accout formation is no longer mater
+    // var regExpCTBC = new RegExp("([0-9]{9}\\*\\*[0-9]{4}\\*)","gi"); // escape word
+    // var meetCTBC = regExpCTBC.exec(account);
 
-    var regExpKTB = new RegExp("([0-9]{10}\d*)","gi");
-    var meetCKTB = regExpKTB.exec(account);
+    // var regExpKTB = new RegExp("([0-9]{10}\d*)","gi");
+    // var meetCKTB = regExpKTB.exec(account);
 
-    if (meetCTBC || meetCKTB) {
-      return true;
-    } 
-    else {
-      if (1) {var errMsg = `[chkValidAccount] This is not a valid account: ${account}`; reportErrMsg(errMsg);}
-      return false;   
-    }
+    // if (meetCTBC || meetCKTB) {
+    //   return true;
+    // } 
+    // else {
+    //   if (1) {var errMsg = `[chkValidAccount] This is not a valid account: ${account}`; reportErrMsg(errMsg);}
+    //   return false;   
+    // }
 }
 
 function chkContractIntegrity(){

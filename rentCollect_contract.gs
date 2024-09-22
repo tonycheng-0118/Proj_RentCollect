@@ -122,20 +122,30 @@ function rentCollect_contract() {
         if (isContractLegalDateRange(new Date(record.date),item,false)){
           if (record.contractNo == null) { // first record update
             // for account search 
-            if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
-              match = true;
+            // if (item.tenantAccount_arr.indexOf(record.fromAccount.toString())!=-1) {
+            //   match = true;
+            // }
+            for (var k=0;k<item.tenantAccount_arr.length;k++){
+              var srhPtn = "^" + item.tenantAccount_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
+              // Logger.log(`srhPtn: ${srhPtn}`);
+              var regExp = new RegExp(srhPtn,"gi");
+              if (record.fromAccount.toString().match(regExp) != null){
+                match = true;
+              }
             }
-            // for account name search
-            else if (item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
-              var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
-              for (k=0;k<accountName_arr.length;k++){
-                var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
-                // Logger.log(`srhPtn: ${srhPtn}`);
-                var regExp = new RegExp(srhPtn,"gi");
-                var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
-                for (kk=0;kk<fromAccountName_arr.length;kk++){
-                  if (fromAccountName_arr[kk].toString().match(regExp) != null){
-                    match = true;
+            // if not match account, then account name search
+            if (match == false){
+              if (item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
+                var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
+                for (var k=0;k<accountName_arr.length;k++){
+                  var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
+                  // Logger.log(`srhPtn: ${srhPtn}`);
+                  var regExp = new RegExp(srhPtn,"gi");
+                  var fromAccountName_arr = record.fromAccountName.toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
+                  for (var kk=0;kk<fromAccountName_arr.length;kk++){
+                    if (fromAccountName_arr[kk].toString().match(regExp) != null){
+                      match = true;
+                    }
                   }
                 }
               }
