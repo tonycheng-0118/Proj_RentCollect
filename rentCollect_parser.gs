@@ -98,7 +98,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   for (const [k,v] of Object.entries(records_obj)) {
     
     var time_start_parser_Record_ESUN_import = new Date();
-    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
     var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub,bpsImport);
     isParseValid = isParseValid && isImportValid;
     var time_finish_parser_Record_ESUN_import = new Date();
@@ -188,7 +188,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
     var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub,bpsImport);
     isParseValid = isParseValid && isImportValid;
 
@@ -266,7 +266,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+  var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
   var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub,bpsImport);
   var isParseValid = isImportValid;
 
