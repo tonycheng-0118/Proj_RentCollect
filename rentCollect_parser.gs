@@ -2,24 +2,66 @@
 // Function
 /////////////////////////////////////////
 function rentCollect_parser() {
+  var time_start_parser_Record = new Date();
   rentCollect_parser_Record();
+  var time_finish_parser_Record = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Record time_exec(s): ${(time_finish_parser_Record.getTime() - time_start_parser_Record.getTime()) / 1000}`; reportInfoMsg(info);}
+  
+  var time_start_parser_Tenant = new Date();
   rentCollect_parser_Tenant();
+  var time_finish_parser_Tenant = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Tenant time_exec(s): ${(time_finish_parser_Tenant.getTime() - time_start_parser_Tenant.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_UtilBill = new Date();
   rentCollect_parser_UtilBill();
+  var time_finish_parser_UtilBill = new Date();
+  if (1) {var info = `[rentCollect_main] parser_UtilBill time_exec(s): ${(time_finish_parser_UtilBill.getTime() - time_start_parser_UtilBill.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_MiscCost = new Date();
   rentCollect_parser_MiscCost();
+  var time_finish_parser_MiscCost = new Date();
+  if (1) {var info = `[rentCollect_main] parser_MiscCost time_exec(s): ${(time_finish_parser_MiscCost.getTime() - time_start_parser_MiscCost.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_Property = new Date();
   rentCollect_parser_Property();
+  var time_finish_parser_Property = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Property time_exec(s): ${(time_finish_parser_Property.getTime() - time_start_parser_Property.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_Contract = new Date();
   rentCollect_parser_Contract();
+  var time_finish_parser_Contract = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Contract time_exec(s): ${(time_finish_parser_Contract.getTime() - time_start_parser_Contract.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_chkDuplicated = new Date();
   rentCollect_parser_chkDuplicated();
+  var time_finish_parser_chkDuplicated = new Date();
+  if (1) {var info = `[rentCollect_main] parser_chkDuplicated time_exec(s): ${(time_finish_parser_chkDuplicated.getTime() - time_start_parser_chkDuplicated.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record() {
   var isParseValid = true; // will be false if one of isImpoertValid is false
-
-  load_BankRecord();
   
+  var time_start_parser_Record_load_BankRecord = new Date();
+  load_BankRecord();
+  var time_finish_parser_Record_load_BankRecord = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Record_load_BankRecord time_exec(s): ${(time_finish_parser_Record_load_BankRecord.getTime() - time_start_parser_Record_load_BankRecord.getTime()) / 1000}`; reportInfoMsg(info);}
+  
+  var time_start_parser_Record_ESUN = new Date();
   isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
-  isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
-  isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
+  var time_finish_parser_Record_ESUN = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Record_ESUN time_exec(s): ${(time_finish_parser_Record_ESUN.getTime() - time_start_parser_Record_ESUN.getTime()) / 1000}`; reportInfoMsg(info);}
 
+  var time_start_parser_Record_KTB = new Date();
+  isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
+  var time_finish_parser_Record_KTB = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Record_KTB time_exec(s): ${(time_finish_parser_Record_KTB.getTime() - time_start_parser_Record_KTB.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_Record_CTBC = new Date();
+  isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
+  var time_finish_parser_Record_CTBC = new Date();
+  if (1) {var info = `[rentCollect_main] parser_Record_CTBC time_exec(s): ${(time_finish_parser_Record_CTBC.getTime() - time_start_parser_Record_CTBC.getTime()) / 1000}`; reportInfoMsg(info);}
+  
+  var time_start_parser_Record_write = new Date();
   if (isParseValid) {
     // backup
     bankRecordBackUp();
@@ -27,6 +69,8 @@ function rentCollect_parser_Record() {
   } else {
     if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
   }
+  var time_finish_parser_Record_write = new Date();
+  if (1) {var info = `[rentCollect_main] _parser_Record_write time_exec(s): ${(time_finish_parser_Record_write.getTime() - time_start_parser_Record_write.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record_ESUN() { // 玉山銀行
@@ -53,10 +97,15 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub);
+    var time_start_parser_Record_ESUN_import = new Date();
+    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub,bpsImport);
     isParseValid = isParseValid && isImportValid;
+    var time_finish_parser_Record_ESUN_import = new Date();
+    if (1) {var info = `[rentCollect_main] parser_Record_ESUN_import time_exec(s): ${(time_finish_parser_Record_ESUN_import.getTime() - time_start_parser_Record_ESUN_import.getTime()) / 1000}`; reportInfoMsg(info);}
 
     if (isImportValid) {
+      var time_start_parser_Record_ESUN_proc = new Date();
       GLB_Import_arr = new Array(); // to empty the same global array
       var data = SheetImportName.getRange(1+importRowOfs, 1+importColOfs, SheetImportName.getLastRow()-importRowOfs-importLastRowSub, importContentLen).getValues();
       for(i=0;i<data.length;i++){
@@ -101,8 +150,13 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
         
         // Logger.log(`date:${date}, act:${act}, amount: ${amount}, balance: ${balance}, accountName: ${fromNote[0]}, account: ${fromNote[1]}`);
       }
-
+      var time_finish_parser_Record_ESUN_proc = new Date();
+      if (1) {var info = `[rentCollect_main] parser_Record_ESUN_proc time_exec(s): ${(time_finish_parser_Record_ESUN_proc.getTime() - time_start_parser_Record_ESUN_proc.getTime()) / 1000}`; reportInfoMsg(info);}
+      
+      var time_start_parser_Record_ESUN_merge = new Date();
       merge_BankRecord(v[1],v[2]);
+      var time_finish_parser_Record_ESUN_merge = new Date();
+      if (1) {var info = `[rentCollect_main] parser_Record_ESUN_merge time_exec(s): ${(time_finish_parser_Record_ESUN_merge.getTime() - time_start_parser_Record_ESUN_merge.getTime()) / 1000}`; reportInfoMsg(info);}
     }
   }
 
@@ -134,7 +188,8 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub);
+    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+    var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub,bpsImport);
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
@@ -211,7 +266,8 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
+  var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+  var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub,bpsImport);
   var isParseValid = isImportValid;
 
   /////////////////////////////////////////

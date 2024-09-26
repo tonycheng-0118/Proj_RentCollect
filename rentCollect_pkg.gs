@@ -33,7 +33,7 @@ const CONST_LinePostVacancyWeek = 6;
 const CONST_LinePostOverdueWeek = 6;
 const CONST_LinePostDayRestWeek = 6;
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport"];
 var CFG_Val_obj = new Object();
 
 // Array
