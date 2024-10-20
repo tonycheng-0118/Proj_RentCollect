@@ -70,7 +70,7 @@ function rentCollect_parser_Record() {
     if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
   }
   var time_finish_parser_Record_write = new Date();
-  if (1) {var info = `[rentCollect_main] _parser_Record_write time_exec(s): ${(time_finish_parser_Record_write.getTime() - time_start_parser_Record_write.getTime()) / 1000}`; reportInfoMsg(info);}
+  if (1) {var info = `[rentCollect_main] parser_Record_write time_exec(s): ${(time_finish_parser_Record_write.getTime() - time_start_parser_Record_write.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record_ESUN() { // 玉山銀行
@@ -641,7 +641,7 @@ function rentCollect_parser_Tenant() {
       if (data[i][a].toString().replace(/ /g,'')!='') {
         var account = data[i][a].toString().replace(/ /g,'');
         account_arr.push(account);
-        if (status != "EndContract") { all_account_chk_arr.push(account);} // only check those valid contract
+        if (new RegExp(".*EndContract.*").exec(status) == null) { all_account_chk_arr.push(account);} // only check those valid contract
         if (chkValidAccount(account) == false) {
           var errMsg = `[rentCollect_parser_Tenant] chkValidAccount failed at itemNo: ${itemNo}`; reportErrMsg(errMsg);
         }
@@ -761,7 +761,7 @@ function rentCollect_parser_Contract() {
     // endContract
     var tmp = data[i][10].toString().replace(/[\s|\n|\r|\t]/g,"");
     var endContract;
-    if (tmp == "EndContract") endContract = true
+    if (new RegExp(".*EndContract.*").exec(tmp) != null) endContract = true
     else endContract = false
     // else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endContract: ${tmp}`; reportErrMsg(errMsg);}
 
@@ -771,18 +771,21 @@ function rentCollect_parser_Contract() {
     // fileLink
     var fileLink = data[i][12].toString().replace(/[\s|\n|\r|\t]/g,"");
 
+    // proxy
+    var proxy = data[i][13].toString().replace(/[\s|\n|\r|\t]/g,"");
+
     // org
-    var org = data[i][13].toString().replace(/[\s|\n|\r|\t]/g,"");
+    var org = data[i][14].toString().replace(/[\s|\n|\r|\t]/g,"");
 
     // endDate
     var chk_illegal = true;
-    var endDate = data[i][14];
+    var endDate = data[i][15];
     
     if ((typeof(endDate) == `string`) && (endDate.replace(/ /g,'') == '')) chk_illegal = false;
     else if ((typeof(endDate) == `object`)) chk_illegal = false;
     else {var errMsg = `[rentCollect_parser_Tenant] This is not a valid endDate: ${endDate}`; reportErrMsg(errMsg);}
     
-    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccountName_regex,tenantAccount_arr,toAccountName,toAccount,endContract,note,fileLink,org,endDate]);
+    GLB_Contract_arr.push([itemNo,fromDate,toDate,rentProperty,deposit,amount,period,tenantName,tenantAccountName_regex,tenantAccount_arr,toAccountName,toAccount,endContract,note,fileLink,proxy,org,endDate]);
 
     // var item = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`RRR: ${item.show()}`);
@@ -884,6 +887,7 @@ function chkContractIntegrity(){
   // Logger.log(Object.keys(GLB_Tenant_obj).length);
   // 3. ToDate <= FromDate
   
+  ///////////////////////////////////////
   //Only one property can be rented in a given window.
   for(var i=0;i<GLB_Contract_arr.length-1;i++){
     for (var j=i+1;j<GLB_Contract_arr.length;j++){
@@ -910,7 +914,8 @@ function chkContractIntegrity(){
       }
     }
   }
-
+  
+  ///////////////////////////////////////
   //RentProperty is existed
   for(var i=0;i<GLB_Contract_arr.length;i++){
     var match = false;
@@ -924,7 +929,8 @@ function chkContractIntegrity(){
     // Logger.log(`match: ${match}`);
     if (match==false) {var errMsg = `[chkContractIntegrity] rentProperty no matched: ${contract.itemNo}. ${contract.show()}`; reportErrMsg(errMsg);}
   }
-
+  
+  ///////////////////////////////////////
   //ContractOverrid correlate to existed contractNo
   for (i=0;i<GLB_BankRecord_arr.length;i++){ // less likely duplicated, check for assurance
     var record = new itemBankRecord(GLB_BankRecord_arr[i]);
@@ -945,7 +951,38 @@ function chkContractIntegrity(){
         if (record.toAccount != contract.toAccount) {var errMsg = `[chkContractIntegrity] ContractOverrid toAccount diff: ${record.itemNo}. \n ${record.show()}. \n ${contract.show()}}`; reportErrMsg(errMsg);}
       }
     }
-  } 
+  }
+  
+  ///////////////////////////////////////
+  //Proxying contract must by aligned with proxied contract
+  var proxied_list  = new Array();
+  // proxying -> proxied
+  for(var i=0;i<GLB_Contract_arr.length;i++){
+    var contract = new itemContract(GLB_Contract_arr[i]);
+    if (contract.isProxying) {
+      for (var j=0;j<contract.proxied_array.length;j++) {
+        var proxying_contract = contract.proxied_array[j]*1;
+        var item = new itemContract(GLB_Contract_arr[findContractNoPos(proxying_contract)]);
+        
+        // check for no corresponding proxied contract 
+        if (item.isProxied == false) {var errMsg = `[chkContractIntegrity] proxying item: ${contract.itemNo}'s proxied item: ${proxying_contract} is not specified as PROXIED!}`; reportErrMsg(errMsg);}
+        
+        // check for duplicated proxied contract
+        if (proxied_list.indexOf(proxying_contract)!=-1) {var errMsg = `[chkContractIntegrity] proxied item: ${proxying_contract} is duplicated. proxied_list: ${proxied_list}!}`; reportErrMsg(errMsg);}
+
+        // for later proxied -> proxying checking
+        proxied_list.push(proxying_contract); 
+      }
+    }
+  }
+
+  // proxied -> proxying
+  for(var i=0;i<GLB_Contract_arr.length;i++){
+    var contract = new itemContract(GLB_Contract_arr[i]);
+    if (contract.isProxied) {
+      if (proxied_list.indexOf(contract.itemNo)==-1) {var errMsg = `[chkContractIntegrity] proxied item: ${contract.itemNo} is not been proxied by any proxying contract. proxied_list: ${proxied_list}!}`; reportErrMsg(errMsg);}
+    }
+  }
 
 }
 

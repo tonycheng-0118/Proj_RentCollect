@@ -359,26 +359,31 @@ class itemContract {
     this.endContract              = item[12];
     this.note                     = item[13];
     this.fileLink                 = item[14];
-    this.org                      = item[15];
-    this.endDate                  = item[16];
+    this.proxy                    = item[15];
+    this.org                      = item[16];
+    this.endDate                  = item[17];
     this.validContract            = null;
     this.rentArear                = null;
     this.dayRest                  = null;
     
     this.ColPos_ItemNo            = 1;
     this.ColPos_Deposit           = 5;
-    this.ColPos_EndDate           = 15;
-    this.ColPos_ValidContract     = 16;
-    this.ColPos_RentArrear        = 17;
-    this.ColPos_DayRest           = 18;
-
+    this.ColPos_EndDate           = 16;
+    this.ColPos_ValidContract     = 17;
+    this.ColPos_RentArrear        = 18;
+    this.ColPos_DayRest           = 19;
+    
+    this.isProxying               = (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") != "PROXIED") && (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") != "");
+    this.isProxied                = (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") == "PROXIED");
+    this.proxied_array            = item[15].replace(/[\s|\n|\r|\t]/g,"").split(";");
+    
     this.itemPack                 = item;
-    this.itemPackMaxLen           = 20;
+    this.itemPackMaxLen           = 21;
 
     if (this.itemPack.length == this.itemPackMaxLen) {
-      this.validContract          = item[17];
-      this.rentArear              = item[18];
-      this.dayRest                = item[19];
+      this.validContract          = item[18];
+      this.rentArear              = item[19];
+      this.dayRest                = item[20];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
       if (1) {var errMsg = `[itemContract] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
@@ -409,7 +414,7 @@ class itemContract {
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},org=${this.org},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},proxy=${this.proxy},org=${this.org},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };

@@ -285,49 +285,91 @@ function report_event() {
   for (var i=0;i<GLB_Contract_arr.length;i++){
     var contract = new itemContract(GLB_Contract_arr[i]);
     // Logger.log(`contract for event: ${contract.show()}`)
-    if ((contract.validContract || CFG_Val_obj["CFG_ReportEvent_ShowEndContract"]) && (contract.fromDate <= CONST_TODAY_DATE)) {
-      // Event: start contract with deposit
-      var fromDate= Utilities.formatDate(contract.fromDate, "GMT+8", "yyyy/MM/dd");
-      var toDate  = Utilities.formatDate(contract.toDate, "GMT+8", "yyyy/MM/dd");
-      var event   = `1. Start of the contract from ${fromDate} to ${toDate} with deposit = ${contract.deposit}`;
-      var amount  = -1 * contract.deposit;
-      setRptEventItem(fromDate,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount);
+    
+    // for proxying
+    var proc_contract_len = 0;
+    if (contract.isProxying){
+      // walk through each proxied array, and add those to expect_rent
+      proc_contract_len = 1 + contract.proxied_array.length;
+    } else if (contract.isProxied){
+      // bypass the proxied contract
+      proc_contract_len = 0;
+    } else {
+      // Normal contract
+      proc_contract_len = 1;
+    }
 
-      // Event: rent bill
-      var finishDate;
-      if (contract.toDate <= CONST_TODAY_DATE) finishDate = contract.toDate;
-      else finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
-      
-      for (var j = new Date(contract.fromDate);j < finishDate;) {
-        var item    = new itemRptEvent([]);
-        var date    = Utilities.formatDate(j, "GMT+8", "yyyy/MM/dd");
-        var event   = `2. Rent bill is ${contract.amount}`;
-        var amount  = -1 * contract.amount;
-        setRptEventItem(date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount);
-
-        // next month
-        j.setMonth(j.getMonth() + contract.period);
-      }
-
-      // Event: The contract is over but not endContract
-      if (contract.toDate <= CONST_TODAY_DATE) {
-        var date    = Utilities.formatDate(contract.toDate, "GMT+8", "yyyy/MM/dd");
-        var event   = `6. Contract exceed last data ${date}, but not endContract!`;
-        var amount  = null;
-        setRptEventItem(date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount);
-      }
-
-      // Event: The latest status
-      for (var j=0;j<GLB_RptStatus_arr.length;j++) {
-        var rptStatus = new itemRptStatus(GLB_RptStatus_arr[j]);
-        if (rptStatus.rentProperty == contract.rentProperty) {
-          var date    = Utilities.formatDate(CONST_TODAY_DATE, "GMT+8", "yyyy/MM/dd");
-          var event   = `9. Current stauts: ${rptStatus.status}`;
-          var amount  = null;
-          setRptEventItem(date,contract.rentProperty,contract.tenantName,contract.itemNo,event,amount);
-        }
+    var isCurContract = true;
+    for (var ii=0;ii<proc_contract_len;ii++) {
+      // assign to a new item
+      if (isCurContract) {
+        var contractProc = new itemContract(GLB_Contract_arr[i]);
+        isCurContract = false;
+      } else {
+        var contractProc = new itemContract(GLB_Contract_arr[findContractNoPos(contract.proxied_array[ii-1])]);
+        isCurContract = false;
       }
     
+      if ((contractProc.validContract || CFG_Val_obj["CFG_ReportEvent_ShowEndContract"]) && (contractProc.fromDate <= CONST_TODAY_DATE)) {
+        // Event: start contract with deposit
+        var fromDate= Utilities.formatDate(contractProc.fromDate, "GMT+8", "yyyy/MM/dd");
+        var toDate  = Utilities.formatDate(contractProc.toDate, "GMT+8", "yyyy/MM/dd");
+        var event   = `1. Start of the contract from ${fromDate} to ${toDate} with deposit = ${contractProc.deposit}`;
+        var amount  = -1 * contractProc.deposit;
+        if (contract.isProxying) {
+          setRptEventItem(fromDate,contractProc.rentProperty,contractProc.tenantName,contract.itemNo,    event,amount);
+        } else {
+          setRptEventItem(fromDate,contractProc.rentProperty,contractProc.tenantName,contractProc.itemNo,event,amount);
+        }
+
+        // Event: rent bill
+        var finishDate;
+        if (contractProc.toDate <= CONST_TODAY_DATE) finishDate = contractProc.toDate;
+        else finishDate = new Date(CONST_TODAY_DATE.getTime()+CONST_MILLIS_PER_DAY);
+        
+        for (var j = new Date(contractProc.fromDate);j < finishDate;) {
+          var item    = new itemRptEvent([]);
+          var date    = Utilities.formatDate(j, "GMT+8", "yyyy/MM/dd");
+          var event   = `2. Rent bill is ${contractProc.amount}`;
+          var amount  = -1 * contractProc.amount;
+          if (contract.isProxying) {
+            setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contract.itemNo,    event,amount);
+          } else {
+            setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contractProc.itemNo,event,amount);
+          }
+
+          // next month
+          j.setMonth(j.getMonth() + contractProc.period);
+        }
+
+        // Event: The contract is over but not endContract
+        if (contractProc.toDate <= CONST_TODAY_DATE) {
+          var date    = Utilities.formatDate(contractProc.toDate, "GMT+8", "yyyy/MM/dd");
+          var event   = `6. Contract exceed last data ${date}, but not endContract!`;
+          var amount  = null;
+          if (contract.isProxying) {
+            setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contract.itemNo,    event,amount);
+          } else {
+            setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contractProc.itemNo,event,amount);
+          }
+        }
+
+        // Event: The latest status
+        for (var j=0;j<GLB_RptStatus_arr.length;j++) {
+          var rptStatus = new itemRptStatus(GLB_RptStatus_arr[j]);
+          if (rptStatus.rentProperty == contractProc.rentProperty) {
+            var date    = Utilities.formatDate(CONST_TODAY_DATE, "GMT+8", "yyyy/MM/dd");
+            var event   = `9. Current stauts: ${rptStatus.status}`;
+            var amount  = null;
+            if (contract.isProxying) {
+              setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contract.itemNo,    event,amount);
+            } else {
+              setRptEventItem(date,contractProc.rentProperty,contractProc.tenantName,contractProc.itemNo,event,amount);
+            }
+          }
+        }
+      
+      }
     }
   }
   

@@ -22,84 +22,129 @@ function rentCollect_contract() {
   /////////////////////////////////////////
   for(i=0;i<GLB_Contract_arr.length;i++){
     var item = new itemContract(GLB_Contract_arr[i]);
+    // Logger.log(`contract is proxying?: ${item.isProxying}`);
+    // Logger.log(`contract is proxied?: ${item.isProxied}`);
     // Logger.log(`contract: ${item.show()}`);
 
     /////////////////////////////////////////
     // check rent arrear
     /////////////////////////////////////////
-    var target_date = Date();
-    if (CONST_TODAY_DATE >= item.toDate) target_date = item.toDate;
-    else target_date = CONST_TODAY_DATE;
-
-    var total_rent_count = ((item.toDate.getFullYear()-item.fromDate.getFullYear())*12 + (item.toDate.getMonth()-item.fromDate.getMonth()) + (item.toDate.getDate() > item.fromDate.getDate()));
-    if (total_rent_count % item.period) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} total_rent_count is invalid, should be multiple of period!`; reportErrMsg(errMsg);}
-    
-    var expect_rent_count = ((target_date.getFullYear()-item.fromDate.getFullYear())*12 + (target_date.getMonth()-item.fromDate.getMonth()) + (target_date.getDate() > item.fromDate.getDate())) / item.period; // payment increased when the (date of TODAY_DATE) >= (date of item.fromDate)
-    
-    var expect_rent = Math.ceil(expect_rent_count) * item.amount + item.deposit; // will include deposit since it is part of the contract expect payment
-    // Logger.log(`expect_rent=${expect_rent}, item.fromDate.getDate()=${item.fromDate.getDate()}. ${item.show()}`);
-    
-    var expect_util = 0;
-    for (j=0;j<GLB_UtilBill_arr.length;j++) {
-      var util = new itemUtilBill(GLB_UtilBill_arr[j]);
-      var match = false;
-
-      if (util.rentProperty == item.rentProperty) {
-        if (util.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
-          // for manually assign contract No record
-          if (isContractLegalDateRange(new Date(util.date),item,true)) {
-            match = true;
-          }
-        } else if (util.contractOverrid == "") {
-          if (isContractLegalDateRange(new Date(util.date),item,false)) {
-            match = true;
-          }
-        }
-      }
-
-      if (match) {
-        // accumulate expect_util
-        expect_util += util.amount;
-        
-        // upd event
-        var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
-        var event   = `3. Util bill is ${util.amount}`;
-        var amount  = -1 * util.amount;
-        setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
-      }
+    // for proxying
+    var proc_contract_len = 0;
+    if (item.isProxying){
+      // walk through each proxied array, and add those to expect_rent
+      proc_contract_len = 1 + item.proxied_array.length;
+    } else if (item.isProxied){
+      // bypass the proxied contract
+      proc_contract_len = 0;
+    } else {
+      // Normal contract
+      proc_contract_len = 1;
     }
 
+    var expect_rent = 0;
+    var expect_util = 0;
     var expect_misc = 0;
     var actual_cash_payment = 0;
-    for (j=0;j<GLB_MiscCost_arr.length;j++) {
-      var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
-      var match = false;
-      if (misc.rentProperty == item.rentProperty) {
-        if (misc.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
-          // for manually assign contract No record
-          if (isContractLegalDateRange(new Date(misc.date),item,true)) {
-            match = true;
+    var isCurContract = true;
+    for (var ii=0;ii<proc_contract_len;ii++) {
+      // assign to a new item
+      if (isCurContract) {
+        var itemProc = new itemContract(GLB_Contract_arr[i]);
+        isCurContract = false;
+      } else {
+        var itemProc = new itemContract(GLB_Contract_arr[findContractNoPos(item.proxied_array[ii-1])]);
+        isCurContract = false;
+      }
+      
+      // For expect_rent;
+      var target_date = Date();
+      if (CONST_TODAY_DATE >= itemProc.toDate) target_date = itemProc.toDate;
+      else target_date = CONST_TODAY_DATE;
+
+      var total_rent_count = ((itemProc.toDate.getFullYear()-itemProc.fromDate.getFullYear())*12 + (itemProc.toDate.getMonth()-itemProc.fromDate.getMonth()) + (itemProc.toDate.getDate() > itemProc.fromDate.getDate()));
+      if (total_rent_count % itemProc.period) {var errMsg = `[rentCollect_contract] ContractNo: ${itemProc.itemNo} total_rent_count is invalid, should be multiple of period!`; reportErrMsg(errMsg);}
+      
+      var expect_rent_count = ((target_date.getFullYear()-itemProc.fromDate.getFullYear())*12 + (target_date.getMonth()-itemProc.fromDate.getMonth()) + (target_date.getDate() > itemProc.fromDate.getDate())) / itemProc.period; // payment increased when the (date of TODAY_DATE) >= (date of itemCur.fromDate)
+      
+      expect_rent += Math.ceil(expect_rent_count) * itemProc.amount + itemProc.deposit; // will include deposit since it is part of the contract expect payment
+      // Logger.log(`expect_rent=${expect_rent}, itemCur.fromDate.getDate()=${itemCur.fromDate.getDate()}. ${itemCur.show()}`);
+      
+      // For expect_util;
+      for (j=0;j<GLB_UtilBill_arr.length;j++) {
+        var util = new itemUtilBill(GLB_UtilBill_arr[j]);
+        var match = false;
+
+        if (util.rentProperty == itemProc.rentProperty) {
+          if (util.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == itemProc.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+            // for manually assign contract No record
+            if (isContractLegalDateRange(new Date(util.date),item,true)) {
+              match = true;
+            }
+          } else if (util.contractOverrid == "") {
+            if (isContractLegalDateRange(new Date(util.date),item,false)) {
+              match = true;
+            }
           }
-        } else if (misc.contractOverrid == "") {
-          if (isContractLegalDateRange(new Date(misc.date),item,false)) {
-            match = true;
+        }
+
+        if (match) {
+          // accumulate expect_util
+          expect_util += util.amount;
+          
+          // upd event
+          var date    = Utilities.formatDate(util.date, "GMT+8", "yyyy/MM/dd");
+          var event   = `3. Util bill is ${util.amount}`;
+          var amount  = -1 * util.amount;
+          if (item.isProxying) {
+            // route to proxying contract No
+            event += ` from proxied contractNo ${itemProc.itemNo}.`;
+            setRptEventItem(date,itemProc.rentProperty,itemProc.tenantName,item.itemNo,    event,amount);
+          } else {
+            setRptEventItem(date,itemProc.rentProperty,itemProc.tenantName,itemProc.itemNo,event,amount);
           }
         }
       }
-      
-      if (match) {
-        // accumulate actual_cash_payment and expect_misc
-        if (misc.type == misc.MiscType_CashRent) {
-          actual_cash_payment += misc.amount; // cash paid by the tenant, TODO, find a better way to collect the cash payment.
-        } else {
-          expect_misc += misc.expect_misc();
-        }
 
-        // upd event
-        var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
-        var event   = `4. Misc cost, type = ${misc.type}.`;
-        var amount  = -1 * misc.expect_misc();
-        setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
+      // for expect_misc and actual_cash_payment
+      for (j=0;j<GLB_MiscCost_arr.length;j++) {
+        var misc = new itemMiscCost(GLB_MiscCost_arr[j]);
+        var match = false;
+
+        if (misc.rentProperty == itemProc.rentProperty) {
+          if (misc.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == itemProc.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
+            // for manually assign contract No record
+            if (isContractLegalDateRange(new Date(misc.date),item,true)) {
+              match = true;
+            }
+          } else if (misc.contractOverrid == "") {
+            if (isContractLegalDateRange(new Date(misc.date),item,false)) {
+              match = true;
+            }
+          }
+        }
+        
+        if (match) {
+          // accumulate actual_cash_payment and expect_misc
+          if (misc.type == misc.MiscType_CashRent) {
+            actual_cash_payment += misc.amount; // cash paid by the tenant, TODO, find a better way to collect the cash payment.
+          } else {
+            expect_misc += misc.expect_misc();
+          }
+
+          // upd event
+          var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
+          var event   = `4. Misc cost, type = ${misc.type}.`;
+          var amount  = -1 * misc.expect_misc();
+
+          if (item.isProxying) {
+            // route to proxying contract No
+            event += ` from proxied contractNo ${itemProc.itemNo}.`
+            setRptEventItem(date,itemProc.rentProperty,itemProc.tenantName,item.itemNo,    event,amount);
+          } else {
+            setRptEventItem(date,itemProc.rentProperty,itemProc.tenantName,itemProc.itemNo,event,amount);
+          }
+        }
       }
     }
     
@@ -107,8 +152,8 @@ function rentCollect_contract() {
     for (var j=0;j<GLB_BankRecord_arr.length;j++) {
       var record =new itemBankRecord(GLB_BankRecord_arr[j]);
       // record.show();
-      // Logger.log(`AAA ${item.tenantAccount_arr.indexOf(record.fromAccount)}, BBB ${record.fromAccount}`)
-      
+      // Logger.log(`AAA ${itemCur.tenantAccount_arr.indexOf(record.fromAccount)}, BBB ${record.fromAccount}`)
+
       // The bankRecord search method. Must sync with rptEvent part.
       var match = false;
       if (record.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == item.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
@@ -169,6 +214,9 @@ function rentCollect_contract() {
         var event   = `5. Bank record.`;
         var amount  = record.amount;
         setRptEventItem(date,item.rentProperty,item.tenantName,item.itemNo,event,amount);
+
+        // proxied account should not match any Bank Record, it should be proxied.
+        if (item.isProxied) {var errMsg = `[rentCollect_contract] Proxied contract: ${item.show()} match bank record: ${record.show()}`; reportErrMsg(errMsg);}
       }
     }
     

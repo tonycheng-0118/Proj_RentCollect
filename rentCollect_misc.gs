@@ -5,12 +5,13 @@ function removeFilter(){
     function(sheetName){
       var filter = sheetName.getFilter();
       if (filter !== null) {
-        var range = filter.getRange(); 
-        var firstColumn = range.getColumn();
-        var lastColumn = range.getLastColumn();
-        for (var i = firstColumn; i <= lastColumn; i++) {
-          filter.removeColumnFilterCriteria(i);
-        }
+        // var range = filter.getRange(); 
+        // var firstColumn = range.getColumn();
+        // var lastColumn = range.getLastColumn();
+        // for (var i = firstColumn; i <= lastColumn; i++) {
+        //   filter.removeColumnFilterCriteria(i);
+        // }
+        filter.remove();
       }
     }
   )
