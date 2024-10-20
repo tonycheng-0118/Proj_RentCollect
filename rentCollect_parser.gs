@@ -845,7 +845,12 @@ function rentCollect_parser_Contract() {
   //     Logger.log(`RXX: ${item.show()}, getMaxContractNo: ${getMaxContractNo}`);
   //   }
   // )
-
+  
+  // update GLB_Contract_arr relative var
+  for(var i=0;i<GLB_Contract_arr.length;i++){
+    var item = new itemContract(GLB_Contract_arr[i]);
+    VAR_ContractNoList_arr.push(item.itemNo*1);
+  }
 
   // integrity check cross contract and tenant
   chkContractIntegrity();

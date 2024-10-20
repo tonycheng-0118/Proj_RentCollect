@@ -385,13 +385,15 @@ function report_event() {
 }
 
 function findContractNoPos(contractNo) {
-  for(var i=0;i<GLB_Contract_arr.length;i++){
-    var item = new itemContract(GLB_Contract_arr[i]);
-    if (item.itemNo == contractNo) return i;
-  }
+  // for(var i=0;i<GLB_Contract_arr.length;i++){
+  //   var item = new itemContract(GLB_Contract_arr[i]);
+  //   if (item.itemNo == contractNo) return i;
+  // // }
 
-  if (1) {var errMsg = `[findContractNoPos] contractNo: ${contractNo} not found!?`; reportErrMsg(errMsg);}
-  return -1
+  // if (1) {var errMsg = `[findContractNoPos] contractNo: ${contractNo} not found!?`; reportErrMsg(errMsg);}
+  // return -1
+
+  return VAR_ContractNoList_arr.indexOf(contractNo*1);
 }
 
 function setRptEventItem(date,rentProperty,tenantName,contractNo,event,amount) {

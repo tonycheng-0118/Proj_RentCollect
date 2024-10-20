@@ -57,6 +57,7 @@ var GLB_RptEvent_arr    = new Array();
 var VAR_rptEventItemNo = 0;
 var VAR_CompareBankRecord_arr = new Array();
 var VAR_WarnContract_arr = new Array();
+var VAR_ContractNoList_arr = new Array();
 
 /////////////////////////////////////////
 // Class
