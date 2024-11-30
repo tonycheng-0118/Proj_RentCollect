@@ -264,9 +264,21 @@ function rentCollect_contract() {
   /////////////////////////////////////////
   for (var i=0;i<GLB_BankRecord_arr.length;i++) {
     var item =new itemBankRecord(GLB_BankRecord_arr[i]);
+    
     // [Warn.1] check amount
     if (item.contractNo != null) {
       var contract = new itemContract(GLB_Contract_arr[findContractNoPos(item.contractNo)]);
+    
+      // check if the BankRecord is the first time received 
+      var isContract1stBankRecordNote;
+      var contractHadBankRecord_arr = new Array();
+      if (contractHadBankRecord_arr.indexOf(contract.itemNo)==-1){
+        contractHadBankRecord_arr.push(contract.itemNo);
+        isContract1stBankRecordNote = "This is the 1st BankRecord of this contract.";
+      } else {
+        isContract1stBankRecordNote = "";
+      }
+      
       if (item.recordCheck.toString() != "Checked") {
         var value = item.amount - contract.amount;
         var margin = Math.floor(contract.amount * CFG_Val_obj["CFG_BankRecordCheck_AmountMargin"]);
@@ -279,7 +291,7 @@ function rentCollect_contract() {
               var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`;
               reportWarnMsg(warnMsg);
 
-              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}\n`;
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}\n`;
               reportWarnGenUtilBill(warnMsg);
 
               var msg = "Warn.1a";
@@ -289,7 +301,7 @@ function rentCollect_contract() {
               var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate}!`;
               reportWarnMsg(warnMsg);
 
-              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, record msg: ${item.fromAccountName} , rate: ${rate}, contractNo: ${item.contractNo}\n`;
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, record msg: ${item.fromAccountName} , rate: ${rate}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}\n`;
               reportWarnGenMiscCost(warnMsg);
 
               var msg = "Warn.1b";
