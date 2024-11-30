@@ -39,6 +39,7 @@ function rentCollect_parser() {
 }
 
 function rentCollect_parser_Record() {
+  var isbpsImport  = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
   var isParseValid = true; // will be false if one of isImpoertValid is false
   
   var time_start_parser_Record_load_BankRecord = new Date();
@@ -46,25 +47,35 @@ function rentCollect_parser_Record() {
   var time_finish_parser_Record_load_BankRecord = new Date();
   if (1) {var info = `[rentCollect_main] parser_Record_load_BankRecord time_exec(s): ${(time_finish_parser_Record_load_BankRecord.getTime() - time_start_parser_Record_load_BankRecord.getTime()) / 1000}`; reportInfoMsg(info);}
   
-  var time_start_parser_Record_ESUN = new Date();
-  isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
-  var time_finish_parser_Record_ESUN = new Date();
-  if (1) {var info = `[rentCollect_main] parser_Record_ESUN time_exec(s): ${(time_finish_parser_Record_ESUN.getTime() - time_start_parser_Record_ESUN.getTime()) / 1000}`; reportInfoMsg(info);}
+  if (isbpsImport) {
+    if (1) {var info = `[rentCollect_main] Bypass import!`; reportInfoMsg(info);}
+  } else {
+    var time_start_parser_Record_ESUN = new Date();
+    isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
+    var time_finish_parser_Record_ESUN = new Date();
+    if (1) {var info = `[rentCollect_main] parser_Record_ESUN time_exec(s): ${(time_finish_parser_Record_ESUN.getTime() - time_start_parser_Record_ESUN.getTime()) / 1000}`; reportInfoMsg(info);}
 
-  var time_start_parser_Record_KTB = new Date();
-  isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
-  var time_finish_parser_Record_KTB = new Date();
-  if (1) {var info = `[rentCollect_main] parser_Record_KTB time_exec(s): ${(time_finish_parser_Record_KTB.getTime() - time_start_parser_Record_KTB.getTime()) / 1000}`; reportInfoMsg(info);}
+    var time_start_parser_Record_KTB = new Date();
+    isParseValid &= rentCollect_parser_Record_KTB(); // 京城銀行
+    var time_finish_parser_Record_KTB = new Date();
+    if (1) {var info = `[rentCollect_main] parser_Record_KTB time_exec(s): ${(time_finish_parser_Record_KTB.getTime() - time_start_parser_Record_KTB.getTime()) / 1000}`; reportInfoMsg(info);}
 
-  var time_start_parser_Record_CTBC = new Date();
-  isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
-  var time_finish_parser_Record_CTBC = new Date();
-  if (1) {var info = `[rentCollect_main] parser_Record_CTBC time_exec(s): ${(time_finish_parser_Record_CTBC.getTime() - time_start_parser_Record_CTBC.getTime()) / 1000}`; reportInfoMsg(info);}
+    var time_start_parser_Record_CTBC = new Date();
+    isParseValid &= rentCollect_parser_Record_CTBC(); // 中國信託
+    var time_finish_parser_Record_CTBC = new Date();
+    if (1) {var info = `[rentCollect_main] parser_Record_CTBC time_exec(s): ${(time_finish_parser_Record_CTBC.getTime() - time_start_parser_Record_CTBC.getTime()) / 1000}`; reportInfoMsg(info);}
+  }
   
   var time_start_parser_Record_write = new Date();
-  if (isParseValid) {
-    // backup
+  if (isbpsImport) {
+    post_BankRecord();
+  }
+  else if (isParseValid) {
+    // backup the previous BankRecord
     bankRecordBackUp();
+
+    // write out merged BankRecord
+    post_BankRecord();
     write_BankRecord();
   } else {
     if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
@@ -98,8 +109,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
   for (const [k,v] of Object.entries(records_obj)) {
     
     var time_start_parser_Record_ESUN_import = new Date();
-    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
-    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub,bpsImport);
+    var isImportValid = rentCollect_import(v[0],false,importRowOfs,importLastRowSub);
     isParseValid = isParseValid && isImportValid;
     var time_finish_parser_Record_ESUN_import = new Date();
     if (1) {var info = `[rentCollect_main] parser_Record_ESUN_import time_exec(s): ${(time_finish_parser_Record_ESUN_import.getTime() - time_start_parser_Record_ESUN_import.getTime()) / 1000}`; reportInfoMsg(info);}
@@ -188,8 +198,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
   var isParseValid = true; // will be false if one of isImpoertValid is false
   for (const [k,v] of Object.entries(records_obj)) {
     
-    var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
-    var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub,bpsImport);
+    var isImportValid = rentCollect_import(v[0],newRecordEnable=false,importRowOfs,importLastRowSub);
     isParseValid = isParseValid && isImportValid;
 
     if (isImportValid) {
@@ -266,8 +275,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
   /////////////////////////////////////////
   // Import from source sheet
   /////////////////////////////////////////
-  var bpsImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
-  var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub,bpsImport);
+  var isImportValid = rentCollect_import("DEPOSIT_APPLY_RECORD",false,importRowOfs,importLastRowSub);
   var isParseValid = isImportValid;
 
   /////////////////////////////////////////
@@ -395,9 +403,7 @@ function merge_BankRecord(toAccountName,toAccount) {
   
 }
 
-function write_BankRecord() {
-  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
-
+function post_BankRecord() {
   /////////////////////////////////////////
   // Sort itemRecord with Date in acending order
   /////////////////////////////////////////
@@ -415,6 +421,10 @@ function write_BankRecord() {
   for(var i=0;i<GLB_BankRecord_arr.length;i++){
     GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
   }
+}
+
+function write_BankRecord() {
+  const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
 
   /////////////////////////////////////////
   // Write Out

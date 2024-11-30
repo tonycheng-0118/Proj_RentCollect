@@ -1,4 +1,4 @@
-function rentCollect_import(depositRecordName, newRecordEnable, header_offset, tail_offset, bypassImport) {
+function rentCollect_import(depositRecordName, newRecordEnable, header_offset, tail_offset) {
   /////////////////////////////////////////
   // README
   /////////////////////////////////////////
@@ -29,89 +29,77 @@ function rentCollect_import(depositRecordName, newRecordEnable, header_offset, t
   /////////////////////////////////////////
   // Find the depositRecordName and depositRecordPreName in the current dir
   // Return the valid import status, if the Record is not existed, the post parser should be bypassed.
-  if (bypassImport) {
-    /////////////////////////////////////////
-    // Copy the depositRecordPreName to the SheetImportName
-    /////////////////////////////////////////
-    Logger.log(`[Info] Bypass import, start to copy ${depositRecordPreName} to SheetImportName.`);
-    var isRecordExisted = true;
-    var sts_integrity = true;
-    var sheetRecordPreName = SheetHandle.getSheetByName(depositRecordPreName);  
-    SheetImportName.getDataRange().clearContent();
-    sheetRecordPreName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
+  var time_start_import_search = new Date();
+  if (depositRecordFileHandle.hasNext()) {
+    var fileId = depositRecordFileHandle.next().getId();
+    depositRecordSheetHandle = SpreadsheetApp.openById(fileId);
+    depositRecordSheet = depositRecordSheetHandle.getSheets()[0]; // new depositRecordName sheet uploaded from somewhere
+    isRecordExisted = true;
+    Logger.log("[Info] %s ID is %s",depositRecordName,fileId)
+    var time_finish_import_search = new Date();
+    if (1) {var info = `[rentCollect_main] import_search time_exec(s): ${(time_finish_import_search.getTime() - time_start_import_search.getTime()) / 1000}`; reportInfoMsg(info);}
+    
+    // copy depositRecordName to this SheetHandle
+    var time_start_import_search_copy = new Date();
+    if (SheetHandle.getSheetByName(depositRecordName)) {
+      var sheet = SheetHandle.getSheetByName(depositRecordName);
+      SheetHandle.deleteSheet(sheet); // dst sheet should not have this sheet name, just in case 
+    }
+    depositRecordSheet.copyTo(SheetHandle).setName(depositRecordName); // to solve cross sheet copy, copy the src sheet to dst sheet first
+    var time_finish_import_search_copy = new Date();
+    if (1) {var info = `[rentCollect_main] import_search_copy time_exec(s): ${(time_finish_import_search_copy.getTime() - time_start_import_search_copy.getTime()) / 1000}`; reportInfoMsg(info);}
+
   } else {
-    var time_start_import_search = new Date();
-    if (depositRecordFileHandle.hasNext()) {
-      var fileId = depositRecordFileHandle.next().getId();
-      depositRecordSheetHandle = SpreadsheetApp.openById(fileId);
-      depositRecordSheet = depositRecordSheetHandle.getSheets()[0]; // new depositRecordName sheet uploaded from somewhere
-      isRecordExisted = true;
-      Logger.log("[Info] %s ID is %s",depositRecordName,fileId)
-      var time_finish_import_search = new Date();
-      if (1) {var info = `[rentCollect_main] import_search time_exec(s): ${(time_finish_import_search.getTime() - time_start_import_search.getTime()) / 1000}`; reportInfoMsg(info);}
+    isRecordExisted = false;
+    Logger.log("[Error] %s is not exiseted!",depositRecordName);
+    // if (1) {var errMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportErrMsg(errMsg);}
+    if (1) {var warnMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportWarnMsg(warnMsg);}
+  }
+
+  // import integrity check
+  if (isRecordExisted) {
+    var sheetTMPImportName    = SheetHandle.getSheetByName(depositRecordName);
+    var sheetTMPImportPreName = SheetHandle.getSheetByName(depositRecordPreName);
+
+    if (sheetTMPImportPreName){
+      // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
+      Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
+      sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName,header_offset,tail_offset);
+    }
+    else { // for 1st time case
+      if (newRecordEnable){
+        Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
+        sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
+        sts_integrity = true;
+      }
+      else {
+        if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, not enable new Record.`; reportErrMsg(errMsg);}
+        sts_integrity = false;
+      }
+    }
+
+    if (sts_integrity) {
+      Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
+
+      // copy from depositRecordName to ImportPre
+      // SheetImportPreName.getRange('A:G').clearContent();
+      // sheetTMP.getRange('A:G').copyTo(SheetImportPreName.getRange('A1'));
+      // deleteEmptyRows(SheetImportPreName);
       
-      // copy depositRecordName to this SheetHandle
-      var time_start_import_search_copy = new Date();
-      if (SheetHandle.getSheetByName(depositRecordName)) {
-        var sheet = SheetHandle.getSheetByName(depositRecordName);
-        SheetHandle.deleteSheet(sheet); // dst sheet should not have this sheet name, just in case 
-      }
-      depositRecordSheet.copyTo(SheetHandle).setName(depositRecordName); // to solve cross sheet copy, copy the src sheet to dst sheet first
-      var time_finish_import_search_copy = new Date();
-      if (1) {var info = `[rentCollect_main] import_search_copy time_exec(s): ${(time_finish_import_search_copy.getTime() - time_start_import_search_copy.getTime()) / 1000}`; reportInfoMsg(info);}
+      // copy from depositRecordName to Import
+      SheetImportName.getDataRange().clearContent();
+      sheetTMPImportName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
 
+      // chagne depositRecordName to depositRecordPreName
+      SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
+      sheetTMPImportName.setName(depositRecordPreName);
+      
     } else {
-      isRecordExisted = false;
-      Logger.log("[Error] %s is not exiseted!",depositRecordName);
-      // if (1) {var errMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportErrMsg(errMsg);}
-      if (1) {var warnMsg = `[rentCollect_import] ${depositRecordName} is not exiseted!`; reportWarnMsg(warnMsg);}
+      SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
+      Logger.log("[Error] Fail import integrity check, no touch to SheetImportName.");
+      if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, will not touch to SheetImportName.`; reportErrMsg(errMsg);}
     }
-  
-    // import integrity check
-    if (isRecordExisted) {
-      var sheetTMPImportName    = SheetHandle.getSheetByName(depositRecordName);
-      var sheetTMPImportPreName = SheetHandle.getSheetByName(depositRecordPreName);
-
-      if (sheetTMPImportPreName){
-        // check the overlap region bwt ImportPre and Import, should be large enough to ensure the Import quality
-        Logger.log(`[Info] ${depositRecordPreName} exised, start to import integrity check.`);
-        sts_integrity = chkImportIntegrity(sheetTMPImportName,sheetTMPImportPreName,header_offset,tail_offset);
-      }
-      else { // for 1st time case
-        if (newRecordEnable){
-          Logger.log(`[Info] ${depositRecordPreName} not existed, copy ${depositRecordName} to it.`);
-          sheetTMPImportName.copyTo(SheetHandle).setName(depositRecordPreName);
-          sts_integrity = true;
-        }
-        else {
-          if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, not enable new Record.`; reportErrMsg(errMsg);}
-          sts_integrity = false;
-        }
-      }
-
-      if (sts_integrity) {
-        Logger.log(`[Info] import integrity check passed, start to copy ${depositRecordPreName} to SheetImportName.`);
-
-        // copy from depositRecordName to ImportPre
-        // SheetImportPreName.getRange('A:G').clearContent();
-        // sheetTMP.getRange('A:G').copyTo(SheetImportPreName.getRange('A1'));
-        // deleteEmptyRows(SheetImportPreName);
-        
-        // copy from depositRecordName to Import
-        SheetImportName.getDataRange().clearContent();
-        sheetTMPImportName.getDataRange().copyTo(SheetImportName.getRange('A1')); // ref to https://is.gd/EFpjSN
-
-        // chagne depositRecordName to depositRecordPreName
-        SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordPreName));
-        sheetTMPImportName.setName(depositRecordPreName);
-        
-      } else {
-        SheetHandle.deleteSheet(SheetHandle.getSheetByName(depositRecordName));
-        Logger.log("[Error] Fail import integrity check, no touch to SheetImportName.");
-        if (1) {var errMsg = `[rentCollect_import] For ${depositRecordName}, fail import integrity check, will not touch to SheetImportName.`; reportErrMsg(errMsg);}
-      }
-    }
-  } 
+  }
 
   /////////////////////////////////////////
   // Post processing the content
