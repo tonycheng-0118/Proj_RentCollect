@@ -586,12 +586,17 @@ function action_mapping(type, id, act_in, withdraw, deposit){
 }
 
 function rentCollect_parser_chkDuplicated() {
-  if (CFG_Val_obj["CFG_BankRecordCheck_Details"]) {
-    for (i=0;i<GLB_BankRecord_arr.length-1;i++){ // less likely duplicated, check for assurance
-      for (j=i+1;j<GLB_BankRecord_arr.length;j++){
-        var a = new itemBankRecord(GLB_BankRecord_arr[i]);
-        if ((a.recordCheck.toString() != "Checked") && (a.amount != 0)) {
-          if (a.compare(GLB_BankRecord_arr[j])) {var errMsg = `[rentCollect_parser_chkDuplicated] BankRecord:[${i}]: ${GLB_BankRecord_arr[i]}, BankRecord:[${j}]: ${GLB_BankRecord_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+  var isbpsImport  = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
+
+  if (isbpsImport==false) {
+    // less likely duplicated, check for assurance during the new import stage
+    if (CFG_Val_obj["CFG_BankRecordCheck_Details"]) {
+      for (i=0;i<GLB_BankRecord_arr.length-1;i++){
+        for (j=i+1;j<GLB_BankRecord_arr.length;j++){
+          var a = new itemBankRecord(GLB_BankRecord_arr[i]);
+          if ((a.recordCheck.toString() != "Checked") && (a.amount != 0)) {
+            if (a.compare(GLB_BankRecord_arr[j])) {var errMsg = `[rentCollect_parser_chkDuplicated] BankRecord:[${i}]: ${GLB_BankRecord_arr[i]}, BankRecord:[${j}]: ${GLB_BankRecord_arr[j]} is duplicated!`; reportErrMsg(errMsg);}
+          }
         }
       }
     }
