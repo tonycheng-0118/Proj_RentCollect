@@ -150,7 +150,7 @@ function report_status() {
       var tenantName    = property.tenantName;
       var contractNo    = property.contractNo;
       var contract      = new itemContract(GLB_Contract_arr[findContractNoPos(contractNo)]);
-      var rentArrear    = contract.rentArear;
+      var rentArrear    = contract.rentArrear;
       var deposit       = contract.deposit;
       var note          = contract.note;
       var curRent       = property.curRent;
@@ -340,6 +340,7 @@ function report_event() {
 
           // next month
           j.setMonth(j.getMonth() + contractProc.period);
+          j.setSeconds(1); // to prevent the boundary case
         }
 
         // Event: The contract is over but not endContract

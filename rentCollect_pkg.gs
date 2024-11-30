@@ -364,7 +364,7 @@ class itemContract {
     this.org                      = item[16];
     this.endDate                  = item[17];
     this.validContract            = null;
-    this.rentArear                = null;
+    this.rentArrear               = null;
     this.dayRest                  = null;
     
     this.ColPos_ItemNo            = 1;
@@ -383,7 +383,7 @@ class itemContract {
 
     if (this.itemPack.length == this.itemPackMaxLen) {
       this.validContract          = item[18];
-      this.rentArear              = item[19];
+      this.rentArrear             = item[19];
       this.dayRest                = item[20];
     }
     else if (this.itemPack.length > this.itemPackMaxLen) {
@@ -394,7 +394,7 @@ class itemContract {
   update (upd) {
     this.endDate                  = upd[0];
     this.validContract            = upd[1];
-    this.rentArear                = upd[2];
+    this.rentArrear               = upd[2];
     this.dayRest                  = upd[3];
     for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
   }
@@ -415,7 +415,7 @@ class itemContract {
   }
 
   show(){
-    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},proxy=${this.proxy},org=${this.org},endDate=${this.endDate},validContract=${this.validContract},rentArear=${this.rentArear},dayRest=${this.dayRest})`;
+    var text = `itemContract: \n(contractNo=${this.itemNo},fromDate=${this.fromDate},toDate=${this.toDate},rentProperty=${this.rentProperty},deposit=${this.deposit},amount=${this.amount},period=${this.period},tenantName=${this.tenantName},tenantAccountName_regex=${this.tenantAccountName_regex},tenantAccount_arr=${this.tenantAccount_arr},toAccountName=${this.toAccountName},toAccount=${this.toAccount},endContract=${this.endContract},note=${this.note},fileLink=${this.fileLink},proxy=${this.proxy},org=${this.org},endDate=${this.endDate},validContract=${this.validContract},rentArrear=${this.rentArrear},dayRest=${this.dayRest})`;
     // Logger.log(text);
     return text;
   };
