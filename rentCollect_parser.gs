@@ -152,7 +152,7 @@ function rentCollect_parser_Record_ESUN() { // 玉山銀行
         
         // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
         // from
-        var fromNote = note_mapping("ESUN", i, act, [data[i][2].toString(),data[i][6].toString(),data[i][7].toString(),data[i][8].toString()]);
+        var fromNote = note_mapping("ESUN", i, date, balance, act, [data[i][2].toString(),data[i][6].toString(),data[i][7].toString(),data[i][8].toString()]);
         
         if (act != ""){
           GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
@@ -242,7 +242,7 @@ function rentCollect_parser_Record_KTB() { // 京城銀行
         
         // Logger.log("CCC: i: %d, act: %s, amount: %d, data: %s: ",i, act, amount, data[i]);
         // from
-        var fromNote = note_mapping("KTB", i, act, [data[i][3].toString(),data[i][7].toString()]);
+        var fromNote = note_mapping("KTB", i, date, balance, act, [data[i][3].toString(),data[i][7].toString()]);
         
         if (act != ""){
           GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
@@ -303,7 +303,7 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
       
       //Logger.log(`CCC: i: ${i}, date: ${date}, act: ${act}, amount: ${amount}, balance: ${balance}, data: ${data[i]}`);
       // from
-      var fromNote = note_mapping("CTBC", i, act, data[i][6].toString());
+      var fromNote = note_mapping("CTBC", i, date, balance, act, data[i][6].toString());
       
       if (act != ""){
         GLB_Import_arr.push([date,act,amount,balance,fromNote[0],fromNote[1]]);
@@ -434,7 +434,7 @@ function write_BankRecord() {
   Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
 }
 
-function note_mapping(type, id, act, note_in) {
+function note_mapping(type, id, date, balance, act, note_in) {
   // Only handle TransferIn action
   
   if (type == "CTBC") {
@@ -445,8 +445,12 @@ function note_mapping(type, id, act, note_in) {
 
       // retrieve fromAccountName
       var regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}[\\*|0-9])","gi"); // escape word
-      // Logger.log(`[note_mapping] type: ${type}, id: ${id}, act: ${act}, note_in: ${note_in}, note_tmp: ${note_tmp}`);
-      var fromAccount = regExp.exec(note_tmp)[0];
+      try {
+        var fromAccount = regExp.exec(note_tmp)[0];
+      } catch (e) {
+        Logger.log(`[note_mapping] type: ${type}, id: ${id}, date: ${date}, balance: ${balance}, act: ${act}, note_in: ${note_in}, note_tmp: ${note_tmp}`);
+        var errMsg = `[note_mapping] type: ${type}, id: ${id}, date: ${date}, balance: ${balance}, act: ${act}, note_in: ${note_in}, note_tmp: ${note_tmp}`; reportErrMsg(errMsg);
+      }
       var fromAccountName = note_tmp.replace(regExp,"").replace(/[\s|\n|\r|\t]/g,"").split("\n");
       
       return [fromAccountName[0],fromAccount];
