@@ -36,6 +36,9 @@ const CONST_LinePostDayRestWeek = 6;
 const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport"];
 var CFG_Val_obj = new Object();
 
+// Line userId
+const USERID_TONY = `Uf45e2cc323ccd4edcb12736d15c6da99`; // to promote this as a array in CFG
+
 // Array
 const CONST_CTBC_actWithdrawList = ["現金","中信卡","委代扣綜所稅","信託"]; // A list to collect all of the known withdraw action apart from Tranfer
 const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅","信託"]; // A list to collect all of the known deposit action apart from Tranfer

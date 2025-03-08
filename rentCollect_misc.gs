@@ -158,14 +158,27 @@ function mainCFG(){
 
 function doLinePost(msg){
   const token =CFG_Val_obj["CFG_LinePostToken"].toString().replace(/[\s|\n|\r|\t]/g,"");//'UBcpzSiSgNnvRkoySrODkkjYswDkMjy0dzZ9UBSN9Dr';
-  
-  var message = "\n" + msg; // for 1st new line
 
-  UrlFetchApp.fetch('https://notify-api.line.me/api/notify',{
-    'headers':{'Authorization': 'Bearer ' + token,},
-    'method':'post',
-    'payload':{
-    'message':message
-    }
-  });
+  var message = "Proj_RentCollect:\n" + msg; // for 1st new line
+
+  var payload = {
+    to: USERID_TONY,
+    messages: [{
+      'type': 'text',
+      'text': message
+    }]
+  };
+  var option = {
+    'headers': {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer ' + token
+    },
+    'method': 'post',
+    'payload': JSON.stringify(payload)
+  };
+      
+  UrlFetchApp.fetch(
+    'https://api.line.me/v2/bot/message/push',
+    option
+  );
 }
