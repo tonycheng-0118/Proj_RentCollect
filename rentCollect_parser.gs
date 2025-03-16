@@ -1239,11 +1239,11 @@ function rentCollect_parser_proxyRecord_MinSheng35() { // 民生路35號報表
                 reportWarnGenMiscCost(warnMsg);
               }
               if (other_fee<0){ // already paid in proxy agent side
-                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t2.Sub_Rent\tAuto gen management proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t2.Sub_Rent\tAuto gen other proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
                 reportWarnGenMiscCost(warnMsg);
               }
               if (other_fee>0){ // extra charge fee
-                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t0.Charge_Fee\tAuto gen management proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t0.Charge_Fee\tAuto gen other proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
                 reportWarnGenMiscCost(warnMsg);
               }
               if (util_fee_0!=0){ // electricity
