@@ -1200,7 +1200,7 @@ function rentCollect_parser_proxyRecord_MinSheng35() { // 民生路35號報表
             var util_fee_0  = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // electricity
             var util_fee_1  = data[i][6].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // water
             var other_fee   = data[i][7].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // other fee
-            var amount      = data[i][8].toString().replace(/,/g,"")*1; // sum[1:7] and remove decimal ,
+            var amount      = data[i][8].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // sum[1:7]
             var note        = data[i][9];
             var fromDate    = data[i][10].toString().replace(/[^\u002E-\u0039]/g,""); // to eliminate everything other that digit or dot
 
