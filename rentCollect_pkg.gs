@@ -9,6 +9,9 @@ const CONST_TODAY_DATE = new Date("Wed May 17 2023 22:46:10 GMT+0800 (Taipei Sta
 const SheetHandle      = SpreadsheetApp.openById("1sSeMT7ZnQtuwSbRs0W-zqorA0MD_xRg0Fu8iPbg_YS8"); // Proj_RentCollect_VERIFY.
 const MODE_VERIFY      = true;
 
+// Seperated SheetHandle
+const SheetHandle_MinSheng35 = SpreadsheetApp.openById("1k2yNsmI-pTXqUsgW6On4ulyssaQUTmrxnMsYNYrYUl8"); // Proj_RentCollect_MinSheng35.
+
 // Sheet Name
 const SheetImportName       = SheetHandle.getSheetByName('Import');
 const SheetBankRecordName   = SheetHandle.getSheetByName('BankRecord');
@@ -33,7 +36,7 @@ const CONST_LinePostVacancyWeek = 6;
 const CONST_LinePostOverdueWeek = 6;
 const CONST_LinePostDayRestWeek = 6;
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport","CFG_NewProxyRecordImportNum"];
 var CFG_Val_obj = new Object();
 
 // Line userId
@@ -43,6 +46,7 @@ const USERID_TONY = `Uf45e2cc323ccd4edcb12736d15c6da99`; // to promote this as a
 const CONST_CTBC_actWithdrawList = ["現金","中信卡","委代扣綜所稅","信託"]; // A list to collect all of the known withdraw action apart from Tranfer
 const CONST_CTBC_actDepositList  = ["現金", "利息", "委代入","現金存款機","委代入補助款","委代入貨物稅","信託"]; // A list to collect all of the known deposit action apart from Tranfer
 const CONST_KTB_actList = ["現金","現金D","現金E","本交A","利息D","退票D","稅款D","電費D","水費D"];
+const CONST_MinSheng35_ID = ["2A","2B","2C","4A","4B","4C","5A","5B","5C","6A","6B","6C","7D","7E","8D","8E"];
 const GLB_Tenant_AccountName_Pos = 0;
 const GLB_Tenant_Account_Pos = 1;
 

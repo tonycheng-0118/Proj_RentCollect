@@ -36,6 +36,11 @@ function rentCollect_parser() {
   rentCollect_parser_chkDuplicated();
   var time_finish_parser_chkDuplicated = new Date();
   if (1) {var info = `[rentCollect_main] parser_chkDuplicated time_exec(s): ${(time_finish_parser_chkDuplicated.getTime() - time_start_parser_chkDuplicated.getTime()) / 1000}`; reportInfoMsg(info);}
+
+  var time_start_parser_proxyRecord_MinSheng35 = new Date();
+  rentCollect_parser_proxyRecord_MinSheng35();
+  var time_finish_parser_proxyRecord_MinSheng35 = new Date();
+  if (1) {var info = `[rentCollect_main] parser_proxyRecord_MinSheng35 time_exec(s): ${(time_finish_parser_proxyRecord_MinSheng35.getTime() - time_start_parser_proxyRecord_MinSheng35.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record() {
@@ -1144,4 +1149,116 @@ function rentCollect_parser_Property() {
 
   }
 
+}
+
+function rentCollect_parser_proxyRecord_MinSheng35() { // 民生路35號報表
+  /////////////////////////////////////////
+  // README
+  // Read MinSheng35 sheet and populate reportWarnGenUtilBill and reportWarnGenMiscCost
+  /////////////////////////////////////////
+  
+  /////////////////////////////////////////
+  // Setting
+  /////////////////////////////////////////
+  var proxyImportNum = CFG_Val_obj["CFG_NewProxyRecordImportNum"].toString().replace(/[\s|\n|\r|\t]/g,"") * 1;
+  var numImport = 0;
+
+  // visit sheet of each month
+  var allsheets = SheetHandle_MinSheng35.getSheets();
+  allsheets.forEach(
+    function(sheetName){
+      
+      // remove all filter
+      var filter = sheetName.getFilter();
+      if (filter !== null) {
+        filter.remove();
+      }
+
+      if (sheetName.getName()!="README"){
+        if (numImport < proxyImportNum) {
+          var warnMsg = `[rentCollect_parser_proxyRecord_MinSheng35] Populate proxy sheet result from @ ${sheetName.getName()}!`;
+          reportWarnMsg(warnMsg);
+          
+          // numImport++
+          numImport +=1;
+
+          // apart from README, the reset sheet name align yyyy/mm
+          var regex = new RegExp("([0-9]{4}\/[0-9]{2})","gi"); // format must be yyyy/mm
+          if (sheetName.getName().toString().match(regex) == null) {
+            var errMsg = `[rentCollect_parser_proxyRecord_MinSheng35] incorrect sheetName format: ${sheetName.getName()}.`; reportErrMsg(errMsg);
+          }
+          
+          // parsing 
+          var data = sheetName.getDataRange().getValues();
+          for(i=0;i<data.length;i++){
+            // minSheng35 date structure
+            var id          = data[i][0].toString().replace(/[\s|\n|\r|\t]/g,""); // ID row
+            var rent        = data[i][1].toString().replace(/[\s|\n|\r|\t]/g,"")*1; //
+            var deposit     = data[i][2].toString().replace(/[\s|\n|\r|\t]/g,"")*1;
+            var proxy_fee_0 = data[i][3].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // equalt to 1 month rent
+            var proxy_fee_1 = data[i][4].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // equalt to 7% month rent
+            var util_fee_0  = data[i][5].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // electricity
+            var util_fee_1  = data[i][6].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // water
+            var other_fee   = data[i][7].toString().replace(/[\s|\n|\r|\t]/g,"")*1; // other fee
+            var amount      = data[i][8].toString().replace(/,/g,"")*1; // sum[1:7] and remove decimal ,
+            var note        = data[i][9];
+            var fromDate    = data[i][10].toString().replace(/[^\u002E-\u0039]/g,""); // to eliminate everything other that digit or dot
+
+            if ((CONST_MinSheng35_ID.indexOf(id)!=-1) && (fromDate.length>0)){ // only proceed those with ID and fromDate
+              
+              Logger.log(`[rentCollect_parser_proxyRecord_MinSheng35] ${sheetName.getName()}: ${data[i]}`);
+
+              // Date
+              var regex = new RegExp("([0-9]{3}\.[0-9]{2}\.[0-9]{2})","gi"); // format must be yyy.mm.dd
+              if (fromDate.match(regex) == null){
+                var errMsg = `[rentCollect_parser_proxyRecord_MinSheng35] incorrect fromDate format: ${fromDate}. It should be yyy.mm.dd.`; reportErrMsg(errMsg);
+              } else {
+                var date = new Date(fromDate);
+                date.setSeconds(0);date.setMinutes(0);date.setHours(0);
+                date.setFullYear(sheetName.getName().substring(0,4)); // sheetName.yyyy
+                date.setMonth(sheetName.getName().substring(5,7)-1); // sheetName.mm, setMonth starts from 0
+                date.setDate(fromDate.substring(7,9)); // fromDate.dd
+              }
+              Logger.log(`[rentCollect_parser_proxyRecord_MinSheng35] date: ${date}`);
+
+              // RentProperty
+              var rentProperty = "P_民生路大樓_" + id;
+
+              // Amount
+              if (amount != (rent+deposit+proxy_fee_0+proxy_fee_1+util_fee_0+util_fee_1+other_fee)) {
+                var errMsg = `[rentCollect_parser_proxyRecord_MinSheng35] incorrect amount @ ${sheetName.getName()}: ID:${id}.`; reportErrMsg(errMsg);
+              }
+
+              // populate result
+              if (proxy_fee_0!=0){ // equalt to 1 month rent
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(proxy_fee_0)}\t2.Sub_Rent\tAuto gen rent proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
+              if (proxy_fee_1!=0){ // equalt to 7% month rent
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(proxy_fee_1)}\t2.Sub_Rent\tAuto gen management proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
+              if (other_fee<0){ // already paid in proxy agent side
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t2.Sub_Rent\tAuto gen management proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
+              if (other_fee>0){ // extra charge fee
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(other_fee)}\t0.Charge_Fee\tAuto gen management proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
+              if (util_fee_0!=0){ // electricity
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${util_fee_0}\tAuto gen electricity fee @MinSheng sheet:${sheetName.getName()}, note: ${note}\n`;
+                reportWarnGenUtilBill(warnMsg);
+              }
+              if (util_fee_1!=0){ // water
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${util_fee_1}\tAuto gen water fee @MinSheng sheet:${sheetName.getName()}, note: ${note}\n`;
+                reportWarnGenUtilBill(warnMsg);
+              }
+
+            }
+          }
+        }
+      }
+    }
+  )
 }
