@@ -383,7 +383,7 @@ class itemContract {
     
     this.isProxying               = (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") != "PROXIED") && (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") != "");
     this.isProxied                = (item[15].toString().replace(/[\s|\n|\r|\t]/g,"") == "PROXIED");
-    this.proxied_array            = item[15].replace(/[\s|\n|\r|\t]/g,"").split(";");
+    this.proxied_array            = this.unpack_proxied_array(item[15]);
     
     this.itemPack                 = item;
     this.itemPackMaxLen           = 21;
@@ -397,6 +397,25 @@ class itemContract {
       if (1) {var errMsg = `[itemContract] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
     }
   };
+
+  unpack_proxied_array(arr){
+    var unpack_arr = arr.replace(/[\s|\n|\r|\t]/g,"").split(";");
+    var return_arr = [];
+    for (var i=0;i<unpack_arr.length;i++) {
+      var regExp = new RegExp("([0-9]+)-([0-9]+)","gi");
+      if (unpack_arr[i].match(regExp) != null) {
+        var unpack = unpack_arr[i].split("-").toSorted();
+        var start = unpack[0];
+        var end   = unpack[1];
+        for (var j=start;j<=end;j++){
+          return_arr.push(j);
+        }
+      } else {
+        return_arr.push(unpack_arr[i]);
+      }
+    }
+    return return_arr;
+  }
 
   update (upd) {
     this.endDate                  = upd[0];
