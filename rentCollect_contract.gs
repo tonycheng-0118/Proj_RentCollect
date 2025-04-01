@@ -322,7 +322,9 @@ function rentCollect_contract() {
 
     // [Warn.2] check undefined LN_ContractNo
     if ((item.action == "TransferIn" || item.action == "Deposit") && (item.contractNo == null)) {
-      if (item.recordCheck.toString() != "Checked") {
+      if ((item.recordCheck.toString() == "Unkown") || (item.recordCheck.toString() == "Checked")) {
+        // skip this unknow or checked bankRecord
+      } else {
         if (1) {var warnMsg = `[rentCollect_contract][Warn.2] BankRecord @ ${item.itemNo} has no defined LN_ContractNo!`; reportWarnMsg(warnMsg);}
         var msg = "Warn.2";
         SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
