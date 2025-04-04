@@ -127,7 +127,7 @@ function report_status() {
   // Setting
   /////////////////////////////////////////
   const topRowOfs = 1; // the offset from the top row, A2 is 1
-  const CONST_DayRestThreshold = 14; // report those contract with restDay less than dayRestThreshold.
+  const CONST_DayRestThreshold = 30; // report those contract with restDay less than dayRestThreshold.
 
   /////////////////////////////////////////
   // Update Status
@@ -247,20 +247,20 @@ function report_status() {
   // line post
   if (!isLinePost) {
     isLinePost = true;
-    if (CONST_TODAY_DATE.getDay()==CONST_LinePostVacancyWeek) {
+    // if (CONST_TODAY_DATE.getDay()==CONST_LinePostVacancyWeek) {
       var msg = "目前未出租的物件有" + linePostVacancy_arr.length + "件" + "\n\n" + linePostVacancy_arr.join("");
       doLinePost(msg)
-    }
+    // }
 
-    if (CONST_TODAY_DATE.getDay()==CONST_LinePostOverdueWeek) {
+    // if (CONST_TODAY_DATE.getDay()==CONST_LinePostOverdueWeek) {
       var msg = "目前合約已結束待確認有" + linePostOverdue_arr.length + "件" + "\n\n" + linePostOverdue_arr.join("");
       doLinePost(msg)
-    }
+    // }
 
-    if (CONST_TODAY_DATE.getDay()==CONST_LinePostDayRestWeek) {
+    // if (CONST_TODAY_DATE.getDay()==CONST_LinePostDayRestWeek) {
       var msg = "目前合約少於" + CONST_DayRestThreshold + "天的合約數有" + linePostDayRest_arr.length + "份" + "\n\n" + linePostDayRest_arr.join("\n");
       doLinePost(msg)
-    }
+    // }
   }
   
 }
