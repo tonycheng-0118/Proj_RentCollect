@@ -181,7 +181,7 @@ function rentCollect_contract() {
             // if not match account, then account name search
             if (match == false){
               if (item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"")!='') {
-                var accountName_arr = item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";");
+                var accountName_arr = dropArrayEmptyStrings(item.tenantAccountName_regex.replace(/[\s|\n|\r|\t]/g,"").split(";"));
                 for (var k=0;k<accountName_arr.length;k++){
                   var srhPtn = "^" + accountName_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
                   // Logger.log(`srhPtn: ${srhPtn}`);

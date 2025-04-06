@@ -26,23 +26,23 @@ function report_analysis() {
   /////////////////////////////////////////
   var data = SheetRptAnalysisName.getRange(1+topRowOfs,1,SheetRptAnalysisName.getLastRow()-topRowOfs,SheetRptAnalysisName.getLastColumn()).getValues();
   var isLinePost = false; // only post the top left one
-  for(i=0;i<data.length;i++){
+  for(var i=0;i<data.length;i++){
     var itemNo = i;
 
     var propertyGroup_regex = data[i][pos.ColPos_PropertyGroup-1].toString().replace(/[\s|\n|\r|\t]/g,"");
-    var srhGroup_arr = propertyGroup_regex.split(";");
+    var srhGroup_arr = dropArrayEmptyStrings(propertyGroup_regex.split(";"));
     var propertyExclude_regex = data[i][pos.ColPos_PropertyExclude-1].toString().replace(/[\s|\n|\r|\t]/g,"");
-    var srhExclude_arr = propertyExclude_regex.split(";");
+    var srhExclude_arr = dropArrayEmptyStrings(propertyExclude_regex.split(";"));
     
     var stDate = new Date(CONST_TODAY_DATE.getTime());
     stDate.setSeconds(0);stDate.setMinutes(0);stDate.setHours(0);stDate.setDate(1);stDate.setMonth(CONST_TODAY_DATE.getMonth()); 
     var edDate = new Date(CONST_TODAY_DATE.getTime());
     edDate.setSeconds(0);edDate.setMinutes(0);edDate.setHours(0);edDate.setDate(1);edDate.setMonth(CONST_TODAY_DATE.getMonth()+1);
-    for (j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
+    for (var j=0;j<CFG_Val_obj["CFG_MonthAccRent_NUM"];j++){
       var accRent = 0;
       var accRentDetails_arr = new Array();
       var linePostRentRecord_arr = new Array();
-      for (k=0;k<srhGroup_arr.length;k++){
+      for (var k=0;k<srhGroup_arr.length;k++){
         var srhMatchPtn = "^" + srhGroup_arr[k].toString().replace(/[*]/g,"[\u4E00-\uFF5A0-9A-Za-z\u0020-\u007E]?") + "$";
         var srhMatchRegexp = new RegExp(srhMatchPtn,"gi");
         // from BankRecord
@@ -52,7 +52,7 @@ function report_analysis() {
           if (record.rentProperty != null) {
             var isExclude = 0;
             // search exclude property
-            for (kkk=0;kkk<srhExclude_arr.length;kkk++){
+            for (var kkk=0;kkk<srhExclude_arr.length;kkk++){
               var srhExcludePtn = "^" + srhExclude_arr[kkk].toString() + "$";
               var srhExcludeRegexp = new RegExp(srhExcludePtn,"gi");
               if (record.rentProperty.toString().match(srhExcludeRegexp) != null) {

@@ -199,5 +199,14 @@ function doLinePost(msg){
   } else {
     // var warnMsg = `[doLinePost] CFG_LinePost_Enable is disable!`; reportWarnMsg(warnMsg);
   }
+}
 
+/**
+ * Utility function
+ */
+function dropArrayEmptyStrings(array) {
+  /**
+   * remove the EmptyStrings of the Array
+   */
+  return array.filter(element => element !== "");
 }
