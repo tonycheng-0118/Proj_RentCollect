@@ -2,49 +2,63 @@
 // Function
 /////////////////////////////////////////
 function rentCollect_parser() {
+  // rentCollect_parser_LineMsg
+  var time_start_parser_LineMsg = new Date();
+  rentCollect_parser_LineMsg();
+  var time_finish_parser_parser_LineMsg = new Date();
+  if (1) {var info = `[rentCollect_main] parser_LineMsg time_exec(s): ${(time_finish_parser_parser_LineMsg.getTime() - time_start_parser_LineMsg.getTime()) / 1000}`; reportInfoMsg(info);}
+  
+  // rentCollect_parser_Record
   var time_start_parser_Record = new Date();
   rentCollect_parser_Record();
   var time_finish_parser_Record = new Date();
   if (1) {var info = `[rentCollect_main] parser_Record time_exec(s): ${(time_finish_parser_Record.getTime() - time_start_parser_Record.getTime()) / 1000}`; reportInfoMsg(info);}
   
+  // rentCollect_parser_Tenant
   var time_start_parser_Tenant = new Date();
   rentCollect_parser_Tenant();
   var time_finish_parser_Tenant = new Date();
   if (1) {var info = `[rentCollect_main] parser_Tenant time_exec(s): ${(time_finish_parser_Tenant.getTime() - time_start_parser_Tenant.getTime()) / 1000}`; reportInfoMsg(info);}
-
+  
+  // rentCollect_parser_UtilBill
   var time_start_parser_UtilBill = new Date();
   rentCollect_parser_UtilBill();
   var time_finish_parser_UtilBill = new Date();
   if (1) {var info = `[rentCollect_main] parser_UtilBill time_exec(s): ${(time_finish_parser_UtilBill.getTime() - time_start_parser_UtilBill.getTime()) / 1000}`; reportInfoMsg(info);}
 
+  // rentCollect_parser_MiscCost
   var time_start_parser_MiscCost = new Date();
   rentCollect_parser_MiscCost();
   var time_finish_parser_MiscCost = new Date();
   if (1) {var info = `[rentCollect_main] parser_MiscCost time_exec(s): ${(time_finish_parser_MiscCost.getTime() - time_start_parser_MiscCost.getTime()) / 1000}`; reportInfoMsg(info);}
-
+  
+  // rentCollect_parser_Property
   var time_start_parser_Property = new Date();
   rentCollect_parser_Property();
   var time_finish_parser_Property = new Date();
   if (1) {var info = `[rentCollect_main] parser_Property time_exec(s): ${(time_finish_parser_Property.getTime() - time_start_parser_Property.getTime()) / 1000}`; reportInfoMsg(info);}
-
+  
+  // rentCollect_parser_Contract
   var time_start_parser_Contract = new Date();
   rentCollect_parser_Contract();
   var time_finish_parser_Contract = new Date();
   if (1) {var info = `[rentCollect_main] parser_Contract time_exec(s): ${(time_finish_parser_Contract.getTime() - time_start_parser_Contract.getTime()) / 1000}`; reportInfoMsg(info);}
+  
+  // rentCollect_parser_proxyRecord_MinSheng35
+  var time_start_parser_proxyRecord_MinSheng35 = new Date();
+  rentCollect_parser_proxyRecord_MinSheng35();
+  var time_finish_parser_proxyRecord_MinSheng35 = new Date();
+  if (1) {var info = `[rentCollect_main] parser_proxyRecord_MinSheng35 time_exec(s): ${(time_finish_parser_proxyRecord_MinSheng35.getTime() - time_start_parser_proxyRecord_MinSheng35.getTime()) / 1000}`; reportInfoMsg(info);}
 
+  // rentCollect_parser_chkDuplicated
   var time_start_parser_chkDuplicated = new Date();
   rentCollect_parser_chkDuplicated();
   var time_finish_parser_chkDuplicated = new Date();
   if (1) {var info = `[rentCollect_main] parser_chkDuplicated time_exec(s): ${(time_finish_parser_chkDuplicated.getTime() - time_start_parser_chkDuplicated.getTime()) / 1000}`; reportInfoMsg(info);}
 
-  var time_start_parser_proxyRecord_MinSheng35 = new Date();
-  rentCollect_parser_proxyRecord_MinSheng35();
-  var time_finish_parser_proxyRecord_MinSheng35 = new Date();
-  if (1) {var info = `[rentCollect_main] parser_proxyRecord_MinSheng35 time_exec(s): ${(time_finish_parser_proxyRecord_MinSheng35.getTime() - time_start_parser_proxyRecord_MinSheng35.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record() {
-  var isbpsImport  = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
   var isParseValid = true; // will be false if one of isImpoertValid is false
   
   var time_start_parser_Record_load_BankRecord = new Date();
@@ -52,9 +66,7 @@ function rentCollect_parser_Record() {
   var time_finish_parser_Record_load_BankRecord = new Date();
   if (1) {var info = `[rentCollect_main] parser_Record_load_BankRecord time_exec(s): ${(time_finish_parser_Record_load_BankRecord.getTime() - time_start_parser_Record_load_BankRecord.getTime()) / 1000}`; reportInfoMsg(info);}
   
-  if (isbpsImport) {
-    if (1) {var info = `[rentCollect_main] Bypass import!`; reportInfoMsg(info);}
-  } else {
+  if (VAR_isNewRecordImport) {
     var time_start_parser_Record_ESUN = new Date();
     isParseValid &= rentCollect_parser_Record_ESUN(); // 玉山銀行
     var time_finish_parser_Record_ESUN = new Date();
@@ -71,22 +83,19 @@ function rentCollect_parser_Record() {
     if (1) {var info = `[rentCollect_main] parser_Record_CTBC time_exec(s): ${(time_finish_parser_Record_CTBC.getTime() - time_start_parser_Record_CTBC.getTime()) / 1000}`; reportInfoMsg(info);}
   }
   
-  var time_start_parser_Record_write = new Date();
-  if (isbpsImport) {
-    post_BankRecord();
+  var time_start_post_BankRecord = new Date();
+  if (VAR_isNewRecordImport) {
+    if (isParseValid) {
+      // backup the previous BankRecord
+      bankRecordBackUp();
+    } else {
+      if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
+    }
   }
-  else if (isParseValid) {
-    // backup the previous BankRecord
-    bankRecordBackUp();
-
-    // write out merged BankRecord
-    post_BankRecord();
-    write_BankRecord();
-  } else {
-    if (1) {var errMsg = `[rentCollect_parser_Record] isParseValid is invalid!`; reportErrMsg(errMsg);}
-  }
-  var time_finish_parser_Record_write = new Date();
-  if (1) {var info = `[rentCollect_main] parser_Record_write time_exec(s): ${(time_finish_parser_Record_write.getTime() - time_start_parser_Record_write.getTime()) / 1000}`; reportInfoMsg(info);}
+  post_BankRecord();
+  
+  var time_finish_post_BankRecord = new Date();
+  if (1) {var info = `[rentCollect_main] post_BankRecord time_exec(s): ${(time_finish_post_BankRecord.getTime() - time_start_post_BankRecord.getTime()) / 1000}`; reportInfoMsg(info);}
 }
 
 function rentCollect_parser_Record_ESUN() { // 玉山銀行
@@ -322,20 +331,25 @@ function rentCollect_parser_Record_CTBC() { // 中國信託
 }
 
 function load_BankRecord() {
+  /**
+   * To restore current SheetBankRecordName content
+   * [Date,Action,Amount,Balance,FromAccountName,FromAccount,ToAccountName,ToAccount,MergeDate,RecordCheck,RecordNote,ContractOverrid]
+   */
   
   const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
   const bankRecordColOfs = 1; // to exclude itemNo
-  const bankRecordContentLen = 12;
+  const bankRecordContentLen = 12; // include from Date to ContractOverrid
+  const bankRecordCompareLen = 6; // include from Date to FromAccount
   
   GLB_BankRecord_arr = new Array();  // Since GLB_BankRecord_arr is a Global array, will regen this content every time merge starting.
   if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
-    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
+    var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen).getValues(); // exclude itemNo column
     for(i=0;i<data.length;i++){
-      GLB_BankRecord_arr.push(data[i]);
+      GLB_BankRecord_arr.push(data[i].concat([null,null,""])); // expand a placeholder for LN_ContractNo, LN_RentProperty, LN_LineMsg
     }
 
     VAR_CompareBankRecord_arr = new Array();
-    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-6).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid]
+    var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordCompareLen).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid, LN_ContractNo,LN_RentProperty]
     for(i=0;i<compare_data.length;i++){
       VAR_CompareBankRecord_arr.push(compare_data[i]);
     }
@@ -343,69 +357,17 @@ function load_BankRecord() {
 }
 
 function merge_BankRecord(toAccountName,toAccount) {
-  
-  // const bankRecordRowOfs = 1; // the offset from the top row, A2 is 1
-  // const bankRecordColOfs = 1; // to exclude itemNo
-  // const bankRecordContentLen = 12;
-  
   /////////////////////////////////////////
   // Merge existed item
   /////////////////////////////////////////
-  // GLB_BankRecord_arr = new Array();  // Since GLB_BankRecord_arr is a Global array, will regen this content every time merge starting.
-  // if (SheetBankRecordName.getLastRow()) { // for a non-empty database case
-  //   var data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen  ).getValues(); // exclude itemNo column
-  //   for(i=0;i<data.length;i++){
-  //     GLB_BankRecord_arr.push(data[i]);
-  //   }
-
-  //   var VAR_CompareBankRecord_arr  = new Array();
-  //   var compare_data = SheetBankRecordName.getRange(1+bankRecordRowOfs, 1+bankRecordColOfs, SheetBankRecordName.getLastRow()-bankRecordRowOfs, bankRecordContentLen-6).getValues(); // exclude itemNo column and [toAccountName, toAccount, mergeDate, RecordCheck, RecordNote, ContractOverrid]
-  //   for(i=0;i<compare_data.length;i++){
-  //     VAR_CompareBankRecord_arr.push(compare_data[i]);
-  //   }
-  // }
-  
   for(i=0;i<GLB_Import_arr.length;i++){
     if (VAR_CompareBankRecord_arr.join().indexOf(GLB_Import_arr[i].join()) == -1){
-      GLB_BankRecord_arr.push(GLB_Import_arr[i].concat([toAccountName,toAccount,CONST_TODAY_DATE,"","",""]));// expand a placeholder for RecordCheck, RecordNote, ContractOverrid
+      GLB_BankRecord_arr.push(GLB_Import_arr[i].concat([toAccountName,toAccount,CONST_TODAY_DATE,"","","",null,null,""]));// expand a placeholder for RecordCheck, RecordNote, ContractOverrid, LN_ContractNo, LN_RentProperty, LN_LineMsg
     }
     else {
       // Found duplicated itemRecord, passed.
     }
   }
-
-  // /////////////////////////////////////////
-  // // Sort itemRecord with Date in acending order
-  // /////////////////////////////////////////
-  // GLB_BankRecord_arr.sort(
-  //   function(x,y){
-  //     var xp = x[0];
-  //     var yp = y[0];
-  //     return xp == yp ? 0 : xp < yp ? -1 : 1;
-  //   }
-  // )
-  
-  // /////////////////////////////////////////
-  // // Attach with serial number
-  // /////////////////////////////////////////
-  // for(var i=0;i<GLB_BankRecord_arr.length;i++){
-  //   GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
-  // }
-
-  // // GLB_BankRecord_arr.forEach (
-  // //   function(data) {
-  // //     var item = new itemBankRecord(data);
-  // //     Logger.log(`MNB: ${item.itemPack.length}, ${item.show()}`);
-  // //   }
-  // // )
-
-  // /////////////////////////////////////////
-  // // Write Out
-  // /////////////////////////////////////////
-  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
-  // SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-  // Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
-  
 }
 
 function post_BankRecord() {
@@ -419,13 +381,18 @@ function post_BankRecord() {
       return xp == yp ? 0 : xp < yp ? -1 : 1;
     }
   )
-  
+ 
   /////////////////////////////////////////
-  // Attach with serial number
+  // Attach with serial number, GLB_BankRecord_arr item order is correct from here
   /////////////////////////////////////////
   for(var i=0;i<GLB_BankRecord_arr.length;i++){
     GLB_BankRecord_arr[i] = [i].concat(GLB_BankRecord_arr[i]);
   }
+
+  /////////////////////////////////////////
+  // Attach with Line Msg
+  /////////////////////////////////////////
+  append_LineMsg();
 }
 
 function write_BankRecord() {
@@ -434,9 +401,29 @@ function write_BankRecord() {
   /////////////////////////////////////////
   // Write Out
   /////////////////////////////////////////
-  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
-  SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
-  Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
+  if (VAR_isNewRecordImport) {
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).clearContent();
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,1,GLB_BankRecord_arr.length,GLB_BankRecord_arr[0].length).setValues(GLB_BankRecord_arr);
+    Logger.log(`[Info] SheetBankRecordName clear width is ${GLB_BankRecord_arr[0].length}, height: ${GLB_BankRecord_arr.length}`);
+    Logger.log(`[Info] Size of GLB_BankRecord_arr is ${GLB_BankRecord_arr.length}`);
+  } else {
+    // only update [RecordCheck	RecordNote	ContractOverrid	LN_ContractNo	LN_RentProperty	LN_LineMsg]
+    var itemPos = new itemBankRecord(GLB_BankRecord_arr[0]);
+    var partial_BankRecord_arr = new Array();
+    for (var i=0;i<GLB_BankRecord_arr.length;i++) {
+      var item = new itemBankRecord(GLB_BankRecord_arr[i]);
+      var dataArr = new Array();
+      for (var j=(item.ColPos_RecordCheck-1);j<item.itemPackMaxLen;j++) {
+        dataArr.push([item.itemPack[j]]);
+      }
+      partial_BankRecord_arr.push(dataArr);
+    }
+
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,itemPos.ColPos_RecordCheck,partial_BankRecord_arr.length,partial_BankRecord_arr[0].length).clearContent();
+    SheetBankRecordName.getRange(1+bankRecordRowOfs,itemPos.ColPos_RecordCheck,partial_BankRecord_arr.length,partial_BankRecord_arr[0].length).setValues(partial_BankRecord_arr);
+    Logger.log(`[Info] SheetBankRecordName clear width is ${partial_BankRecord_arr[0].length}, height: ${partial_BankRecord_arr.length}`);
+    Logger.log(`[Info] Size of GLB_BankRecord_arr is ${partial_BankRecord_arr.length}`);
+  }
 }
 
 function note_mapping(type, id, date, balance, act, note_in) {
@@ -595,9 +582,7 @@ function action_mapping(type, id, act_in, withdraw, deposit){
 }
 
 function rentCollect_parser_chkDuplicated() {
-  var isbpsImport  = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="0";
-
-  if (isbpsImport==false) {
+  if (VAR_isNewRecordImport) {
     // less likely duplicated, check for assurance during the new import stage
     if (CFG_Val_obj["CFG_BankRecordCheck_Details"]) {
       for (i=0;i<GLB_BankRecord_arr.length-1;i++){
@@ -1261,4 +1246,91 @@ function rentCollect_parser_proxyRecord_MinSheng35() { // 民生路35號報表
       }
     }
   )
+}
+
+function rentCollect_parser_LineMsg() {
+  // for rowPos
+  var itemPos = new itemLineMsg();
+  var fromDate = CFG_Val_obj["CFG_LineMsg_FromDate"].toString();
+  var rowPos=0;
+  var dateArr = SheetLineMsgName.getRange(2, 1,  SheetLineMsgName.getLastRow()-1, 3).getValues(); // to fetch [Date, timestamp, userId]
+  for (var i=0;i<dateArr.length;i++) {
+    var date   = dateArr[i][0];
+    var userId = dateArr[i][2];
+    if ((rowPos==0) && (new Date(fromDate) <= new Date(date))) {
+      rowPos = 2+i; // only update once
+      if (1) {var infoMsg = `[rentCollect_parser_LineMsg] LineMsg start parse from row ${rowPos}.`; reportInfoMsg(infoMsg);}
+    }
+    if (userId!=CONST_LINE_USERID_ANGENT_0) {var errMsg = `[rentCollect_parser_LineMsg] userID != ${CONST_LINE_USERID_ANGENT_0}}`; reportErrMsg(errMsg);}
+  }
+
+  // parse item to array
+  var data = SheetLineMsgName.getRange(rowPos, 1, SheetLineMsgName.getLastRow()-rowPos+1, (itemPos.itemPackMaxLen-1)).getValues();
+  for(var i=0;i<data.length;i++){
+    var dataArr = new Array();
+    dataArr.push(i)
+    for (var j=0; j < (itemPos.itemPackMaxLen-1); j++) {
+      dataArr.push(data[i][j]);
+    }
+    GLB_LineMsg_arr.push(dataArr);
+  }
+  
+  // to sort array with Date in acending order
+  GLB_LineMsg_arr.sort(
+    function(x,y){
+      var xp = x[1];
+      var yp = y[1];
+      return xp == yp ? 0 : xp < yp ? -1 : 1;
+    }
+  )
+
+  // // to show those item
+  // for(var i=0;i<GLB_LineMsg_arr.length;i++){
+  //   var item = new itemLineMsg();
+  //   item.extract(GLB_LineMsg_arr[i])
+  //   Logger.log(`item: ${item.show()}`);
+  // }
+}
+
+function append_LineMsg() {
+  var lineMsgRecordNo = 0;
+  for(var i=0,j=0;i<GLB_LineMsg_arr.length;){
+    var item = new itemLineMsg();
+    item.extract(GLB_LineMsg_arr[i]);
+    // Logger.log(`cur item: ${item.show()}`);
+
+    // merge lineMsg of the within the same date
+    var content = item.content;
+    do {
+      i = ++j; // i start from the next 1st diff
+      if (i==GLB_LineMsg_arr.length){
+        break;
+      } else {
+        var next = new itemLineMsg();
+        next.extract(GLB_LineMsg_arr[j]);
+        // Logger.log(`nxt item: ${next.show()}`);
+        if (Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd') != Utilities.formatDate(next.date, 'GMT+8', 'yyyy/MM/dd')) {
+          break;
+        } else {
+          content += `\n${next.content}`;
+        }
+      }
+    } while (j<GLB_LineMsg_arr.length)
+    Logger.log(`Merged content: ${content}`);
+
+    // Since the date in GLB_BankRecord_arr is in ascending order, ony visit those match date bankRecord
+    for (var k=lineMsgRecordNo;k<GLB_BankRecord_arr.length;){
+      var record = new itemBankRecord(GLB_BankRecord_arr[k]);
+      var fromDate = new Date(CFG_Val_obj["CFG_LineMsg_FromDate"].toString());
+      if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') < Utilities.formatDate(fromDate, 'GMT+8', 'yyyy/MM/dd')) {
+        lineMsgRecordNo = ++k;
+      } else if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') == Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')) {
+        lineMsgRecordNo = ++k;
+        record.update([content],flag="lineMsg");
+      } else {
+        if (k==0) {var errMsg = `[append_LineMsg] How comes!?`; reportErrMsg(errMsg);}
+        break;
+      }
+    }
+  }
 }

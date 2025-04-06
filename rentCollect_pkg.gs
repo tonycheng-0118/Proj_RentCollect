@@ -24,6 +24,7 @@ const SheetPropertyName     = SheetHandle.getSheetByName('Property');
 const SheetRptStatusName    = SheetHandle.getSheetByName('RptStatus');
 const SheetRptEventName     = SheetHandle.getSheetByName('RptEvent');
 const SheetRptAnalysisName  = SheetHandle.getSheetByName('RptAnalysis');
+const SheetLineMsgName      = SheetHandle.getSheetByName('LineMsg');
 const SheetREADMEName       = SheetHandle.getSheetByName('README');
 
 const CONST_MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -36,11 +37,12 @@ const CONST_LinePostVacancyWeek = 6;
 const CONST_LinePostOverdueWeek = 6;
 const CONST_LinePostDayRestWeek = 6;
 
-const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport","CFG_NewProxyRecordImportNum"];
+const CFG_Key_arr = ["CFG_BankRecordSearch_FromDateMargin","CFG_BankRecordSearch_ToDateMargin","CFG_ReportArrearMargin","CFG_BankRecordCheck_AmountMargin","CFG_BankRecordCheck_Details","CFG_MonthAccRent_NUM","CFG_ReportEvent_ShowEndContract","CFG_BankRecord_WarnContract","CFG_LinePostToken","CFG_NewRecordImport","CFG_NewProxyRecordImportNum","CFG_LineMsg_FromDate","CFG_LinePost_Enable"];
 var CFG_Val_obj = new Object();
 
 // Line userId
-const USERID_TONY = `Uf45e2cc323ccd4edcb12736d15c6da99`; // to promote this as a array in CFG
+const CONST_LINE_USERID_TONY      = `Uf45e2cc323ccd4edcb12736d15c6da99`; // to promote this as a array in CFG
+const CONST_LINE_USERID_ANGENT_0  = `Uf0ccd827ea24e45c6ede652cd49eb279`;
 
 // Array
 const CONST_CTBC_actWithdrawList = ["現金","中信卡","委代扣綜所稅","信託"]; // A list to collect all of the known withdraw action apart from Tranfer
@@ -59,16 +61,76 @@ var GLB_MiscCost_arr    = new Array();
 var GLB_Property_arr    = new Array();
 var GLB_RptStatus_arr   = new Array();
 var GLB_RptEvent_arr    = new Array();
+var GLB_LineMsg_arr     = new Array();
 
 // var
 var VAR_rptEventItemNo = 0;
 var VAR_CompareBankRecord_arr = new Array();
 var VAR_WarnContract_arr = new Array();
 var VAR_ContractNoList_arr = new Array();
+var VAR_isNewRecordImport = false;
 
 /////////////////////////////////////////
 // Class
 /////////////////////////////////////////
+class itemLineMsg {
+
+  constructor (){
+    this.itemNo           = 0;
+    this.date             = new Date();
+    this.timestamp        = "";
+    this.userId           = ""; 
+    this.userName         = "";
+    this.type             = "";
+    this.content          = "";
+    this.note             = "";
+    this.checkSum         = "";
+    
+    this.itemPack         = null;
+    this.itemPackMaxLen   = 9;
+        
+    // if (this.itemPack.length == this.itemPackMaxLen) {
+    //   this.contractNo             = item[6];
+    //   this.tenantName             = item[7];
+    //   this.validContract          = item[8];
+    // }
+    // else if (this.itemPack.length > this.itemPackMaxLen) {
+    //   if (1) {var errMsg = `[itemUtilBill] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+    // }
+  };
+
+  extract (item) {
+    this.itemNo           = item[0];
+    this.date             = item[1];
+    this.timestamp        = item[2];
+    this.userId           = item[3]; 
+    this.userName         = item[4];
+    this.type             = item[5];
+    this.content          = item[6];
+    this.note             = item[7];
+    this.checkSum         = item[8];
+    
+    this.itemPack         = item;
+  };
+
+  compare (item){
+    var that = new itemLineMsg();
+    that.extract(item);
+    // Logger.log(`Compare\n this: ${this.show()}\n that: ${that.show()}`);
+    if (this.checkSum == that.checkSum) {
+      return true;
+    } else {
+      return false
+    }
+  }
+
+  show(){
+    var text = `itemLineMsg: \n(itemNo=${this.itemNo},date=${this.date},timestamp=${this.timestamp},userId=${this.userId},userName=${this.userName},type=${this.type},content=${this.content},note=${this.note},checkSum=${this.checkSum})`;
+    return text;
+  };
+
+}
+
 class itemProperty {
 
   constructor (item){
@@ -297,30 +359,41 @@ class itemBankRecord {
     this.recordCheck            = item[10];
     this.recordNote             = item[11];
     this.contractOverrid        = item[12];
-    this.contractNo             = null;
-    this.rentProperty           = null;
+    this.contractNo             = item[13];
+    this.rentProperty           = item[14];
+    this.lineMsg                = item[15];
     this.ColPos_RecordCheck     = 11;
     this.ColPos_RecordNote      = 12;
     this.ColPos_ContractNo      = 14;
     this.ColPos_rentProperty    = 15;
+    this.ColPos_lineMsg         = 16;
     
     this.itemPack               = item;
-    this.itemPackMaxLen         = 15;
+    this.itemPackMaxLen         = 16;
 
-    if (this.itemPack.length == this.itemPackMaxLen) {
-      this.contractNo           = item[13];
-      this.rentProperty         = item[14];
-    }
-    else if (this.itemPack.length > this.itemPackMaxLen) {
-      if (1) {var errMsg = `[itemBankRecord] Too much itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+    if (this.itemPack.length != this.itemPackMaxLen) {
+      var errMsg = `[itemBankRecord] Incorrect itemPack.length: ${this.itemPack.length} @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);
     }
   };
 
-  update (upd) {
-    this.contractNo             = upd[0];
-    this.rentProperty           = upd[1];
-    for (var i=0;i<upd.length;i++) this.itemPack.push(upd[i]);
-    // Logger.log(`itemBankRecord update here @ ${this.itemNo}, upd.length: ${upd.length}, item.length: ${this.itemPack.length}`);
+  update (upd, flag="") {
+    if (flag=="lineMsg") {
+      if (upd.length!=1) {var errMsg = `[itemBankRecord] lineMsg can only be updated along. @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+      this.lineMsg                = upd[0];
+      this.itemPack[this.ColPos_lineMsg-1]      = upd[0];
+    } else if (flag=="contractNo_rentProperty") {
+      if (upd.length!=2) {var errMsg = `[itemBankRecord] contractNo and rentProperty can only be updated along. @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+      this.contractNo             = upd[0];
+      this.rentProperty           = upd[1];
+      this.itemPack[this.ColPos_ContractNo-1]   = upd[0];
+      this.itemPack[this.ColPos_rentProperty-1] = upd[1];
+    } else if (flag=="recordCheck") {
+      if (upd.length!=1) {var errMsg = `[itemBankRecord] recordCheck can only be updated along. @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+      this.recordCheck            = upd[0];
+      this.itemPack[this.ColPos_RecordCheck-1]  = upd[0];
+    } else {
+      {var errMsg = `[itemBankRecord] At least one flag for update. @ itemNo: ${this.itemNo}`; reportErrMsg(errMsg);}
+    }
   };
 
   compare (item){

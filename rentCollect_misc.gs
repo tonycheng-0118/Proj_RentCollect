@@ -65,7 +65,7 @@ function reportWarnGenMiscCost(errMsg){
 function rentCollect_debug_print() {
 
   // locate ErrorLog row offset
-  var tf = SheetREADMEName.createTextFinder("ErrorLog");
+  var tf = SheetREADMEName.createTextFinder("ErrorLog").matchEntireCell(true);
   var all = tf.findAll();
   if (all.length > 1 ) {var errMsg = `[rentCollect_debug_print] More then one ErrorLog location!`; reportErrMsg(errMsg);}
   if (all.length == 0) {var errMsg = `[rentCollect_debug_print] No ErrorLog location!`; reportErrMsg(errMsg);}
@@ -134,7 +134,7 @@ function mainCFG(){
   // getCFG
   for (i=0;i<CFG_Key_arr.length;i++){
     var cfg_key = CFG_Key_arr[i];
-    var tf = SheetREADMEName.createTextFinder(cfg_key);
+    var tf = SheetREADMEName.createTextFinder(cfg_key).matchEntireCell(true);
     var all = tf.findAll();
     if (all.length > 1 ) {var errMsg = `[getCFG] ${cfg_key} has more then one CFG location!`; reportErrMsg(errMsg);}
     if (all.length == 0) {var errMsg = `[getCFG] ${cfg_key} does not present!`; reportErrMsg(errMsg);}
@@ -154,31 +154,50 @@ function mainCFG(){
   CONST_TODAY_DATE.setSeconds(0);CONST_TODAY_DATE.setMinutes(0);CONST_TODAY_DATE.setHours(0);
   // to split the content
   VAR_WarnContract_arr = CFG_Val_obj["CFG_BankRecord_WarnContract"].toString().replace(/[\s|\n|\r|\t]/g,"").split(";");
+  // to Global var
+  VAR_isNewRecordImport = CFG_Val_obj["CFG_NewRecordImport"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
+
+  // Info Warn
+  var cond = VAR_isNewRecordImport;
+  if (cond) {var warn = `[mainCFG] CFG_NewRecordImport is enable!`; reportWarnMsg(warn);}
+  else      {var info = `[mainCFG] CFG_NewRecordImport is disable, to bypass the BankRecord import!`; reportInfoMsg(info);}
+
+  var cond = CFG_Val_obj["CFG_LinePost_Enable"].toString().replace(/[\s|\n|\r|\t]/g,"")!="1";
+  if (cond) {var warn = `[mainCFG] CFG_LinePost_Enable is disable!`; reportWarnMsg(warn);}
 }
 
 function doLinePost(msg){
-  const token =CFG_Val_obj["CFG_LinePostToken"].toString().replace(/[\s|\n|\r|\t]/g,"");//'UBcpzSiSgNnvRkoySrODkkjYswDkMjy0dzZ9UBSN9Dr';
+  const token  = CFG_Val_obj["CFG_LinePostToken"].toString().replace(/[\s|\n|\r|\t]/g,"");//'UBcpzSiSgNnvRkoySrODkkjYswDkMjy0dzZ9UBSN9Dr';
+  const enable = CFG_Val_obj["CFG_LinePost_Enable"].toString().replace(/[\s|\n|\r|\t]/g,"")=="1";
 
-  var message = "Proj_RentCollect:\n" + msg; // for 1st new line
+  if (enable) {
+    var message = "Proj_RentCollect:\n" + msg; // for 1st new line
+    var payload = {
+      to: CONST_LINE_USERID_TONY,
+      messages: [{
+        'type': 'text',
+        'text': message
+      }]
+    };
+    var option = {
+      'headers': {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer ' + token
+      },
+      'method': 'post',
+      'payload': JSON.stringify(payload)
+    };
 
-  var payload = {
-    to: USERID_TONY,
-    messages: [{
-      'type': 'text',
-      'text': message
-    }]
-  };
-  var option = {
-    'headers': {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer ' + token
-    },
-    'method': 'post',
-    'payload': JSON.stringify(payload)
-  };
-      
-  UrlFetchApp.fetch(
-    'https://api.line.me/v2/bot/message/push',
-    option
-  );
+    try {
+      UrlFetchApp.fetch(
+        'https://api.line.me/v2/bot/message/push',
+        option
+      );
+    } catch (error) {
+      var errMsg = `[doLinePost] error: ${error.toString()}!`; reportErrMsg(errMsg);
+    }
+  } else {
+    // var warnMsg = `[doLinePost] CFG_LinePost_Enable is disable!`; reportWarnMsg(warnMsg);
+  }
+
 }

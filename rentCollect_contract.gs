@@ -14,8 +14,8 @@ function rentCollect_contract() {
   /////////////////////////////////////////
   // Clear sheet
   /////////////////////////////////////////
-  var record =new itemBankRecord([]);
-  if (SheetBankRecordName.getLastRow()>1) SheetBankRecordName.getRange(1+topRowOfs,record.ColPos_ContractNo,SheetBankRecordName.getLastRow()-topRowOfs,SheetBankRecordName.getLastColumn()).clear();
+  // var record =new itemBankRecord([]);
+  // if (SheetBankRecordName.getLastRow()>1) SheetBankRecordName.getRange(1+topRowOfs,record.ColPos_ContractNo,SheetBankRecordName.getLastRow()-topRowOfs,SheetBankRecordName.getLastColumn()).clear();
   
   /////////////////////////////////////////
   // Update Status of each contract
@@ -204,10 +204,9 @@ function rentCollect_contract() {
       if (match) {
         // accumulate payment and update record
         actual_transfer_payment += record.amount;
-        SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
-        SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
-        var upd = [item.itemNo,item.rentProperty];
-        record.update(upd);
+        // SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
+        // SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
+        record.update([item.itemNo,item.rentProperty],flag="contractNo_rentProperty");
 
         // upd event
         var date    = Utilities.formatDate(record.date, "GMT+8", "yyyy/MM/dd");
@@ -264,6 +263,7 @@ function rentCollect_contract() {
   /////////////////////////////////////////
   for (var i=0;i<GLB_BankRecord_arr.length;i++) {
     var item =new itemBankRecord(GLB_BankRecord_arr[i]);
+    var lineMsg = item.lineMsg.toString().replace(/[\n|\r|\t]/g,";")
     
     // [Warn.1] check amount
     if (item.contractNo != null) {
@@ -288,34 +288,37 @@ function rentCollect_contract() {
           if (Math.abs(value) > margin) {
             if (value > 0) {
               // for UtilBill paste for not warn contract
-              var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate}!`;
+              var warnMsg = `[rentCollect_contract][Warn.1a] BankRecord @ ${item.itemNo} more than rent by ${value}, rate is ${rate.toFixed(2)}!`;
               reportWarnMsg(warnMsg);
 
-              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}\n`;
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${value}\tAuto gen @BankRecord:${item.itemNo}, rate: ${rate.toFixed(2)}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}; lineMsg: ${lineMsg};\n`;
               reportWarnGenUtilBill(warnMsg);
 
               var msg = "Warn.1a";
-              SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+              // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+              item.update([msg],flag="recordCheck");
             } else if (value < 0) {
               // for MiscCost paste for not warn contract
-              var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate}!`;
+              var warnMsg = `[rentCollect_contract][Warn.1b] BankRecord @ ${item.itemNo} less than rent by ${Math.abs(value)}, rate is ${rate.toFixed(2)}!`;
               reportWarnMsg(warnMsg);
 
-              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, record msg: ${item.fromAccountName} , rate: ${rate}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}\n`;
+              var warnMsg = `${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}\t${item.rentProperty}\t${Math.abs(value)}\t2.Sub_Rent\tAuto gen @BankRecord:${item.itemNo}, record msg: ${item.fromAccountName} , rate: ${rate.toFixed(2)}, contractNo: ${item.contractNo}, Deposit: ${contract.deposit}, Rent: ${contract.amount}; ${isContract1stBankRecordNote}; lineMsg: ${lineMsg};\n`;
               reportWarnGenMiscCost(warnMsg);
 
               var msg = "Warn.1b";
-              SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+              // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+              item.update([msg],flag="recordCheck");
             }
           } else {
             // within the margin, ignore it.
           }
         } else {
-          var warnMsg = `[rentCollect_contract][Warn.1x] Contract: ${item.contractNo} has BankRecord @ ${item.itemNo} with amount ${item.amount}!`;
+          var warnMsg = `[rentCollect_contract][Warn.1x] Contract: ${item.contractNo} has BankRecord @ ${item.itemNo} with amount ${item.amount}; lineMsg: ${lineMsg};\n`;
           reportWarnMsg(warnMsg);
 
           var msg = "Warn.1x";
-          SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+          // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+          item.update([msg],flag="recordCheck");
         }
       }
     }
@@ -325,9 +328,10 @@ function rentCollect_contract() {
       if ((item.recordCheck.toString() == "Unkown") || (item.recordCheck.toString() == "Checked")) {
         // skip this unknow or checked bankRecord
       } else {
-        if (1) {var warnMsg = `[rentCollect_contract][Warn.2] BankRecord @ ${item.itemNo} has no defined LN_ContractNo!`; reportWarnMsg(warnMsg);}
+        if (1) {var warnMsg = `[rentCollect_contract][Warn.2] BankRecord @ ${item.itemNo} has no defined LN_ContractNo; lineMsg: ${lineMsg};\n`; reportWarnMsg(warnMsg);}
         var msg = "Warn.2";
-        SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+        // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
+        item.update([msg],flag="recordCheck");
       }
     }
   }
@@ -484,6 +488,15 @@ function rentCollect_contract() {
   // write out
   var item = new itemProperty(GLB_Property_arr[0]);
   SheetPropertyName.getRange(1+topRowOfs,1,GLB_Property_arr.length,item.itemPackMaxLen).setValues(GLB_Property_arr);
+  
+  /////////////////////////////////////////
+  // Done update the SheetBankRecordName, Ok to print out
+  /////////////////////////////////////////
+  var time_start_write_BankRecord = new Date();
+  write_BankRecord();
+  var time_finish_write_BankRecord = new Date();
+  if (1) {var info = `[rentCollect_main] write_BankRecord time_exec(s): ${(time_finish_write_BankRecord.getTime() - time_start_write_BankRecord.getTime()) / 1000}`; reportInfoMsg(info);}
+  
 }
 
 function isContractLegalDateRange (date, contract, isContractOverrid) {
