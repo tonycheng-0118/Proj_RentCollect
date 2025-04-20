@@ -10,12 +10,6 @@ function rentCollect_contract() {
   // Setting
   /////////////////////////////////////////
   const topRowOfs = 1;
-
-  /////////////////////////////////////////
-  // Clear sheet
-  /////////////////////////////////////////
-  // var record =new itemBankRecord([]);
-  // if (SheetBankRecordName.getLastRow()>1) SheetBankRecordName.getRange(1+topRowOfs,record.ColPos_ContractNo,SheetBankRecordName.getLastRow()-topRowOfs,SheetBankRecordName.getLastColumn()).clear();
   
   /////////////////////////////////////////
   // Update Status of each contract
@@ -204,8 +198,6 @@ function rentCollect_contract() {
       if (match) {
         // accumulate payment and update record
         actual_transfer_payment += record.amount;
-        // SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_ContractNo).setValue(item.itemNo);
-        // SheetBankRecordName.getRange(1+topRowOfs+j,record.ColPos_rentProperty).setValue(item.rentProperty);
         record.update([item.itemNo,item.rentProperty],flag="contractNo_rentProperty");
 
         // upd event
@@ -295,7 +287,6 @@ function rentCollect_contract() {
               reportWarnGenUtilBill(warnMsg);
 
               var msg = "Warn.1a";
-              // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
               item.update([msg],flag="recordCheck");
             } else if (value < 0) {
               // for MiscCost paste for not warn contract
@@ -306,7 +297,6 @@ function rentCollect_contract() {
               reportWarnGenMiscCost(warnMsg);
 
               var msg = "Warn.1b";
-              // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
               item.update([msg],flag="recordCheck");
             }
           } else {
@@ -317,7 +307,6 @@ function rentCollect_contract() {
           reportWarnMsg(warnMsg);
 
           var msg = "Warn.1x";
-          // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
           item.update([msg],flag="recordCheck");
         }
       }
@@ -330,7 +319,6 @@ function rentCollect_contract() {
       } else {
         if (1) {var warnMsg = `[rentCollect_contract][Warn.2] BankRecord @ ${item.itemNo} has no defined LN_ContractNo; lineMsg: ${lineMsg};\n`; reportWarnMsg(warnMsg);}
         var msg = "Warn.2";
-        // SheetBankRecordName.getRange(1+topRowOfs+i,record.ColPos_RecordCheck).setValue(msg);
         item.update([msg],flag="recordCheck");
       }
     }

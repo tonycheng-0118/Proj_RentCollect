@@ -1261,7 +1261,7 @@ function rentCollect_parser_LineMsg() {
       rowPos = 2+i; // only update once
       if (1) {var infoMsg = `[rentCollect_parser_LineMsg] LineMsg start parse from row ${rowPos}.`; reportInfoMsg(infoMsg);}
     }
-    if (userId!=CONST_LINE_USERID_ANGENT_0) {var errMsg = `[rentCollect_parser_LineMsg] userID != ${CONST_LINE_USERID_ANGENT_0}}`; reportErrMsg(errMsg);}
+    // if (userId!=CONST_LINE_USERID_ANGENT_0) {var errMsg = `[rentCollect_parser_LineMsg] userID != ${CONST_LINE_USERID_ANGENT_0}}`; reportErrMsg(errMsg);}
   }
 
   // parse item to array
@@ -1316,7 +1316,7 @@ function append_LineMsg() {
         }
       }
     } while (j<GLB_LineMsg_arr.length)
-    Logger.log(`Merged content: ${content}`);
+    // Logger.log(`Merged content: ${content}`);
 
     // Since the date in GLB_BankRecord_arr is in ascending order, ony visit those match date bankRecord
     for (var k=lineMsgRecordNo;k<GLB_BankRecord_arr.length;){

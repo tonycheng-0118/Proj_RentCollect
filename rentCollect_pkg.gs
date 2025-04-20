@@ -81,13 +81,15 @@ class itemLineMsg {
     this.timestamp        = "";
     this.userId           = ""; 
     this.userName         = "";
+    this.groupId          = ""; 
+    this.groupName        = "";
     this.type             = "";
     this.content          = "";
     this.note             = "";
     this.checkSum         = "";
     
     this.itemPack         = null;
-    this.itemPackMaxLen   = 9;
+    this.itemPackMaxLen   = 11;
         
     // if (this.itemPack.length == this.itemPackMaxLen) {
     //   this.contractNo             = item[6];
@@ -105,10 +107,12 @@ class itemLineMsg {
     this.timestamp        = item[2];
     this.userId           = item[3]; 
     this.userName         = item[4];
-    this.type             = item[5];
-    this.content          = item[6];
-    this.note             = item[7];
-    this.checkSum         = item[8];
+    this.groupId          = item[5]; 
+    this.groupName        = item[6];
+    this.type             = item[7];
+    this.content          = item[8];
+    this.note             = item[9];
+    this.checkSum         = item[10];
     
     this.itemPack         = item;
   };
@@ -125,7 +129,7 @@ class itemLineMsg {
   }
 
   show(){
-    var text = `itemLineMsg: \n(itemNo=${this.itemNo},date=${this.date},timestamp=${this.timestamp},userId=${this.userId},userName=${this.userName},type=${this.type},content=${this.content},note=${this.note},checkSum=${this.checkSum})`;
+    var text = `itemLineMsg: \n(itemNo=${this.itemNo},date=${this.date},timestamp=${this.timestamp},userId=${this.userId},userName=${this.userName},groupId=${this.groupId},groupName=${this.groupName},type=${this.type},content=${this.content},note=${this.note},checkSum=${this.checkSum})`;
     return text;
   };
 
