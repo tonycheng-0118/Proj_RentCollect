@@ -1294,6 +1294,7 @@ function rentCollect_parser_LineMsg() {
 
 function append_LineMsg() {
   var lineMsgRecordNo = 0;
+  var CFG_LineMsg_FromDate = Utilities.formatDate(new Date(CFG_Val_obj["CFG_LineMsg_FromDate"].toString()), 'GMT+8', 'yyyy/MM/dd');
   for(var i=0,j=0;i<GLB_LineMsg_arr.length;){
     var item = new itemLineMsg();
     item.extract(GLB_LineMsg_arr[i]);
@@ -1321,13 +1322,15 @@ function append_LineMsg() {
     // Since the date in GLB_BankRecord_arr is in ascending order, ony visit those match date bankRecord
     for (var k=lineMsgRecordNo;k<GLB_BankRecord_arr.length;){
       var record = new itemBankRecord(GLB_BankRecord_arr[k]);
-      var fromDate = new Date(CFG_Val_obj["CFG_LineMsg_FromDate"].toString());
-      if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') < Utilities.formatDate(fromDate, 'GMT+8', 'yyyy/MM/dd')) {
+      if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') < CFG_LineMsg_FromDate) {
+        lineMsgRecordNo = ++k;
+      } else if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') <  Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')) {
         lineMsgRecordNo = ++k;
       } else if (Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd') == Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')) {
-        lineMsgRecordNo = ++k;
         record.update([content],flag="lineMsg");
+        lineMsgRecordNo = ++k;
       } else {
+        Logger.log(`record.date: ${Utilities.formatDate(record.date, 'GMT+8', 'yyyy/MM/dd')}, item.date: ${Utilities.formatDate(item.date, 'GMT+8', 'yyyy/MM/dd')}, item: ${item.show()}`)
         if (k==0) {var errMsg = `[append_LineMsg] How comes!?`; reportErrMsg(errMsg);}
         break;
       }
