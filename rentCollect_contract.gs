@@ -72,11 +72,11 @@ function rentCollect_contract() {
         if (util.rentProperty == itemProc.rentProperty) {
           if (util.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == itemProc.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
             // for manually assign contract No record
-            if (isContractLegalDateRange(new Date(util.date),item,true)) {
+            if (isContractLegalDateRange(new Date(util.date),itemProc,true)) {
               match = true;
             }
           } else if (util.contractOverrid == "") {
-            if (isContractLegalDateRange(new Date(util.date),item,false)) {
+            if (isContractLegalDateRange(new Date(util.date),itemProc,false)) {
               match = true;
             }
           }
@@ -108,11 +108,11 @@ function rentCollect_contract() {
         if (misc.rentProperty == itemProc.rentProperty) {
           if (misc.contractOverrid.toString().replace(/[\s|\n|\r|\t]/g,"") == itemProc.itemNo.toString().replace(/[\s|\n|\r|\t]/g,"")) { 
             // for manually assign contract No record
-            if (isContractLegalDateRange(new Date(misc.date),item,true)) {
+            if (isContractLegalDateRange(new Date(misc.date),itemProc,true)) {
               match = true;
             }
           } else if (misc.contractOverrid == "") {
-            if (isContractLegalDateRange(new Date(misc.date),item,false)) {
+            if (isContractLegalDateRange(new Date(misc.date),itemProc,false)) {
               match = true;
             }
           }
@@ -130,6 +130,10 @@ function rentCollect_contract() {
           var date    = Utilities.formatDate(misc.date, "GMT+8", "yyyy/MM/dd");
           var event   = `4. Misc cost, type = ${misc.type}.`;
           var amount  = -1 * misc.expect_misc();
+
+          if (misc.type == misc.MiscType_Debug) {
+            event += ` ${misc.note}.`;
+          }
 
           if (item.isProxying) {
             // route to proxying contract No

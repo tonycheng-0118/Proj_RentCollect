@@ -1215,6 +1215,14 @@ function rentCollect_parser_proxyRecord_MinSheng35() { // 民生路35號報表
               }
 
               // populate result
+              if (rent!=0){ // for debug only, the rent should come from the BankRecord
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(0)}\t99.Debug\tRent=${rent}, Auto gen debug info:rent @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
+              if (deposit!=0){ // for debug only, the deposit should come from the BankRecord
+                var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(0)}\t99.Debug\tDeposit=${deposit}, Auto gen debug info: deposit @MinSheng sheet:${sheetName.getName()}\n`;
+                reportWarnGenMiscCost(warnMsg);
+              }
               if (proxy_fee_0!=0){ // equalt to 1 month rent
                 var warnMsg = `${Utilities.formatDate(date, 'GMT+8', 'yyyy/MM/dd')}\t${rentProperty}\t${Math.abs(proxy_fee_0)}\t2.Sub_Rent\tAuto gen rent proxy fee @MinSheng sheet:${sheetName.getName()}\n`;
                 reportWarnGenMiscCost(warnMsg);
