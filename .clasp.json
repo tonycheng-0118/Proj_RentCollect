@@ -1,5 +1,8 @@
 {
-  "scriptId": "1Z8aUKJdwbRF52uwpoXxKpLRZFkjxwmUTRwjI1xYhznQ11b3YE2eWIFP8",
+  "Proj_RentCollect_scriptId":        "1Z8aUKJdwbRF52uwpoXxKpLRZFkjxwmUTRwjI1xYhznQ11b3YE2eWIFP8",
+  "Proj_RentCollect_VERIFY_scriptId": "1-X76VJTeAp7JstEKfZzzX2cdQkgI8sIKMeAgP-uEjryS_iaUFxA5nZbu",
+  "scriptId": "1-X76VJTeAp7JstEKfZzzX2cdQkgI8sIKMeAgP-uEjryS_iaUFxA5nZbu",
+
   "rootDir": "",
   "scriptExtensions": [
     ".ts",
