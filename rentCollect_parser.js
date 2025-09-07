@@ -500,85 +500,36 @@ function note_mapping(type, id, date, balance, act, note_in) {
 
 }
 
-function action_mapping(type, id, act_in, withdraw, deposit){
-  // return TransferOut, TransferIn, Withdraw, Deposit type only
+function action_mapping(type, id, act_in, withdraw, deposit) {
+  if (withdraw && deposit) console.error("Withdraw and Deposit happened at the same time!!?");
+  if (!withdraw && !deposit) console.error("Withdraw and Deposit missed!!?");
   
-  var act = act_in.replace(/[\s|\n|\r|\t]/g,"").split("\n");
-  var isWithdraw = withdraw!="";
-  var isDeposit  = deposit!="";
+  const act = act_in.toString().replace(/[\s|\n|\r|\t]/g, "");
 
-  // integrity check
-  if ( isWithdraw &&  isDeposit) console.error("Withdraw and Deposit happened at the same time!!?");
-  if (!isWithdraw && !isDeposit) console.error("Withdraw and Deposit missed!!?");
-  
-  if (type=="CTBC") {
-    // looking for keyword "匯" or "轉"
-    var regExp = new RegExp(".*[匯|轉].*","gi");
-    var match = regExp.exec(act[0]);
-    if (match != null) {
-      if (isWithdraw) return "TransferOut";
-      if (isDeposit)  return "TransferIn";
+  if (type === "CTBC") {
+    if (act.match("匯|轉")) {
+      return withdraw ? "TransferOut" : "TransferIn";
     }
-
-    if (isWithdraw && CONST_CTBC_actWithdrawList.indexOf(act[0])!=-1){
-      return "Withdraw"
-      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    if (withdraw && CONST_CTBC_actWithdrawList.includes(act)) return "Withdraw";
+    if (deposit && CONST_CTBC_actDepositList.includes(act)) return "Deposit";
+  } else if (type === "KTB") {
+    if (act.match("轉帳")) {
+      return withdraw ? "TransferOut" : "TransferIn";
     }
-
-    if (isDeposit && CONST_CTBC_actDepositList.indexOf(act[0])!=-1){
-      return "Deposit"
-      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
+    if (withdraw && CONST_KTB_actList.includes(act)) return "Withdraw";
+    if (deposit && CONST_KTB_actList.includes(act)) return "Deposit";
+  } else if (type === "ESUN") {
+    if (act.match("匯|轉")) {
+      return withdraw ? "TransferOut" : "TransferIn";
     }
-
-    // report error if no condition met
-    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
+    if (act.match("存")) {
+      return withdraw ? "Withdraw" : "Deposit";
+    }
+    return withdraw ? "OtherOut" : "OtherIn";
+  } else {
+    reportErrMsg(`[action_mapping] import format does not support at id: ${id}??`);
   }
-  else if (type=="KTB"){
-    var regExp = new RegExp(".*[轉帳].*","gi");
-    var match = regExp.exec(act[0]);
-    if (match != null) {
-      if (isWithdraw) return "TransferOut";
-      if (isDeposit)  return "TransferIn";
-    }
-
-    if (isWithdraw && CONST_KTB_actList.indexOf(act[0])!=-1){
-      return "Withdraw"
-      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
-    }
-
-    if (isDeposit && CONST_KTB_actList.indexOf(act[0])!=-1){
-      return "Deposit"
-      // Logger.log("HAHA in actWithdrawList: %d, act: %s",actWithdrawList.indexOf(act[0]), act[0]);
-    }
-
-    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
-    return ""
-  }
-  else if (type=="ESUN"){
-    var regExp = new RegExp(".*[匯|轉].*","gi");
-    if (regExp.exec(act[0])!=null) {
-      if (isWithdraw) return "TransferOut";
-      if (isDeposit)  return "TransferIn";
-    }
-
-    var regExp = new RegExp(".*[存].*","gi");
-    if (regExp.exec(act[0])!=null) {
-      if (isWithdraw) return "Withdraw";
-      if (isDeposit ) return "Deposit";
-    }
-    else { // like interest, load, bank adjustment, which is not record of interesting
-      if (isWithdraw) return "OtherOut";
-      if (isDeposit ) return "OtherIn";
-    }
-
-    if (1) {var errMsg = `[action_mapping] Something untracked at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
-    return ""
-  }
-  else {
-    if (1) {var errMsg = `[action_mapping]import format does not support at id: ${id}?? act_in is: ${act_in}, act is: ${act}`; reportErrMsg(errMsg);}
-    return ""
-  }
-
+  return "";
 }
 
 function rentCollect_parser_chkDuplicated() {
