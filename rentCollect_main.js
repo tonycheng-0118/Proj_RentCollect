@@ -39,5 +39,8 @@ function rentCollect_main() {
   reportInfoMsg(`[rentCollect_main] Overall time_exec(s): ${totalExecutionTime}`);
 
   // Log any errors
+  taskStartTime = new Date();
   rentCollect_debug_print();
+  taskEndTime = new Date();
+  Logger.log(`[rentCollect_main] debug_print time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
 }

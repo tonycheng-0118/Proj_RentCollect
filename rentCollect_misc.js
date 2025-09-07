@@ -73,7 +73,8 @@ function rentCollect_debug_print() {
   // for (var i=0;i<all.length;i++) {
   //   Logger.log(`all[${i}].getA1Notation(): ${all[i].getA1Notation()}, all[${i}].getValue(): ${all[i].getValue()}, all[i].getRow(): ${all[i].getRow()}, all[i].getColumn(): ${all[i].getColumn()}`);
   // }
-  
+   
+  // Clear existing logs
   var posRowBase = all[all.length-1].getRow();
   var posColBase = all[all.length-1].getColumn();
   if (SheetREADMEName.getLastRow() > posRowBase) {
