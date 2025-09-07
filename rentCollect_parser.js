@@ -426,6 +426,36 @@ function write_BankRecord() {
   }
 }
 
+function note_mapping(type, id, date, balance, act, note_in) {
+  if (act !== "TransferIn" && act !== "Deposit") {
+    return ["", ""];
+  }
+
+  try {
+    if (type === "CTBC") {
+      const note_tmp = note_in[6].toString().replace(/\s\*\*\s/g, "**").replace(CONST_This_Account_Number, "");
+      const regExp = new RegExp("([0-9]{9}\\*\\*[0-9]{4}[\\*|0-9])", "gi");
+      const fromAccount = regExp.exec(note_tmp)[0];
+      const fromAccountName = note_tmp.replace(regExp, "").replace(/[\s|\n|\r|\t]/g, "");
+      return [fromAccountName, fromAccount];
+    } else if (type === "KTB") {
+      const fromAccount = note_in[7].toString().replace(/[\s|\n|\r|\t]/g,"");
+      const fromAccountName = note_in[6].toString().replace(/[\s|\n|\r|\t]/g,"");
+      return [`${fromAccountName};${fromAccount}`, fromAccount];
+    } else if (type === "ESUN") {
+      const regExp = new RegExp("([0-9]{3}/[0-9]{10}\d*)", "gi");
+      const fromAccount = regExp.exec(note_in[2].toString())?.[0] || "";
+      const fromAccountName = `${note_in[1].toString().replace(/[\s|\n|\r|\t]/g, "")};${note_in[3].toString().replace(/[\s|\n|\r|\t]/g, "")}`;
+      return [fromAccountName, fromAccount];
+    } else {
+      reportErrMsg(`[note_mapping] import format does not support at id: ${id}??`);
+    }
+  } catch (e) {
+    reportErrMsg(`[note_mapping] An error occurred: ${e.toString()}`);
+  }
+  return ["", ""];
+}
+
 function action_mapping(type, id, act_in, withdraw, deposit) {
   if (withdraw && deposit) console.error("Withdraw and Deposit happened at the same time!!?");
   if (!withdraw && !deposit) console.error("Withdraw and Deposit missed!!?");
