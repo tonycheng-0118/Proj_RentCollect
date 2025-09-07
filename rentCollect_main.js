@@ -1,6 +1,6 @@
 function rentCollect_main() {
   
-  //start
+  //start 789
   var time_start = new Date();
   Logger.log(`rentCollect_main start @ ${Utilities.formatDate(time_start, "GMT+8", "HH:mm:ss")}`);
   
