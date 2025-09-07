@@ -1,55 +1,43 @@
 function rentCollect_main() {
-  
-  //start
-  var time_start = new Date();
-  Logger.log(`rentCollect_main start @ ${Utilities.formatDate(time_start, "GMT+8", "HH:mm:ss")}`);
-  
-  // to remove filter from sheet in case of not closing the filter.
-  var time_start_filter = new Date();
+  // Start the timer and log the start time
+  const startTime = new Date();
+  Logger.log(`rentCollect_main start @ ${Utilities.formatDate(startTime, "GMT+8", "HH:mm:ss")}`);
+
+  // Execute and time the removeFilter function
+  let taskStartTime = new Date();
   removeFilter();
-  var time_finish_filter = new Date();
-  if (1) {
-    var info = `[rentCollect_main] removeFilter filter time_exec(s): ${(time_finish_filter.getTime() - time_start_filter.getTime()) / 1000}`; reportInfoMsg(info);
-  }
+  let taskEndTime = new Date();
+  reportInfoMsg(`[rentCollect_main] removeFilter time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
 
-  // top setting
-  var time_start_cfg = new Date();
+  // Execute and time the mainCFG function
+  taskStartTime = new Date();
   mainCFG();
-  var time_finish_cfg = new Date();
-  if (1) {
-    var info = `[rentCollect_main] mainCFG time_exec(s): ${(time_finish_cfg.getTime() - time_start_cfg.getTime()) / 1000}`; reportInfoMsg(info);
-  }
-  
-  // main
-  var time_start_parser = new Date();
+  taskEndTime = new Date();
+  reportInfoMsg(`[rentCollect_main] mainCFG time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
+
+  // Execute and time the rentCollect_parser function
+  taskStartTime = new Date();
   rentCollect_parser();
-  var time_finish_parser = new Date();
-  if (1) {
-    var info = `[rentCollect_main] parser time_exec(s): ${(time_finish_parser.getTime() - time_start_parser.getTime()) / 1000}`; reportInfoMsg(info);
-  }
+  taskEndTime = new Date();
+  reportInfoMsg(`[rentCollect_main] parser time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
 
-  var time_start_contract = new Date();
+  // Execute and time the rentCollect_contract function
+  taskStartTime = new Date();
   rentCollect_contract();
-  var time_finish_contract = new Date();
-  if (1) {
-    var info = `[rentCollect_main] contract time_exec(s): ${(time_finish_contract.getTime() - time_start_contract.getTime()) / 1000}`; reportInfoMsg(info);
-  }
+  taskEndTime = new Date();
+  reportInfoMsg(`[rentCollect_main] contract time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
 
-  var time_start_report = new Date();
+  // Execute and time the rentCollect_report function
+  taskStartTime = new Date();
   rentCollect_report();
-  var time_finish_report = new Date();
-  if (1) {
-    var info = `[rentCollect_main] report time_exec(s): ${(time_finish_report.getTime() - time_start_report.getTime()) / 1000}`; reportInfoMsg(info);
-  }
+  taskEndTime = new Date();
+  reportInfoMsg(`[rentCollect_main] report time_exec(s): ${(taskEndTime.getTime() - taskStartTime.getTime()) / 1000}`);
 
-  // finish
-  var time_exec = (time_finish_report.getTime() - time_start.getTime()) / 1000; // getTime() is ms
-  Logger.log(`rentCollect_main finish @ ${Utilities.formatDate(time_finish_report, "GMT+8", "HH:mm:ss")}, time_exec(s): ${time_exec}`);
-  if (1) {
-    var info = `[rentCollect_main] Overall time_exec(s): ${time_exec}`; reportInfoMsg(info);
-  }
+  // Log the final execution time
+  const totalExecutionTime = (taskEndTime.getTime() - startTime.getTime()) / 1000;
+  Logger.log(`rentCollect_main finish @ ${Utilities.formatDate(taskEndTime, "GMT+8", "HH:mm:ss")}, time_exec(s): ${totalExecutionTime}`);
+  reportInfoMsg(`[rentCollect_main] Overall time_exec(s): ${totalExecutionTime}`);
 
-  // error log
+  // Log any errors
   rentCollect_debug_print();
-
 }
