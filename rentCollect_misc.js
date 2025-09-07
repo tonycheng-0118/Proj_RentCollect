@@ -130,24 +130,58 @@ function rentCollect_debug_print() {
 
 }
 
-function mainCFG(){
-  // getCFG
-  for (i=0;i<CFG_Key_arr.length;i++){
-    var cfg_key = CFG_Key_arr[i];
-    var tf = SheetREADMEName.createTextFinder(cfg_key).matchEntireCell(true);
-    var all = tf.findAll();
-    if (all.length > 1 ) {var errMsg = `[getCFG] ${cfg_key} has more then one CFG location!`; reportErrMsg(errMsg);}
-    if (all.length == 0) {var errMsg = `[getCFG] ${cfg_key} does not present!`; reportErrMsg(errMsg);}
-    var posRowBase = all[all.length-1].getRow();
-    var posColBase = all[all.length-1].getColumn();
-    CFG_Val_obj[cfg_key] = SheetREADMEName.getRange(posRowBase+1,posColBase).getValues();
+function fetchCFGData(){
+  // Use the first key as an anchor to find the start of the configuration table.
+  const anchorKey = CFG_Key_arr[0];
+  const finder = SheetREADMEName.createTextFinder(anchorKey).matchEntireCell(true);
+  const anchorRange = finder.findNext();
+  
+  if (!anchorRange) {
+    reportErrMsg(`[mainCFG] Anchor key "${anchorKey}" not found in sheet.`);
+    return;
   }
   
+  // Determine the start row and column of the configuration table
+  const startRow = anchorRange.getRow();
+  const startCol = anchorRange.getColumn();
+  
+  // Find the dimensions of the continuous table
+  const numCols = CFG_Key_arr.length;
+  // Assumes a 2-column table: Key and Value
+  const numRows = 2;
+  
+  // Read the entire contiguous data table in a single bulk operation.
+  const cfgData = SheetREADMEName.getRange(startRow, startCol, numRows, numCols).getValues();
+
+  // Transpose the data and build the configuration object in memory.
+  // The first row contains keys, the second contains values.
+  const keysRow = cfgData[0];
+  const valuesRow = cfgData[1];
+  Logger.log(`keyRow: ${keysRow}, valuesRow: ${valuesRow}`);
+  
+  const CFG_Val_obj_local = {};
+  keysRow.forEach((key, index) => {
+    // Check if the key from the sheet is in our expected list.
+    if (CFG_Key_arr.includes(key)) {
+      CFG_Val_obj_local[key] = valuesRow[index];
+    }
+  });
+
+  // Assign to the global variable
+  CFG_Val_obj = CFG_Val_obj_local;
+  
+  // Display the CFG table key-value
   Object.keys(CFG_Val_obj).forEach (
     function(key) {
       Logger.log(`CFG: key:${key}, value:${CFG_Val_obj[key]}`);
     }
   )
+}
+
+function mainCFG(){
+  
+  // fetch the CFG data from sheet
+  fetchCFGData();
 
   // to normalize CFG
   // set CONST
