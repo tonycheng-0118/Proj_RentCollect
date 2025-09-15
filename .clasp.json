@@ -5,7 +5,6 @@
 
   "rootDir": "",
   "scriptExtensions": [
-    ".ts",
     ".js",
     ".gs"
   ],
