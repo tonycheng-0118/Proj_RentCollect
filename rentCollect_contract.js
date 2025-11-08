@@ -194,8 +194,8 @@ function rentCollect_contract() {
               }
             }
           }
-          else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo??`; reportErrMsg(errMsg);}
-          else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty??`; reportErrMsg(errMsg);}
+          else if (record.contractNo == item.itemNo) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap contractNo?? \nitem.show():${item.show()} \nrecord.show():${record.show()}`; reportErrMsg(errMsg);}
+          else if (record.rentProperty == item.rentProperty) {var errMsg = `[rentCollect_contract] ContractNo: ${item.itemNo} How come to overlap rentProperty?? \nitem.show():${item.show()} \nrecord.show():${record.show()}`; reportErrMsg(errMsg);}
         }
       }
 
